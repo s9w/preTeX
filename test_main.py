@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # import lpp
 from pretex.pretex import *
 
