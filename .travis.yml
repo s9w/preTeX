@@ -12,3 +12,5 @@ script:
   py.test --cov pretex/pretex.py
 after_success:
   coveralls
+notifications:
+  email: false
