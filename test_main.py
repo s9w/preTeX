@@ -27,3 +27,7 @@ def test_re_int_sum():
 
 def test_frac():
     assert process_string(r"foo $\frac a+b c*d x$") == r"foo $\frac{a+b}{c*d} x$"
+    assert process_string(r"foo $\frac{a+b}{c*d} x$") == r"foo $\frac{a+b}{c*d} x$"
+
+def test_enco():
+    assert process_string(r"äüöé $äüöé\frac a+b c*d x$") == r"äüöé $äüöé\frac{a+b}{c*d} x$"
