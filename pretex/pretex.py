@@ -60,7 +60,7 @@ def repl_math(match):
     for name in ["dot_special", "dot_normal", "int_sum", "frac"]:
         # noinspection PyTypeChecker
         match_content, trafo_count[name] = re.subn(pattern=transformations[name]['re'], repl=transformations[name]['repl'], string=match_content)
-    print( "replacements in {s}: {count}".format(s=match_content, count=str(trafo_count)) )
+    print("replacements in {s}: {count}".format(s=match_content, count=str(trafo_count)))
     return match_content
 
 
@@ -75,19 +75,14 @@ def process_string(string_original):
 
 
 def parse_filenames():
-    print("helloes")
     def file_sanitizer(s):
         if "." not in s:
             raise argparse.ArgumentTypeError("String '{s}' does not match required format".format(s=s))
         return s
-    print("helloes2")
     parser = argparse.ArgumentParser()
     parser.add_argument("input_filename", type=file_sanitizer, help="pyth to file input")  # non-optional
     parser.add_argument("-o", "--output", dest="output_filename", type=file_sanitizer, help="output file")  # optional
-    print("helloes")
     args = parser.parse_args()
-    print("helloesn")
-
 
     if args.output_filename:
         output_filename = args.output_filename
