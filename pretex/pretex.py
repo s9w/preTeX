@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
+import sys
 import argparse
 
 re_dot_special = re.compile(r"""
@@ -63,7 +64,7 @@ def repl_math(match):
         # noinspection PyTypeChecker
         match_content, trafo_count[name] = re.subn(pattern=transformations[name]['re'],
                                                    repl=transformations[name]['repl'], string=match_content)
-    print("replacements in {s}: {count}".format(s=match_content, count=str(trafo_count)))
+    # print("replacements in {s}: {count}".format(s=match_content, count=str(trafo_count)))
     return match_content
 
 
@@ -77,7 +78,7 @@ def process_string(string_original):
     return string_transformed
 
 
-def parse_filenames():
+def parse_filenames(parameters):
     def filename_sanitizer(filename):
         if "." not in filename:
             raise argparse.ArgumentTypeError("String '{s}' does not match required format".format(s=filename))
@@ -86,7 +87,7 @@ def parse_filenames():
     parser = argparse.ArgumentParser()
     parser.add_argument("input_filename", type=filename_sanitizer, help="pyth to file input")  # non-optional
     parser.add_argument("-o", "--output", dest="output_filename", type=filename_sanitizer, help="output file")  # optional
-    args = parser.parse_args()
+    args = parser.parse_args(parameters)
 
     if args.output_filename:
         output_filename = args.output_filename
@@ -100,7 +101,7 @@ def parse_filenames():
 
 
 def main():
-    input_filename, output_filename = parse_filenames()
+    input_filename, output_filename = parse_filenames(parameters=sys.argv[1:])
     with open(input_filename, 'r', encoding='utf-8') as file_read:
         string_original = file_read.read()
 

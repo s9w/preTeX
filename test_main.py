@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from pretex.pretex import process_string
+import pytest
+from pretex.pretex import process_string, parse_filenames
 
 
 def test_re_ddot_compl():
@@ -32,3 +33,13 @@ def test_frac():
 
 def test_enco():
     assert process_string(r"äüöé $äüöé\frac a+b c*d x$") == r"äüöé $äüöé\frac{a+b}{c*d} x$"
+
+def test_parse_filenames():
+    with pytest.raises(SystemExit):
+        parse_filenames([])
+    with pytest.raises(SystemExit):
+        parse_filenames(["test"])
+    with pytest.raises(ValueError):
+        parse_filenames(["test.tex", "-o", "test.tex"])
+    assert parse_filenames(["test.tex", "-o", "test2.tex"]) == ("test.tex", "test2.tex")
+    assert parse_filenames(["test.tex"]) == ("test.tex", "test_t.tex")
