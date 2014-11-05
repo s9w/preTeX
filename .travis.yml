@@ -5,4 +5,9 @@ python:
   - "3.2"
   - "3.3"
   - "3.4"
-script: py.test
+install:
+  - pip install coveralls
+script:
+  py.test --cov pretex/pretex.py
+after_success:
+  coveralls
