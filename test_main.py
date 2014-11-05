@@ -1,5 +1,5 @@
 # import lpp
-from lpp.lpp import *
+from pretex.pretex import *
 
 
 def test_re_ddot_compl():
