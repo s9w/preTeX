@@ -1,29 +1,35 @@
-# lpp
-A small python LaTeX preprocessor to keep you sane while writing LaTeX math. It allows you to write LaTeX math faster and in a more concise way. Typical example would be:
+# preTeX
+
+preTeX is a small Python LaTeX preprocessor, designed to make LaTeX syntax more expressive and thereby the writing process easier. Since the most important part about LaTeX is math, and the other parts are mostly optional thanks to tools like Pandoc, the focus is on math environments. Example:
 
 ```latex
-in:  The limit $\sum_i=0 ^ N+1 q_i.. p. \frac a+b x^2-1$
+ in: The limit $\sum_i=0 ^ N+1 q_i.. p. \frac a+b x^2-1$
 out: The limit $\sum_{i=0}^{N+1} \ddot{q_i} \dot{p} \frac{a+b}{x^2-1}$
 ```
 
-All following examples only work in inline math mode!
+This is not intended to replace LaTeX macros (newcommand etc), but rather enable things that are impossible or very tedious to do otherwise.
 
-## dotting with `\dot`, `\ddot`
-Makes writing time derivations much easier. Instead of writing `$\dot{a}$`, you can just write `$a..$`. Same for `\ddot`. The expression must be limited on the left side by one of: " ", "(", "{" or the beginning of the math environment. Analog the trailing delimiter, plus ",". Examples:
+## Status/Roadmap
+- Right now it only works in inline math, so not in `align` etc. Will definitely change
+- Planning to select transformations either over a config file, or cmd parameters
+
+New ideas are very welcome!
+
+## Syntax
+### dotting with `\dot`, `\ddot`
+Makes writing time derivations much easier. Instead of writing `\dot{a}`, you can just write `a.`. Same for `\ddot`.  The expression must be limited on the left side by one of: " ", "(", "{" or the beginning of the math environment. Analog the trailing delimiter, plus ",". Examples:
+
 ```latex
-a x. b % -> a \dot{x} b
-a q_i.. % b -> a \ddot{q_i} b
-L=L(f.., q., t) % -> L=L(\ddot{f}, \dot{q}, t)
+foo x. bar % -> foo \dot{x} bar
+foo q_i.. bar % -> foo \ddot{q_i} bar
+foo \phi. bar % -> foo \dot{\phi} bar
+foo \vec x. bar % -> foo \dot{\vec x} bar
+foo \vec{abc}. bar % -> foo \dot{\vec{abc}} bar
 ```
 
-Three common special cases which are processed before that:
-```latex
-\phi.. % -> \ddot{\phi}
-\vec x.. % -> \ddot{\vec x}
-\vec{abc}.. % -> \ddot{abc}
-```
+The regular expression at the heart has been carefully crafted and tested, but when in doubt, seperate the inner components with spaces.
 
-## Easier limits for `\sum` and `\int`
+## Easier limits for `\sum`, `\int` and friends
 Instead of `\int_{down}^{up}`, just leave the braces and delimit everything with spaces. So:
 ```latex
 \sum _ i=1 ^ e^2+4 % -> \sum_{i=1}^{e^2+4}
@@ -31,3 +37,6 @@ Instead of `\int_{down}^{up}`, just leave the braces and delimit everything with
 
 ## `\frac` without braces
 replace the curly braces by spaces
+```latex
+foo \frac a+b c*d bar -> foo \frac{a+b}{c*d} bar
+```
