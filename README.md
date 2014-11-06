@@ -1,6 +1,5 @@
 [![Build Status](https://travis-ci.org/s9w/preTeX.svg?branch=master)](https://travis-ci.org/s9w/preTeX)
 [![Coverage Status](https://coveralls.io/repos/s9w/preTeX/badge.png?branch=master)](https://coveralls.io/r/s9w/preTeX?branch=master) 
-[![Code Health](https://landscape.io/github/s9w/preTeX/master/landscape.png)](https://landscape.io/github/s9w/preTeX/master)
 
 # preTeX
 

@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import re
 import sys
 import argparse
+import io
 
 re_dot_special = re.compile(r"""
 (?P<pre>^|\ |\(|\{)
@@ -69,7 +71,7 @@ def repl_math(match):
 
 
 def wrap_in_math(match):
-    return "${new_expr}$".format(new_expr=repl_math(match))
+    return r"${new_expr}$".format(new_expr=repl_math(match))
 
 
 def process_string(string_original):
@@ -102,12 +104,12 @@ def parse_filenames(parameters):
 
 def main():
     input_filename, output_filename = parse_filenames(parameters=sys.argv[1:])
-    with open(input_filename, 'r', encoding='utf-8') as file_read:
+    with io.open(input_filename, 'r', encoding='utf-8') as file_read:
         string_original = file_read.read()
 
     string_transformed = process_string(string_original)
 
-    with open(output_filename, 'w', encoding='utf-8') as file_out:
+    with io.open(output_filename, 'w', encoding='utf-8') as file_out:
         file_out.write(string_transformed)
 
 

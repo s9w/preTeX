@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import pytest
-from pretex.pretex import process_string, parse_filenames
+import sys
+import os
+import io
+from pretex.pretex import process_string, parse_filenames, main
 
 
 def test_re_ddot_compl():
@@ -33,6 +37,33 @@ def test_frac():
 
 def test_enco():
     assert process_string(r"äüöé $äüöé\frac a+b c*d x$") == r"äüöé $äüöé\frac{a+b}{c*d} x$"
+
+
+def test_main(monkeypatch):
+    def silent_remove(filename):
+        try:
+            os.remove(filename)
+        except OSError:
+            pass
+
+    # write test file
+    with io.open("test.tex", 'w', encoding='utf-8') as file_out:
+        file_out.write(r"$\frac a b$")
+
+    monkeypatch.setattr(sys, 'argv', ['xxx', 'test.tex'])
+    main()
+    with io.open("test_t.tex", 'r', encoding='utf-8') as file_read:
+        test_file_content = file_read.read()
+    assert test_file_content == r"$\frac{a}{b}$"
+
+    # cleanup
+    silent_remove("test.tex")
+    silent_remove("test_t.tex")
+
+    monkeypatch.setattr(sys, 'argv', ['xxx', 'testtex'])
+    with pytest.raises(SystemExit):
+        main()
+
 
 def test_parse_filenames():
     with pytest.raises(SystemExit):
