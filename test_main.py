@@ -35,31 +35,30 @@ def test_frac():
     assert process_string(r"foo $\frac{a+b}{c*d} x$") == r"foo $\frac{a+b}{c*d} x$"
 
 
-def test_enco():
+def test_unicode():
     assert process_string(r"äüöé $äüöé\frac a+b c*d x$") == r"äüöé $äüöé\frac{a+b}{c*d} x$"
 
-
-def test_main(monkeypatch):
+@pytest.fixture(scope="module")
+def mock_testfile(request):
     def silent_remove(filename):
         try:
             os.remove(filename)
         except OSError:
             pass
-
-    # write test file
     with io.open("test.tex", 'w', encoding='utf-8') as file_out:
         file_out.write(r"$\frac a b$")
+    def cleanup():
+        print ("teardown smtp")
+        silent_remove("test.tex")
+        silent_remove("test_t.tex")
+    request.addfinalizer(cleanup)
 
-    # testing
+def test_main(monkeypatch, mock_testfile):
     monkeypatch.setattr(sys, 'argv', ['xxx', 'test.tex'])
     main()
     with io.open("test_t.tex", 'r', encoding='utf-8') as file_read:
         test_file_content = file_read.read()
     assert test_file_content == r"$\frac{a}{b}$"
-
-    # cleanup
-    silent_remove("test.tex")
-    silent_remove("test_t.tex")
 
     monkeypatch.setattr(sys, 'argv', ['xxx', 'testtex'])
     with pytest.raises(SystemExit):
