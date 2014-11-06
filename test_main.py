@@ -50,6 +50,7 @@ def test_main(monkeypatch):
     with io.open("test.tex", 'w', encoding='utf-8') as file_out:
         file_out.write(r"$\frac a b$")
 
+    # testing
     monkeypatch.setattr(sys, 'argv', ['xxx', 'test.tex'])
     main()
     with io.open("test_t.tex", 'r', encoding='utf-8') as file_read:

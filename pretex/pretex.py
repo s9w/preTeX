@@ -6,20 +6,20 @@ import argparse
 import io
 
 re_dot_special = re.compile(r"""
-(?P<pre>^|\ |\(|\{)
+(?P<before>^|\ |\(|\{)
 (?P<content>
 \\\w+?|             #\word.. b
 \\vec\ \w|          #\vec p.. b
 \\vec\{[^\$\{\}]+\} #\vec{abc}.. b. no nested {} because that's impossible in regex
 )
-(?P<type>\.|\.\.)
+(?P<dot_type>\.|\.\.)
 (?=$|\ |,|\)|\})
 """, re.VERBOSE)
 
 re_dot_normal = re.compile(r"""
-(?P<pre>^|\ |\(|\{)
+(?P<before>^|\ |\(|\{)
 (?P<content>\w+?)
-(?P<type>\.|\.\.)
+(?P<dot_type>\.|\.\.)
 (?=$|\ |,|\)|\})
 """, re.VERBOSE)
 
@@ -43,12 +43,9 @@ re_frac = re.compile(r"""
 
 
 def repl_dots(matchobj):
-    if matchobj.group('type') == '..':
-        begin = r"\ddot{"
-    else:
-        begin = r"\dot{"
-    return "{before}{beginning}{content}}}".format(before=matchobj.group('pre'),
-                                                   beginning=begin, content=matchobj.group('content'))
+    return "{before}{command}{{{content}}}".format(before=matchobj.group('before'),
+                                                   command=r"\dot" if matchobj.group('dot_type') == "." else r"\ddot",
+                                                   content=matchobj.group('content'))
 
 
 def repl_math(match):
@@ -87,8 +84,8 @@ def parse_filenames(parameters):
         return filename
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("input_filename", type=filename_sanitizer, help="pyth to file input")  # non-optional
-    parser.add_argument("-o", "--output", dest="output_filename", type=filename_sanitizer, help="output file")  # optional
+    parser.add_argument("input_filename", type=filename_sanitizer, help="pyth to file input")
+    parser.add_argument("-o", "--output", dest="output_filename", type=filename_sanitizer, help="output file")
     args = parser.parse_args(parameters)
 
     if args.output_filename:
