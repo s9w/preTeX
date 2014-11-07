@@ -18,7 +18,7 @@ python pretex.py thesis.tex -o thesis_output.tex
 ```
 
 ## Status/Roadmap
-- Right now it only works in inline math, so not in `align` etc. Will definitely change
+- ~~Right now it only works in inline math, so not in environments like `align` etc. Will definitely change~~. Done!
 - Planning to select transformations either over a config file, or cmd parameters
 
 New ideas are very welcome!
