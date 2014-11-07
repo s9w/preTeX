@@ -3,7 +3,7 @@
 
 # preTeX
 
-preTeX is a small Python LaTeX preprocessor, designed to make LaTeX syntax more expressive and thereby the writing process easier. It consists of a number of "transformations", which are really Regex-powered replacements. Since the most important part about LaTeX is math (and the other parts are mostly optional these days thanks to tools like Pandoc), that's where all transformations are done. Example:
+preTeX is a small Python (2 and 3) LaTeX preprocessor, designed to make LaTeX syntax more expressive and thereby the writing process faster and the code more readable. It consists of a number of "transformations", which are really Regex-powered replacements. It's focused on math, since for the rest the is the most excellent Pandoc. Example:
 
 ```latex
  in: The limit $\sum_i=0 ^ N+1 q_i.. p. \frac a+b x^2-1$
@@ -25,7 +25,7 @@ New ideas are very welcome!
 
 ## Syntax
 ### Dotting with `\dot`, `\ddot`
-Makes writing time derivations much easier. Instead of writing `\dot{a}`, you can just write `a.`. Same for `\ddot`.  The expression must be limited on the left side by one of: " ", "(", "{" or the beginning of the math environment. Analog the trailing delimiter, plus ",". Examples:
+Makes writing time derivations much easier. Instead of writing `\dot{a}`, you can just write `a.`. Same for `\ddot`. Examples:
 
 ```latex
 foo x. bar -> foo \dot{x} bar
@@ -35,18 +35,25 @@ foo \vec x. bar -> foo \dot{\vec x} bar
 foo \vec{abc}. bar -> foo \dot{\vec{abc}} bar
 ```
 
-The regular expression at the heart of this has been carefully crafted and tested. But as usuall with regex, explaining is a very difficult thing. Rules of thumb:
+The regular expression at the heart of this has been carefully crafted and tested. But as usual with regex, explaining is a very difficult thing. Rules of thumb:
 - Seperate the inner components with spaces
 - Can start and end at reasonable delimiters (braces, spaces, beginnings/ends)
 
-## Easier limits for `\sum`, `\int` and friends
+### Easier limits for `\sum`, `\int` and friends
 Instead of `\int_{down}^{up}`, just leave the braces and delimit everything with spaces. So:
 ```latex
 \sum _ i=1 ^ e^2+4 -> \sum_{i=1}^{e^2+4}
 ```
 
-## `\frac` without braces
-replace the curly braces by spaces
+This works for `sum`, `prod`, `int`, `iint`, `iiint`, `idotsint`, `oint`.
+
+### `\frac` without braces
+Instead of writing \frac{}{}, you can just use (an arbitrary amout of) spaces
 ```latex
 foo \frac a+b c*d bar -> foo \frac{a+b}{c*d} bar
 ```
+
+## Limitations
+Parsing LaTeX is difficult. Because of a lack of good Python LaTeX parsers, preTeX works with regular Expressions. But since LaTeX itself is not a regular language, this can always just be an approximation. Especially when using macros or escaped math delimiters in math mode, it's possible to outsmart preTeX.
+
+ 
