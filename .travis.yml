@@ -8,8 +8,9 @@ python:
 install:
   - "pip install coveralls"
   - "pip install pytest-cov"
+  - "python setup.py develop"
 script:
-  py.test --cov pretex/pretex.py
+  py.test --cov tests/test_main.py
 after_success:
   coveralls
 notifications:
