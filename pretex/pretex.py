@@ -74,8 +74,20 @@ re_braket = re.compile(r"""
 )>
 """, re.VERBOSE)
 
+re_align = re.compile(r"""
+(?:
+(?P<pre>^|\n)
+(?P<before>[^\n=]+?)
+(?:(?P<bad1>&=)|=)
+(?P<after>[^\n=]+?(?:\\\\\ *|\ *$)) #can end with \\ or end of string
+|
+(?:^|\n)
+(?P<bad2>[^\n=]+?=[^\n=]+?=)
+)
+""", re.VERBOSE)
 
-def transform_math(math_string, excluded_commands=None):
+
+def transform_math(math_string, excluded_commands=None, env_type=None):
     def repl_dots(matchobj):
         return "{before}{command}{{{content}}}".format(before=matchobj.group('before'),
                                                        command=r"\dot" if matchobj.group(
@@ -97,6 +109,19 @@ def transform_math(math_string, excluded_commands=None):
     for name, pattern, repl in transformations:
         if name not in excluded_commands:
             math_string, trafo_count[name] = re.subn(pattern, repl, math_string)
+
+    # align auto &= check
+    if "align" == env_type and "auto_align" not in excluded_commands:
+        print("almost. string following")
+        print(math_string)
+        go_nogo = True
+        alll = re.finditer(re_align, math_string)
+        for i, x in enumerate(alll):
+            print(i, x.groupdict())
+            if any([x.group("bad1"), x.group("bad2")]):
+                go_nogo = False
+        if go_nogo is True:
+            math_string = re.sub(re_align, r"\g<pre>\g<before>&=\g<after>", math_string)
     # print("replacements in {s}: {count}".format(s=match_content, count=str(trafo_count)))
     return math_string
 
@@ -106,7 +131,7 @@ def replace_math_outer(math_outer_old, excluded_commands=None):
         return "{env_opening}{dm}{transformed}{env_closing}".format(
             dm="\displaystyle " if match_obj.group("prefix") == "d" else "",
             env_opening=match_obj.group("env_opening"),
-            transformed=transform_math(math_string=match_obj.group("env_content"), excluded_commands=excluded_commands),
+            transformed=transform_math(math_string=match_obj.group("env_content"), excluded_commands=excluded_commands, env_type=match_obj.group("env_name")),
             env_closing=match_obj.group("env_closing")
         )
 

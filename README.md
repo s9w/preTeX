@@ -19,10 +19,7 @@ python pretex.py thesis.tex --skip limits --skip cdot
 ```
 
 ## Transformations
-Overview:
-
-<style>
-</style>
+Overview, but more below the table.
 
 name  | input | output | notes
 ------------- | -----|--------|---
@@ -34,6 +31,19 @@ dot | `x..` | `\ddot{x}` | see below for more info
 limits | `\sum_i=1 ^ 1+1` | `\sum_{i=1}^{1+1}` | see below for more info
 displaymath | `d$x^2$` | `$\displaymath x^2$` | see below for more info
 frac | `\frac a+b c*d` | `\frac{a+b}{c*d}` | see below for more info
+
+### auto_align
+In an `align` math environment when there is
+1) Only one "=" on every line and
+2) None of them is aligned by "&="
+Then they all get auto-aligned by replacing the `=` with `&=`
+
+```
+\begin{align}   ->    \begin{align}
+  a = b \\               a &= b \\
+  x = y                  x &= y
+\end{align}            \end{align}
+```
 
 ### dot
 Makes writing time derivations much easier. Instead of writing `\dot{a}`, you can just write `a.`. Same for `\ddot`. Works more some more complex structures, too. Examples:
