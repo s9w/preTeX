@@ -34,6 +34,7 @@ frac | `\frac a+b c*d` | `\frac{a+b}{c*d}` | see below for more info
 
 ### auto_align
 In an `align` math environment when there is
+
 1. Only one "=" on every line and
 2. None of them is aligned by "&="
 Then they all get auto-aligned by replacing the `=` with `&=`
