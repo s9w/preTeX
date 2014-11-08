@@ -46,6 +46,10 @@ re_cdot = re.compile(r"""
 (?P<before>.)(?<!\^)\*(?P<after>.)
 """, re.VERBOSE)
 
+re_dots = re.compile(r"""
+(?P<before>[^\.])\.\.\.(?P<after>[^\.])
+""", re.VERBOSE)
+
 
 def transform_math(math_string):
     def repl_dots(matchobj):
@@ -59,7 +63,8 @@ def transform_math(math_string):
                        ("dot_normal", re_dot_normal, repl_dots),
                        ("int_sum", re_int_sum, r"\g<symbol>_{\2}^{\3}"),
                        ("frac", re_frac, r"{\g<nom>}{\g<denom>}"),
-                       ("cdot", re_cdot, r"\g<before>\cdot \g<after>")]
+                       ("cdot", re_cdot, r"\g<before>\cdot \g<after>"),
+                       ("dots", re_dots, r"\g<before>\dots \g<after>")]
     for name, pattern, repl in transformations:
         math_string, trafo_count[name] = re.subn(pattern, repl, math_string)
     # print("replacements in {s}: {count}".format(s=match_content, count=str(trafo_count)))

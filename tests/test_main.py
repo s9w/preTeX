@@ -47,6 +47,11 @@ def test_cdot():
     assert pretex.replace_math_outer(r"foo $ bar a^*$") == r"foo $ bar a^*$"
 
 
+def test_dots():
+    assert pretex.replace_math_outer(r"foo $ bar a, b, ..., n$") == r"foo $ bar a, b, \dots , n$"
+    assert pretex.replace_math_outer(r"foo $ bar a..., b, ..., n$") == r"foo $ bar a\dots , b, \dots , n$"
+
+
 def test_unicode():
     assert pretex.replace_math_outer(r"äüöé $äüöé\frac a+b c+d x$") == r"äüöé $äüöé\frac{a+b}{c+d} x$"
 
