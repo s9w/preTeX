@@ -18,13 +18,7 @@ python pretex.py thesis.tex -o thesis_output.tex
 python pretex.py thesis.tex --skip limits --skip cdot
 ```
 
-## Status/Roadmap
-- ~~Right now it only works in inline math, so not in environments like `align` etc. Will definitely change~~. Done!
-- Planning to select transformations either over a config file, or cmd parameters
-
-New ideas are very welcome!
-
-## Syntax
+## Transformations
 ### Dotting with `\dot`, `\ddot`
 Makes writing time derivations much easier. Instead of writing `\dot{a}`, you can just write `a.`. Same for `\ddot`. Examples:
 
@@ -47,6 +41,9 @@ Instead of `\int_{down}^{up}`, just leave the braces and delimit everything with
 ```
 
 This works for `sum`, `prod`, `int`, `iint`, `iiint`, `idotsint`, `oint`.
+
+### easy `\displaymath` switch
+instead of writing $\displaymath x^2$`, just write `d$x^2$`. So a single d before inline math makes it set in displaymath.
 
 ### `\frac` without braces
 Instead of writing \frac{}{}, you can just use (an arbitrary amout of) spaces
