@@ -34,8 +34,8 @@ frac | `\frac a+b c*d` | `\frac{a+b}{c*d}` | see below for more info
 
 ### auto_align
 In an `align` math environment when there is
-1) Only one "=" on every line and
-2) None of them is aligned by "&="
+1. Only one "=" on every line and
+2. None of them is aligned by "&="
 Then they all get auto-aligned by replacing the `=` with `&=`
 
 ```
@@ -46,7 +46,7 @@ Then they all get auto-aligned by replacing the `=` with `&=`
 ```
 
 ### dot
-Makes writing time derivations much easier. Instead of writing `\dot{a}`, you can just write `a.`. Same for `\ddot`. Works more some more complex structures, too. Examples:
+Makes writing time derivations much easier. Instead of writing `\dot{a}`, you can just write `a.`. Same for `\ddot`. Works for some more complex structures, too. Examples:
 
 ```latex
 foo x. bar -> foo \dot{x} bar
@@ -57,22 +57,20 @@ foo \vec{abc}. bar -> foo \dot{\vec{abc}} bar
 ```
 
 The regular expression at the heart of this has been carefully crafted and tested. But as usual with regex, explaining is a very difficult thing. Rules of thumb:
-- Seperate the inner components with spaces
+- Separate the inner components with spaces
 - Can start and end at reasonable delimiters (braces, spaces, beginnings/ends)
 
 ### limits
-Instead of `\int_{down}^{up}`, just leave the braces and delimit everything with spaces. Works with or without a following `\limits`
+Instead of `\int_{down}^{up}`, just leave the braces and delimit everything with spaces. Works for `sum`, `prod`, `int`, `iint`, `iiint`, `idotsint`, `oint` - with or without a following `\limits`.
 ```latex
 \sum _ i=1 ^ e^2+4 -> \sum_{i=1}^{e^2+4}
 ```
-
-This works for `sum`, `prod`, `int`, `iint`, `iiint`, `idotsint`, `oint`.
 
 ### Easy `\displaymath` switch
 Instead of writing `$\displaymath x^2$`, just write `d$x^2$`. So a single d before inline math makes it set in displaymath. Note that this is technically the only transformation that works outside of math mode
 
 ### frac
-Instead of writing `\frac{}{}`, you can just use (an arbitrary amout of) spaces
+Instead of writing `\frac{}{}`, you can just use spaces as delimiters
 ```latex
 foo \frac a+b c*d bar -> foo \frac{a+b}{c*d} bar
 ```

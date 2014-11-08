@@ -54,16 +54,6 @@ re_arrow = re.compile(r"""
 (\ ->\ )
 """, re.VERBOSE)
 
-# re_braket_separate = re.compile(r"""
-# <
-# (?P<bra_content>[^\|<>]+)
-# \|
-# (?P<middle_content>[^\|<>]+)
-# \|
-# (?P<ket_content>[^\|<>]+)
-# >
-# """, re.VERBOSE)
-
 re_braket = re.compile(r"""
 <(
 [^\|<>]+
@@ -118,16 +108,16 @@ def replace_math_outer(math_outer_old, excluded_commands=None):
         )
 
     re_extract_math = re.compile(r"""
-(?P<prefix>(?<=\ )d|)
-(?P<env_opening>
-  \$|
-  \\begin\ *?{(?P<env_name>(?:equation|align|eqnarray|gather|flalign|multiline|alignat)\*?)}
-)
-(?P<env_content>[^\$]+?)
-(?P<env_closing>
-  \$|
-  \\end\ *?{(?P=env_name)}
-)
+        (?P<prefix>(?<=\ )d|)
+        (?P<env_opening>
+          \$|
+          \\begin\ *?{(?P<env_name>(?:equation|align|eqnarray|gather|flalign|multiline|alignat)\*?)}
+        )
+        (?P<env_content>[^\$]+?)
+        (?P<env_closing>
+          \$|
+          \\end\ *?{(?P=env_name)}
+        )
         """, re.VERBOSE)
 
     string_new = re.sub(re_extract_math, repl=replace_math_inner, string=math_outer_old)
