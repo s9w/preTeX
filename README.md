@@ -19,8 +19,24 @@ python pretex.py thesis.tex --skip limits --skip cdot
 ```
 
 ## Transformations
-### Dotting with `\dot`, `\ddot`
-Makes writing time derivations much easier. Instead of writing `\dot{a}`, you can just write `a.`. Same for `\ddot`. Examples:
+Overview:
+
+<style>
+</style>
+
+name  | input | output | notes
+------------- | -----|--------|---
+arrow  | `a -> b` | `a \to b`
+cdot  | `a*b` | `a\cdot b` | Works anywhere in math except for the case of `a^*` to prevent wrongful use in complex conjugation
+braket | `<a|b|c>` | `\braket{a|b|c}` | Does require the [braket](http://mirror.selfnet.de/tex-archive/macros/latex/contrib/braket/braket.pdf) package of course
+dots | `1, 2, ...` | `1, 2, \dots`
+dot | `x..` | `\ddot{x}` | see below for more info
+limits | `\sum_i=1 ^ 1+1` | `\sum_{i=1}^{1+1}` | see below for more info
+displaymath | `d$x^2$` | `$\displaymath x^2$` | see below for more info
+frac | `\frac a+b c*d` | `\frac{a+b}{c*d}` | see below for more info
+
+### dot
+Makes writing time derivations much easier. Instead of writing `\dot{a}`, you can just write `a.`. Same for `\ddot`. Works more some more complex structures, too. Examples:
 
 ```latex
 foo x. bar -> foo \dot{x} bar
@@ -34,7 +50,7 @@ The regular expression at the heart of this has been carefully crafted and teste
 - Seperate the inner components with spaces
 - Can start and end at reasonable delimiters (braces, spaces, beginnings/ends)
 
-### Easier limits for `\sum`, `\int` and friends
+### limits
 Instead of `\int_{down}^{up}`, just leave the braces and delimit everything with spaces. Works with or without a following `\limits`
 ```latex
 \sum _ i=1 ^ e^2+4 -> \sum_{i=1}^{e^2+4}
@@ -43,24 +59,11 @@ Instead of `\int_{down}^{up}`, just leave the braces and delimit everything with
 This works for `sum`, `prod`, `int`, `iint`, `iiint`, `idotsint`, `oint`.
 
 ### Easy `\displaymath` switch
-instead of writing `$\displaymath x^2$`, just write `d$x^2$`. So a single d before inline math makes it set in displaymath.
+Instead of writing `$\displaymath x^2$`, just write `d$x^2$`. So a single d before inline math makes it set in displaymath. Note that this is technically the only transformation that works outside of math mode
 
-### `\frac` without braces
+### frac
 Instead of writing `\frac{}{}`, you can just use (an arbitrary amout of) spaces
 ```latex
 foo \frac a+b c*d bar -> foo \frac{a+b}{c*d} bar
 ```
 
-### `\cdot`
-instead of writing `a\cdot b`, just write `a*b`. Works anywhere in math except for the case of `a^*` to prevent wrongful use in complex conjugation
-
-### `\dots`
-instead of writing `a, b, \dots`, just write `a, b, ...`
-
-### arrow: `->`
-instead of writing `a \to b`, just write `a -> b`
-
-### `\brakets`
-Instead of writing `\braket{a|b|c}`, just write `<a|b|c>`. Does require the `braket` package of course!
-
- 
