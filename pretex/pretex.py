@@ -42,6 +42,10 @@ re_frac = re.compile(r"""
 (?=$|\ |\n|,)
 """, re.VERBOSE)
 
+re_cdot = re.compile(r"""
+(?P<before>.)(?<!\^)\*(?P<after>.)
+""", re.VERBOSE)
+
 
 def transform_math(math_string):
     def repl_dots(matchobj):
@@ -54,7 +58,8 @@ def transform_math(math_string):
     transformations = [("dot_special", re_dot_special, repl_dots),
                        ("dot_normal", re_dot_normal, repl_dots),
                        ("int_sum", re_int_sum, r"\g<symbol>_{\2}^{\3}"),
-                       ("frac", re_frac, r"{\g<nom>}{\g<denom>}")]
+                       ("frac", re_frac, r"{\g<nom>}{\g<denom>}"),
+                       ("cdot", re_cdot, r"\g<before>\cdot \g<after>")]
     for name, pattern, repl in transformations:
         math_string, trafo_count[name] = re.subn(pattern, repl, math_string)
     # print("replacements in {s}: {count}".format(s=match_content, count=str(trafo_count)))
@@ -112,12 +117,12 @@ def parse_filenames(parameters):
 def main():
     input_filename, output_filename = parse_filenames(parameters=sys.argv[1:])
     with io.open(input_filename, 'r', encoding='utf-8') as file_read:
-        string_original = file_read.read()
+        file_content = file_read.read()
 
-    string_transformed = replace_math_outer(math_outer_old=string_original)
+    file_content = replace_math_outer(math_outer_old=file_content)
 
     with io.open(output_filename, 'w', encoding='utf-8') as file_out:
-        file_out.write(string_transformed)
+        file_out.write(file_content)
 
 
 if __name__ == "__main__":

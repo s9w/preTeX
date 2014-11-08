@@ -28,8 +28,8 @@ def test_re_ddot_compl():
 
 def test_re_ddot_easy():
     assert pretex.replace_math_outer(r"$b. f$") == r"$\dot{b} f$"
-    # assert pretex.replace_math_outer(r"$ab.. f$") == r"$\ddot{ab} f$"
-    # assert pretex.replace_math_outer(r"$f=f(x., x.., t)$") == r"$f=f(\dot{x}, \ddot{x}, t)$"
+    assert pretex.replace_math_outer(r"$ab.. f$") == r"$\ddot{ab} f$"
+    assert pretex.replace_math_outer(r"$f=f(x., x.., t)$") == r"$f=f(\dot{x}, \ddot{x}, t)$"
 
 
 def test_re_int_sum():
@@ -38,17 +38,21 @@ def test_re_int_sum():
 
 
 def test_frac():
-    assert pretex.replace_math_outer(r"foo $\frac a+b c*d x$") == r"foo $\frac{a+b}{c*d} x$"
-    assert pretex.replace_math_outer(r"foo $\frac{a+b}{c*d} x$") == r"foo $\frac{a+b}{c*d} x$"
+    assert pretex.replace_math_outer(r"foo $\frac a+b c+d x$") == r"foo $\frac{a+b}{c+d} x$"
+    assert pretex.replace_math_outer(r"foo $\frac{a+b}{c+d} x$") == r"foo $\frac{a+b}{c+d} x$"
+
+
+def test_cdot():
+    assert pretex.replace_math_outer(r"foo $ bar a*b$") == r"foo $ bar a\cdot b$"
+    assert pretex.replace_math_outer(r"foo $ bar a^*$") == r"foo $ bar a^*$"
 
 
 def test_unicode():
-    assert pretex.replace_math_outer(r"äüöé $äüöé\frac a+b c*d x$") == r"äüöé $äüöé\frac{a+b}{c*d} x$"
+    assert pretex.replace_math_outer(r"äüöé $äüöé\frac a+b c+d x$") == r"äüöé $äüöé\frac{a+b}{c+d} x$"
 
 
 @pytest.fixture(scope="module")
 def mock_testfile(request):
-
     with io.open("test.tex", 'w', encoding='utf-8') as file_out:
         file_out.write(r"$\frac a b$")
 
