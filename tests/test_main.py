@@ -35,6 +35,7 @@ def test_re_ddot_easy():
 def test_re_int_sum():
     assert pretex.replace_math_outer(r"foo $\int_a^b-2 x^2$ bar!") == r"foo $\int_{a}^{b-2} x^2$ bar!"
     assert pretex.replace_math_outer(r"foo ${\oint_   a^b-2 x^2$ bar!") == r"foo ${\oint_{a}^{b-2} x^2$ bar!"
+    assert pretex.replace_math_outer(r"foo ${\oint\limits_   a^b-2 x^2$ bar!") == r"foo ${\oint\limits_{a}^{b-2} x^2$ bar!"
 
 
 def test_frac():

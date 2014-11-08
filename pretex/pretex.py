@@ -25,7 +25,7 @@ re_dot_normal = re.compile(r"""
 
 re_int_sum = re.compile(r"""
 (?<=\\)
-(?P<symbol>sum|prod|int|iint|iiint|idotsint|oint)
+(?P<symbol>sum|prod|int|iint|iiint|idotsint|oint|limits)
 \ *?_\ *?
 (?P<arg_1>[^\ \n$]+)
 \ *\^\ *

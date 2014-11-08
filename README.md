@@ -40,7 +40,7 @@ The regular expression at the heart of this has been carefully crafted and teste
 - Can start and end at reasonable delimiters (braces, spaces, beginnings/ends)
 
 ### Easier limits for `\sum`, `\int` and friends
-Instead of `\int_{down}^{up}`, just leave the braces and delimit everything with spaces. So:
+Instead of `\int_{down}^{up}`, just leave the braces and delimit everything with spaces. Works with or without a following `\limits`
 ```latex
 \sum _ i=1 ^ e^2+4 -> \sum_{i=1}^{e^2+4}
 ```
@@ -61,8 +61,5 @@ instead of writing `a, b, \dots`, just write `a, b, ...`
 
 ### `\brakets`
 Instead of writing `\braket{...}`, just write `<a|b|c>`. Does require the `braket` package of course!
-
-## Limitations
-Parsing LaTeX is difficult. Because of a lack of good Python LaTeX parsers, preTeX works with regular Expressions. But since LaTeX itself is not a regular language, this can always just be an approximation. Especially when using macros or escaped math delimiters in math mode, it's possible to outsmart preTeX.
 
  
