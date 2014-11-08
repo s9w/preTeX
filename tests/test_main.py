@@ -35,7 +35,7 @@ def test_re_ddot_easy():
 def test_re_int_sum():
     assert pretex.replace_math_outer(r"foo $\int_a^b-2 x^2$ bar!") == r"foo $\int_{a}^{b-2} x^2$ bar!"
     assert pretex.replace_math_outer(r"foo ${\oint_   a^b-2 x^2$ bar!") == r"foo ${\oint_{a}^{b-2} x^2$ bar!"
-    assert pretex.replace_math_outer(r"foo ${\oint\limits_   a^b-2 x^2$ bar!") == r"foo ${\oint\limits_{a}^{b-2} x^2$ bar!"
+    assert pretex.replace_math_outer(r"${\int\limits_   a^b-2 x^2$ bar!") == r"${\int\limits_{a}^{b-2} x^2$ bar!"
 
 
 def test_frac():
@@ -52,8 +52,22 @@ def test_dots():
     assert pretex.replace_math_outer(r"foo $ bar a, b, ..., n$") == r"foo $ bar a, b, \dots , n$"
     assert pretex.replace_math_outer(r"foo $ bar a..., b, ..., n$") == r"foo $ bar a\dots , b, \dots , n$"
 
-def test_dots():
+
+def test_braket():
     assert pretex.replace_math_outer(r"foo $ bar <a|b|c>$") == r"foo $ bar \braket{a|b|c}$"
+
+
+def test_skip():
+    invariant_inputs = [(r"$a.$", ["dot"]),
+                        (r"$a..$", ["dot"]),
+                        (r"foo ${\oint\limits_   a^b-2 x^2$ bar!", ["limits"]),
+                        (r"foo $\frac a+b c+d x$", ["frac"]),
+                        (r"foo $ bar a*b$", ["cdot"]),
+                        (r"foo $ bar a, b, ..., n$", ["dots"]),
+                        (r"foo $ bar <a|b|c>$", ["braket"]),
+                        (r"foo $ a. <a|b|c>$", ["braket", "dot"])]
+    for invariant_input, ex_cmd in invariant_inputs:
+        assert pretex.replace_math_outer(invariant_input, excluded_commands=ex_cmd) == invariant_input
 
 
 def test_unicode():
@@ -105,5 +119,6 @@ def test_parse_filenames():
         pretex.parse_filenames(["test"])
     with pytest.raises(ValueError):
         pretex.parse_filenames(["test.tex", "-o", "test.tex"])
-    assert pretex.parse_filenames(["test.tex", "-o", "test2.tex"]) == ("test.tex", "test2.tex")
-    assert pretex.parse_filenames(["test.tex"]) == ("test.tex", "test_t.tex")
+    assert pretex.parse_filenames(["test.tex", "-o", "test2.tex"]) == ("test.tex", "test2.tex", None)
+    assert pretex.parse_filenames(["test.tex"]) == ("test.tex", "test_t.tex", None)
+    assert pretex.parse_filenames(["test.tex", "-s", "a"]) == ("test.tex", "test_t.tex", ["a"])

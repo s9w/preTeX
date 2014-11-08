@@ -10,11 +10,12 @@ preTeX is a small Python (2 and 3) LaTeX preprocessor, designed to make LaTeX sy
 out: The limit $\sum_{i=0}^{N+1} \ddot{q_i} \dot{p} \frac{a+b}{x^2-1}$
 ```
 
-This is not intended to replace LaTeX macros (newcommand etc), but rather enable things that are impossible or very tedious to do otherwise. To use, supply an input file and an optional output file:
+This is not intended to replace LaTeX macros (newcommand etc), but rather enable things that are impossible or very tedious to do otherwise. To use, supply an input file and an optional output file. you can also exclude transformations.
 
 ```
 python pretex.py thesis.tex
 python pretex.py thesis.tex -o thesis_output.tex
+python pretex.py thesis.tex --skip limits --skip cdot
 ```
 
 ## Status/Roadmap

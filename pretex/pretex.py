@@ -71,33 +71,37 @@ re_braket = re.compile(r"""
 """, re.VERBOSE)
 
 
-def transform_math(math_string):
+def transform_math(math_string, excluded_commands=None):
     def repl_dots(matchobj):
         return "{before}{command}{{{content}}}".format(before=matchobj.group('before'),
                                                        command=r"\dot" if matchobj.group(
                                                            'dot_type') == "." else r"\ddot",
                                                        content=matchobj.group('content'))
 
+    if excluded_commands is None:
+        excluded_commands = []
     trafo_count = dict()
-    transformations = [("dot_special", re_dot_special, repl_dots),
-                       ("dot_normal", re_dot_normal, repl_dots),
-                       ("int_sum", re_int_sum, r"\g<symbol>_{\2}^{\3}"),
+    transformations = [("dot", re_dot_special, repl_dots),
+                       ("dot", re_dot_normal, repl_dots),
+                       ("limits", re_int_sum, r"\g<symbol>_{\2}^{\3}"),
                        ("frac", re_frac, r"{\g<nom>}{\g<denom>}"),
                        ("cdot", re_cdot, r"\g<before>\cdot \g<after>"),
                        ("dots", re_dots, r"\g<before>\dots \g<after>"),
                        ("braket", re_braket, r"\\braket{\1}")]
+
     for name, pattern, repl in transformations:
-        math_string, trafo_count[name] = re.subn(pattern, repl, math_string)
+        if name not in excluded_commands:
+            math_string, trafo_count[name] = re.subn(pattern, repl, math_string)
     # print("replacements in {s}: {count}".format(s=match_content, count=str(trafo_count)))
     return math_string
 
 
-def replace_math_outer(math_outer_old):
+def replace_math_outer(math_outer_old, excluded_commands=None):
     def replace_math_inner(match_obj_123):
         return "{env_opening}{dm}{transformed}{env_closing}".format(
             dm="\displaystyle " if match_obj_123.group("prefix") == "d" else "",
             env_opening=match_obj_123.group("env_opening"),
-            transformed=transform_math(math_string=match_obj_123.group("env_content")),
+            transformed=transform_math(math_string=match_obj_123.group("env_content"), excluded_commands=excluded_commands),
             env_closing=match_obj_123.group("env_closing")
         )
 
@@ -127,6 +131,8 @@ def parse_filenames(parameters):
     parser = argparse.ArgumentParser()
     parser.add_argument("input_filename", type=filename_sanitizer, help="pyth to file input")
     parser.add_argument("-o", "--output", dest="output_filename", type=filename_sanitizer, help="output file")
+    parser.add_argument("-s", "--skip", dest="excluded_commands", action='append',
+                        help="comma seperated list of transformations to exclude")
     args = parser.parse_args(parameters)
 
     if args.output_filename:
@@ -137,15 +143,15 @@ def parse_filenames(parameters):
 
     if args.input_filename == output_filename:
         raise ValueError("Output and input file are same. You're a crazy person! Abort!!!")
-    return args.input_filename, output_filename
+    return args.input_filename, output_filename, args.excluded_commands
 
 
 def main():
-    input_filename, output_filename = parse_filenames(parameters=sys.argv[1:])
+    input_filename, output_filename, excluded_commands = parse_filenames(parameters=sys.argv[1:])
     with io.open(input_filename, 'r', encoding='utf-8') as file_read:
         file_content = file_read.read()
 
-    file_content = replace_math_outer(math_outer_old=file_content)
+    file_content = replace_math_outer(file_content, excluded_commands)
 
     with io.open(output_filename, 'w', encoding='utf-8') as file_out:
         file_out.write(file_content)
