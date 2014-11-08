@@ -74,18 +74,6 @@ re_braket = re.compile(r"""
 )>
 """, re.VERBOSE)
 
-re_align = re.compile(r"""
-(?:
-(?P<pre>^|\n)
-(?P<before>[^\n=]+?)
-(?:(?P<bad1>&=)|=)
-(?P<after>[^\n=]+?(?:\\\\\ *|\ *$)) #can end with \\ or end of string
-|
-(?:^|\n)
-(?P<bad2>[^\n=]+?=[^\n=]+?=)
-)
-""", re.VERBOSE)
-
 
 def transform_math(math_string, excluded_commands=None, env_type=None):
     def repl_dots(matchobj):
@@ -97,32 +85,26 @@ def transform_math(math_string, excluded_commands=None, env_type=None):
     if excluded_commands is None:
         excluded_commands = []
     trafo_count = dict()
-    transformations = [("dot", re_dot_special, repl_dots),
-                       ("dot", re_dot_normal, repl_dots),
-                       ("limits", re_int_sum, r"\g<symbol>_{\2}^{\3}"),
-                       ("frac", re_frac, r"{\g<nom>}{\g<denom>}"),
-                       ("cdot", re_cdot, r"\g<before>\cdot \g<after>"),
-                       ("dots", re_dots, r"\g<before>\dots \g<after>"),
-                       ("braket", re_braket, r"\\braket{\1}"),
-                       ("arrow", re_arrow, r" \\to ")]
+    re_transformations = [("dot", re_dot_special, repl_dots),
+                          ("dot", re_dot_normal, repl_dots),
+                          ("limits", re_int_sum, r"\g<symbol>_{\2}^{\3}"),
+                          ("frac", re_frac, r"{\g<nom>}{\g<denom>}"),
+                          ("cdot", re_cdot, r"\g<before>\cdot \g<after>"),
+                          ("dots", re_dots, r"\g<before>\dots \g<after>"),
+                          ("braket", re_braket, r"\\braket{\1}"),
+                          ("arrow", re_arrow, r" \\to ")]
 
-    for name, pattern, repl in transformations:
+    for name, pattern, repl in re_transformations:
         if name not in excluded_commands:
             math_string, trafo_count[name] = re.subn(pattern, repl, math_string)
 
-    # align auto &= check
-    if "align" == env_type and "auto_align" not in excluded_commands:
-        print("almost. string following")
-        print(math_string)
-        go_nogo = True
-        alll = re.finditer(re_align, math_string)
-        for i, x in enumerate(alll):
-            print(i, x.groupdict())
-            if any([x.group("bad1"), x.group("bad2")]):
-                go_nogo = False
-        if go_nogo is True:
-            math_string = re.sub(re_align, r"\g<pre>\g<before>&=\g<after>", math_string)
-    # print("replacements in {s}: {count}".format(s=match_content, count=str(trafo_count)))
+    lines = math_string.split(r"\\")
+    if env_type == "align" and all(line.count(r"=") == 1 and line.count(r"&=") == 0 for line in lines):
+        line_split = [line.split(r"=") for line in lines]
+        line_joined = [r"&=".join(l) for l in line_split]
+        lines_joined = r"\\".join(line_joined)
+        math_string = lines_joined
+
     return math_string
 
 

@@ -61,6 +61,38 @@ def test_arrow():
     assert pretex.replace_math_outer(r"$a -> b$") == r"$a \to b$"
 
 
+def test_auto_align():
+    test_string_1 = r"""
+    \begin {align}
+a = b \\
+x = y
+\end{align}
+"""
+
+    test_string_1_expected = r"""
+    \begin {align}
+a &= b \\
+x &= y
+\end{align}
+"""
+
+    test_string_2 = r"""
+\begin {align}
+a = x = b \\
+x = y
+\end{align}
+"""
+    test_string_3 = r"""
+\begin {align}
+a = b \\
+x &= y
+\end{align}
+"""
+    assert pretex.replace_math_outer(test_string_1) == test_string_1_expected
+    assert pretex.replace_math_outer(test_string_2) == test_string_2
+    assert pretex.replace_math_outer(test_string_3) == test_string_3
+
+
 def test_skip():
     invariant_inputs = [(r"$a.$", ["dot"]),
                         (r"$a..$", ["dot"]),
