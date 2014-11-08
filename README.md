@@ -53,11 +53,14 @@ Instead of writing \frac{}{}, you can just use (an arbitrary amout of) spaces
 foo \frac a+b c*d bar -> foo \frac{a+b}{c*d} bar
 ```
 
-### `\cdot` with `*`
+### `\cdot`
 instead of writing `a\cdot b`, just write `a*b`. Works anywhere in math except for the case of `a^*` to prevent wrongful use in complex conjugation
 
-### `\dots` with `...`
+### `\dots`
 instead of writing `a, b, \dots`, just write `a, b, ...`
+
+### `\brakets`
+Instead of writing `\braket{...}`, just write `<a|b|c>`. Does require the `braket` package of course!
 
 ## Limitations
 Parsing LaTeX is difficult. Because of a lack of good Python LaTeX parsers, preTeX works with regular Expressions. But since LaTeX itself is not a regular language, this can always just be an approximation. Especially when using macros or escaped math delimiters in math mode, it's possible to outsmart preTeX.
