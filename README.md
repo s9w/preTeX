@@ -42,11 +42,11 @@ Instead of `\int_{down}^{up}`, just leave the braces and delimit everything with
 
 This works for `sum`, `prod`, `int`, `iint`, `iiint`, `idotsint`, `oint`.
 
-### easy `\displaymath` switch
-instead of writing $\displaymath x^2$`, just write `d$x^2$`. So a single d before inline math makes it set in displaymath.
+### Easy `\displaymath` switch
+instead of writing `$\displaymath x^2$`, just write `d$x^2$`. So a single d before inline math makes it set in displaymath.
 
 ### `\frac` without braces
-Instead of writing \frac{}{}, you can just use (an arbitrary amout of) spaces
+Instead of writing `\frac{}{}`, you can just use (an arbitrary amout of) spaces
 ```latex
 foo \frac a+b c*d bar -> foo \frac{a+b}{c*d} bar
 ```
@@ -57,7 +57,10 @@ instead of writing `a\cdot b`, just write `a*b`. Works anywhere in math except f
 ### `\dots`
 instead of writing `a, b, \dots`, just write `a, b, ...`
 
+### arrow: `->`
+instead of writing `a \to b`, just write `a -> b`
+
 ### `\brakets`
-Instead of writing `\braket{...}`, just write `<a|b|c>`. Does require the `braket` package of course!
+Instead of writing `\braket{a|b|c}`, just write `<a|b|c>`. Does require the `braket` package of course!
 
  

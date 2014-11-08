@@ -57,6 +57,10 @@ def test_braket():
     assert pretex.replace_math_outer(r"foo $ bar <a|b|c>$") == r"foo $ bar \braket{a|b|c}$"
 
 
+def test_arrow():
+    assert pretex.replace_math_outer(r"$a -> b$") == r"$a \to b$"
+
+
 def test_skip():
     invariant_inputs = [(r"$a.$", ["dot"]),
                         (r"$a..$", ["dot"]),
@@ -114,11 +118,11 @@ def test_main_same_overwrite(monkeypatch):
 
 def test_parse_filenames():
     with pytest.raises(SystemExit):
-        pretex.parse_filenames([])
+        pretex.parse_cmd_arguments([])
     with pytest.raises(SystemExit):
-        pretex.parse_filenames(["test"])
+        pretex.parse_cmd_arguments(["test"])
     with pytest.raises(ValueError):
-        pretex.parse_filenames(["test.tex", "-o", "test.tex"])
-    assert pretex.parse_filenames(["test.tex", "-o", "test2.tex"]) == ("test.tex", "test2.tex", None)
-    assert pretex.parse_filenames(["test.tex"]) == ("test.tex", "test_t.tex", None)
-    assert pretex.parse_filenames(["test.tex", "-s", "a"]) == ("test.tex", "test_t.tex", ["a"])
+        pretex.parse_cmd_arguments(["test.tex", "-o", "test.tex"])
+    assert pretex.parse_cmd_arguments(["test.tex", "-o", "test2.tex"]) == ("test.tex", "test2.tex", None)
+    assert pretex.parse_cmd_arguments(["test.tex"]) == ("test.tex", "test_t.tex", None)
+    assert pretex.parse_cmd_arguments(["test.tex", "-s", "a"]) == ("test.tex", "test_t.tex", ["a"])

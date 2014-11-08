@@ -50,15 +50,19 @@ re_dots = re.compile(r"""
 (?P<before>[^\.])\.\.\.(?P<after>[^\.])
 """, re.VERBOSE)
 
-re_braket_separate = re.compile(r"""
-<
-(?P<bra_content>[^\|<>]+)
-\|
-(?P<middle_content>[^\|<>]+)
-\|
-(?P<ket_content>[^\|<>]+)
->
+re_arrow = re.compile(r"""
+(\ ->\ )
 """, re.VERBOSE)
+
+# re_braket_separate = re.compile(r"""
+# <
+# (?P<bra_content>[^\|<>]+)
+# \|
+# (?P<middle_content>[^\|<>]+)
+# \|
+# (?P<ket_content>[^\|<>]+)
+# >
+# """, re.VERBOSE)
 
 re_braket = re.compile(r"""
 <(
@@ -87,7 +91,8 @@ def transform_math(math_string, excluded_commands=None):
                        ("frac", re_frac, r"{\g<nom>}{\g<denom>}"),
                        ("cdot", re_cdot, r"\g<before>\cdot \g<after>"),
                        ("dots", re_dots, r"\g<before>\dots \g<after>"),
-                       ("braket", re_braket, r"\\braket{\1}")]
+                       ("braket", re_braket, r"\\braket{\1}"),
+                       ("arrow", re_arrow, r" \\to ")]
 
     for name, pattern, repl in transformations:
         if name not in excluded_commands:
@@ -97,12 +102,12 @@ def transform_math(math_string, excluded_commands=None):
 
 
 def replace_math_outer(math_outer_old, excluded_commands=None):
-    def replace_math_inner(match_obj_123):
+    def replace_math_inner(match_obj):
         return "{env_opening}{dm}{transformed}{env_closing}".format(
-            dm="\displaystyle " if match_obj_123.group("prefix") == "d" else "",
-            env_opening=match_obj_123.group("env_opening"),
-            transformed=transform_math(math_string=match_obj_123.group("env_content"), excluded_commands=excluded_commands),
-            env_closing=match_obj_123.group("env_closing")
+            dm="\displaystyle " if match_obj.group("prefix") == "d" else "",
+            env_opening=match_obj.group("env_opening"),
+            transformed=transform_math(math_string=match_obj.group("env_content"), excluded_commands=excluded_commands),
+            env_closing=match_obj.group("env_closing")
         )
 
     re_extract_math = re.compile(r"""
@@ -122,7 +127,7 @@ def replace_math_outer(math_outer_old, excluded_commands=None):
     return string_new
 
 
-def parse_filenames(parameters):
+def parse_cmd_arguments(parameters):
     def filename_sanitizer(filename):
         if "." not in filename:
             raise argparse.ArgumentTypeError("String '{s}' does not match required format".format(s=filename))
@@ -147,7 +152,7 @@ def parse_filenames(parameters):
 
 
 def main():
-    input_filename, output_filename, excluded_commands = parse_filenames(parameters=sys.argv[1:])
+    input_filename, output_filename, excluded_commands = parse_cmd_arguments(parameters=sys.argv[1:])
     with io.open(input_filename, 'r', encoding='utf-8') as file_read:
         file_content = file_read.read()
 
