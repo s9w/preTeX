@@ -50,10 +50,6 @@ re_dots = re.compile(r"""
 (?P<before>[^\.])\.\.\.(?P<after>[^\.])
 """, re.VERBOSE)
 
-re_arrow = re.compile(r"""
-(\ ->\ )
-""", re.VERBOSE)
-
 re_braket = re.compile(r"""
 <(
 [^\|<>]+
@@ -72,6 +68,7 @@ def transform_math(math_string, excluded_commands=None, env_type=None):
                                                            'dot_type') == "." else r"\ddot",
                                                        content=matchobj.group('content'))
 
+    # RegEx transformations
     if excluded_commands is None:
         excluded_commands = []
     trafo_count = dict()
@@ -81,19 +78,32 @@ def transform_math(math_string, excluded_commands=None, env_type=None):
                           ("frac", re_frac, r"{\g<nom>}{\g<denom>}"),
                           ("cdot", re_cdot, r"\g<before>\cdot \g<after>"),
                           ("dots", re_dots, r"\g<before>\dots \g<after>"),
-                          ("braket", re_braket, r"\\braket{\1}"),
-                          ("arrow", re_arrow, r" \\to ")]
+                          ("braket", re_braket, r"\\braket{\1}")]
 
     for name, pattern, repl in re_transformations:
         if name not in excluded_commands:
             math_string, trafo_count[name] = re.subn(pattern, repl, math_string)
 
+    # auto_align transformation
     lines = math_string.split(r"\\")
-    if env_type == "align" and all(line.count(r"=") == 1 and line.count(r"&=") == 0 for line in lines):
+    if env_type == "align" and "auto_align" not in excluded_commands and \
+            all(line.count(r"=") == 1 and line.count(r"&=") == 0 for line in lines):
         line_split = [line.split(r"=") for line in lines]
         line_joined = [r"&=".join(l) for l in line_split]
         lines_joined = r"\\".join(line_joined)
         math_string = lines_joined
+
+    # simple transformations
+    simple_transformations = [("arrow", r" -> ", r" \to "),
+                              ("approx", r"~=", r"\approx "),
+                              ("leq", r"<=", r"\leq "),
+                              ("geq", r">=", r"\geq "),
+                              ("ll", r"<<", r"\ll "),
+                              ("gg", r">>", r"\gg "),
+                              ("neq", r" != ", r" \neq ")]
+    for name, old, new in simple_transformations:
+        if name not in excluded_commands:
+            math_string = math_string.replace(old, new)
 
     return math_string
 
@@ -103,7 +113,8 @@ def replace_math_outer(math_outer_old, excluded_commands=None):
         return "{env_opening}{dm}{transformed}{env_closing}".format(
             dm="\displaystyle " if match_obj.group("prefix") == "d" else "",
             env_opening=match_obj.group("env_opening"),
-            transformed=transform_math(math_string=match_obj.group("env_content"), excluded_commands=excluded_commands, env_type=match_obj.group("env_name")),
+            transformed=transform_math(math_string=match_obj.group("env_content"), excluded_commands=excluded_commands,
+                                       env_type=match_obj.group("env_name")),
             env_closing=match_obj.group("env_closing")
         )
 

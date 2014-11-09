@@ -3,14 +3,14 @@
 
 # preTeX
 
-preTeX is a small Python (2 and 3) LaTeX preprocessor, designed to make LaTeX syntax more expressive and thereby the writing process faster and the code more readable. It consists of a number of "transformations", which are really Regex-powered replacements. It's focused on math, since for the rest the is the most excellent Pandoc. Example:
+preTeX is a small Python (2 and 3) LaTeX preprocessor, designed to make LaTeX syntax more expressive and thereby the writing process faster and the code more readable. It consists of a number of "transformations", which are really Regex-powered replacements. It's focused on math. Example:
 
 ```latex
  in: The limit $\sum_i=0 ^ N+1 q_i.. p. \frac a+b x^2-1$
 out: The limit $\sum_{i=0}^{N+1} \ddot{q_i} \dot{p} \frac{a+b}{x^2-1}$
 ```
 
-This is not intended to replace LaTeX macros (newcommand etc), but rather enable things that are impossible or very tedious to do otherwise. To use, supply an input file and an optional output file. you can also exclude transformations.
+This is not intended to replace LaTeX macros (`\newcommand` etc), but rather enable things that are impossible or very tedious to do otherwise. To use, supply an input file and an optional output file. you can also exclude transformations.
 
 ```
 python pretex.py thesis.tex
@@ -18,12 +18,20 @@ python pretex.py thesis.tex -o thesis_output.tex
 python pretex.py thesis.tex --skip limits --skip cdot
 ```
 
+Works in any math mode I know of. That is: `$x$`, `$$x$$`, `\(x\)`, `\[x\]` and in every of these math environments (starred and unstarred): `equation`, `align`, `math`, `displaymath`, `eqnarray`, `gather`, `flalign`, `multiline`, `alignat`
+
 ## Transformations
 Overview, but more below the table.
 
 name  | input | output | notes
 ------------- | -----|--------|---
 arrow  | `a -> b` | `a \to b`
+approx  | `a~=b` | `a\approx b`
+leq  | `a<=b` | `a\leq b`
+geq  | `a>=b` | `a\geq b`
+ll  | `a<<b` | `a\ll b`
+gg  | `a>>b` | `a\gg b`
+neq  | `a != b` | `a \neq b`
 cdot  | `a*b` | `a\cdot b` | Works anywhere in math except for the case of `a^*` to prevent wrongful use in complex conjugation
 braket | `<a|b|c>` | `\braket{a|b|c}` | Does require the [braket](http://mirror.selfnet.de/tex-archive/macros/latex/contrib/braket/braket.pdf) package of course
 dots | `1, 2, ...` | `1, 2, \dots`

@@ -57,9 +57,18 @@ def test_braket():
     assert pretex.replace_math_outer(r"foo $ bar <a|b|c>$") == r"foo $ bar \braket{a|b|c}$"
 
 
-def test_arrow():
+def test_simple():
     assert pretex.replace_math_outer(r"$a -> b$") == r"$a \to b$"
-    assert pretex.replace_math_outer(r"$a-> b$") == r"$a-> b$"
+    simple_tests = [("arrow", r"$a -> b$", r"$a \to b$"),
+                    ("approx", r"$a~=b$", r"$a\approx b$"),
+                    ("leq", r"$a<=b$", r"$a\leq b$"),
+                    ("geq", r"$a>=b$", r"$a\geq b$"),
+                    ("ll", r"$a<<b$", r"$a\ll b$"),
+                    ("gg", r"$a>>b$", r"$a\gg b$"),
+                    ("neq", r"$a != b$", r"$a \neq b$")]
+    for name, old, new in simple_tests:
+        assert pretex.replace_math_outer(old) == new
+        assert pretex.replace_math_outer(old, [name]) == old
 
 
 def test_auto_align():
@@ -89,6 +98,7 @@ a = b \\
 x &= y
 \end{align}
 """
+    assert pretex.replace_math_outer(test_string_1, ["auto_align"]) == test_string_1
     assert pretex.replace_math_outer(test_string_1) == test_string_1_expected
     assert pretex.replace_math_outer(test_string_2) == test_string_2
     assert pretex.replace_math_outer(test_string_3) == test_string_3
