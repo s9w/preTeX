@@ -110,13 +110,19 @@ def replace_math_outer(math_outer_old, excluded_commands=None):
     re_extract_math = re.compile(r"""
         (?P<prefix>(?<=\ )d|)
         (?P<env_opening>
-          \$|
-          \\begin\ *?{(?P<env_name>(?:equation|align|eqnarray|gather|flalign|multiline|alignat)\*?)}
+            \$\$|
+            \$|
+            \\\(|
+            \\\[|
+          \\begin\ *?{(?P<env_name>(?:equation|align|math|displaymath|eqnarray|gather|flalign|multiline|alignat)\*?)}
         )
         (?P<env_content>[^\$]+?)
         (?P<env_closing>
-          \$|
-          \\end\ *?{(?P=env_name)}
+            \$\$|
+            \$|
+            \\\)|
+            \\\]|
+            \\end\ *?{(?P=env_name)}
         )
         """, re.VERBOSE)
 

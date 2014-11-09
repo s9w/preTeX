@@ -59,6 +59,7 @@ def test_braket():
 
 def test_arrow():
     assert pretex.replace_math_outer(r"$a -> b$") == r"$a \to b$"
+    assert pretex.replace_math_outer(r"$a-> b$") == r"$a-> b$"
 
 
 def test_auto_align():
@@ -102,8 +103,8 @@ def test_skip():
                         (r"foo $ bar a, b, ..., n$", ["dots"]),
                         (r"foo $ bar <a|b|c>$", ["braket"]),
                         (r"foo $ a. <a|b|c>$", ["braket", "dot"])]
-    for invariant_input, ex_cmd in invariant_inputs:
-        assert pretex.replace_math_outer(invariant_input, excluded_commands=ex_cmd) == invariant_input
+    for invariant_input, exclude_cmd in invariant_inputs:
+        assert pretex.replace_math_outer(invariant_input, exclude_cmd) == invariant_input
 
 
 def test_unicode():
