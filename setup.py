@@ -4,13 +4,13 @@ from setuptools import setup
 
 
 setup(name='preTeX',
-      version="0.1.1",
+      version="0.1.2",
       packages=['pretex'],
       entry_points={
-       'console_scripts': [
-           'pretex = pretex.pretex:main',
-       ],
-    },
+           'console_scripts': [
+               'pretex = pretex.pretex:main',
+           ],
+        },
       author='Sebastian Werhausen',
       author_email="swerhausen@gmail.com",
       url='https://github.com/s9w/preTeX',
