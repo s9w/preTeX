@@ -60,6 +60,14 @@ re_braket = re.compile(r"""
 )>
 """, re.VERBOSE)
 
+re_frac_compact = re.compile(r"""
+(?P<before>^|\ |\n|\(|\{)
+(?P<nom>[^\ ]+?)
+\ *//\ *
+(?P<denom>[^\ ]+?)
+(?P<after>$|\ |\n|\)|\})
+""", re.VERBOSE)
+
 
 def transform_math(math_string, excluded_commands=None, env_type=None):
     """ the actual transformations with the math contents """
@@ -79,7 +87,8 @@ def transform_math(math_string, excluded_commands=None, env_type=None):
                           ("frac", re_frac, r"{\g<nom>}{\g<denom>}"),
                           ("cdot", re_cdot, r"\g<before>\cdot \g<after>"),
                           ("dots", re_dots, r"\g<before>\dots \g<after>"),
-                          ("braket", re_braket, r"\\braket{\1}")]
+                          ("braket", re_braket, r"\\braket{\1}"),
+                          ("frac_compact", re_frac_compact, r"\g<before>\\frac{\g<nom>}{\g<denom>}\g<after>"),]
 
     for name, pattern, repl in re_transformations:
         if name not in excluded_commands:
@@ -181,4 +190,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main() # pragma: no cover

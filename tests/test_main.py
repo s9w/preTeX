@@ -43,6 +43,11 @@ def test_frac():
     assert pretex.replace_math_outer(r"foo $\frac{a+b}{c+d} x$") == r"foo $\frac{a+b}{c+d} x$"
 
 
+def test_frac_tiny():
+    assert pretex.replace_math_outer(r"$foo aa//b+b bar$") == r"$foo \frac{aa}{b+b} bar$"
+    assert pretex.replace_math_outer(r"$foo aa // b +b bar$") == r"$foo \frac{aa}{b} +b bar$"
+
+
 def test_cdot():
     assert pretex.replace_math_outer(r"foo $ bar a*b$") == r"foo $ bar a\cdot b$"
     assert pretex.replace_math_outer(r"foo $ bar a^*$") == r"foo $ bar a^*$"
@@ -112,7 +117,8 @@ def test_skip():
                         (r"foo $ bar a*b$", ["cdot"]),
                         (r"foo $ bar a, b, ..., n$", ["dots"]),
                         (r"foo $ bar <a|b|c>$", ["braket"]),
-                        (r"foo $ a. <a|b|c>$", ["braket", "dot"])]
+                        (r"foo $ a. <a|b|c>$", ["braket", "dot"]),
+                        (r"foo $a // b$", ["frac_compact"]),]
     for invariant_input, exclude_cmd in invariant_inputs:
         assert pretex.replace_math_outer(invariant_input, exclude_cmd) == invariant_input
 

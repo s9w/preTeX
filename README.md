@@ -44,6 +44,7 @@ dot | `x..` | `\ddot{x}` | see below for more info
 limits | `\sum_i=1 ^ 1+1` | `\sum_{i=1}^{1+1}` | see below for more info
 displaymath | `d$x^2$` | `$\displaymath x^2$` | see below for more info
 frac | `\frac a+b c*d` | `\frac{a+b}{c*d}` | see below for more info
+frac_tiny | `a+b // c*d` | `\frac{a+b}{c*d}`
 
 ### auto_align
 In an `align` math environment when there is
