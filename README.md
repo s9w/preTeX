@@ -3,7 +3,7 @@
 
 # preTeX
 
-preTeX is a Python (2 and 3) LaTeX preprocessor, designed to make LaTeX syntax more concise and thereby the writing process faster and the code more readable. It consists of a number of "transformations", which are really RegEx-powered replacements. It's focused on math. Examples in text and gif:
+preTeX is a Python (2 and 3) LaTeX preprocessor designed to make LaTeX syntax more concise and thereby the writing process faster and the code more readable. It consists of a number of "transformations", which are really RegEx-powered replacements. It's focused on math. Examples in text and gif:
 
 ```latex
  in: The limit $\sum_i=0 ^ N+1 q_i.. p. \frac a+b x^2-1$
@@ -12,7 +12,7 @@ out: The limit $\sum_{i=0}^{N+1} \ddot{q_i} \dot{p} \frac{a+b}{x^2-1}$
 
 ![](https://raw.githubusercontent.com/s9w/preTeX/master/docs/sc.gif)
 
-This is not intended to replace LaTeX macros (`\newcommand` etc), but rather enable things that are impossible or very tedious otherwise. To use, either install via `(sudo) pip install pretex`, or simply put the `pretex.py` file wherever you need it. The only mandatory argument is an input filename. You can also supply an output filename (default is `{original}_t.tex`) exclude transformations. Usage:
+This is not intended to replace LaTeX macros (`\newcommand` etc), but rather enable things that are impossible or very tedious otherwise. To use, either install via `(sudo) pip install pretex` or simply put the `pretex.py` wherever you need it. The only mandatory argument is an input filename. You can also supply an output filename (default is `{original}_t.tex`) and exclude transformations. Usage:
 
 ```
 pretex thesis.tex                                     # for installed version
