@@ -10,7 +10,7 @@ re_dot_special = re.compile(r"""
 (?P<content>
 \\\w+?|             #\word.. b
 \\vec\ \w|          #\vec p.. b
-\\vec\{[^\$\{\}]+\} #\vec{abc}.. b. no nested {} because that's impossible in regex
+\\vec\{[^\{\}]+\} #\vec{abc}.. b. no nested {} because that's impossible in regex
 )
 (?P<dot_type>\.|\.\.)
 (?=$|\ |\n|,|\)|\})
@@ -36,9 +36,9 @@ re_int_sum = re.compile(r"""
 re_frac = re.compile(r"""
 (?<=\\frac)
 \ +?
-(?P<nom>[^\ \{\}\n\$]+?)
+(?P<nom>[^\ \{\}\n]+?)
 \ +?
-(?P<denom>[^\ \{\}\n\$]+?)
+(?P<denom>[^\ \{\}\n]+?)
 (?=$|\ |\n|,)
 """, re.VERBOSE)
 
@@ -62,6 +62,7 @@ re_braket = re.compile(r"""
 
 
 def transform_math(math_string, excluded_commands=None, env_type=None):
+    """ the actual transformations with the math contents """
     def repl_dots(matchobj):
         return "{before}{command}{{{content}}}".format(before=matchobj.group('before'),
                                                        command=r"\dot" if matchobj.group(
@@ -109,6 +110,7 @@ def transform_math(math_string, excluded_commands=None, env_type=None):
 
 
 def replace_math_outer(math_outer_old, excluded_commands=None):
+    """ passes the inside between math delimiters to transform_math() and wraps it in their original delimiters  """
     def replace_math_inner(match_obj):
         return "{env_opening}{dm}{transformed}{env_closing}".format(
             dm="\displaystyle " if match_obj.group("prefix") == "d" else "",
@@ -142,6 +144,8 @@ def replace_math_outer(math_outer_old, excluded_commands=None):
 
 
 def parse_cmd_arguments(parameters):
+    """ returns a tuple of input-, output-filename and list of excluded commands. optional parameters default to None """
+
     def filename_sanitizer(filename):
         if "." not in filename:
             raise argparse.ArgumentTypeError("String '{s}' does not match required format".format(s=filename))
