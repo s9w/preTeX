@@ -10,15 +10,16 @@ preTeX is a small Python (2 and 3) LaTeX preprocessor, designed to make LaTeX sy
 out: The limit $\sum_{i=0}^{N+1} \ddot{q_i} \dot{p} \frac{a+b}{x^2-1}$
 ```
 
-This is not intended to replace LaTeX macros (`\newcommand` etc), but rather enable things that are impossible or very tedious to do otherwise. To use, supply an input file and an optional output file. you can also exclude transformations.
+This is not intended to replace LaTeX macros (`\newcommand` etc), but rather enable things that are impossible or very tedious otherwise. To use, either install via `pip install pretex`, or simply put the `pretex.py` file wherever you need it. The only mandatory argument is an input. Optional is output-filename excluded transformations. Usage:
 
 ```
-python pretex.py thesis.tex
+pretex thesis.tex                                     # for installed version
+python pretex.py thesis.tex                           # for copied file
 python pretex.py thesis.tex -o thesis_output.tex
 python pretex.py thesis.tex --skip limits --skip cdot
 ```
 
-Works in any math mode I know of. That is: `$x$`, `$$x$$`, `\(x\)`, `\[x\]` and in every of these math environments (starred and unstarred): `equation`, `align`, `math`, `displaymath`, `eqnarray`, `gather`, `flalign`, `multiline`, `alignat`
+Works in any math mode I know of. That is: `$x$`, `$$x$$`, `\(x\)`, `\[x\]` for inline and in every of these math environments (starred and unstarred): `equation`, `align`, `math`, `displaymath`, `eqnarray`, `gather`, `flalign`, `multiline`, `alignat`.
 
 ## Transformations
 Overview, but more below the table.
