@@ -10,7 +10,7 @@ preTeX is a small Python (2 and 3) LaTeX preprocessor, designed to make LaTeX sy
 out: The limit $\sum_{i=0}^{N+1} \ddot{q_i} \dot{p} \frac{a+b}{x^2-1}$
 ```
 
-![](https://raw.githubusercontent.com/s9w/preTeX/master/sc.gif)
+![](https://raw.githubusercontent.com/s9w/preTeX/master/docs/sc.gif)
 
 This is not intended to replace LaTeX macros (`\newcommand` etc), but rather enable things that are impossible or very tedious otherwise. To use, either install via `(sudo) pip install pretex`, or simply put the `pretex.py` file wherever you need it. The only mandatory argument is an input filename. Optional is output-filename excluded transformations. Usage:
 
