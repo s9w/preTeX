@@ -51,12 +51,17 @@ In an `align` math environment when there is
 
 1. Only one "=" on every line and
 2. None of them is aligned by "&="
-Then they all get auto-aligned by replacing the `=` with `&=`.
+Then they all get auto-aligned by replacing the `=` with `&=`. Also if there is no line separation with `\\`, it's added automatically.
 
 ```
 \begin{align}   ->    \begin{align}
   a = b \\               a &= b \\
   x = y                  x &= y
+\end{align}            \end{align}
+
+\begin{align}   ->    \begin{align}
+  a &= b                  a &= b \\
+  x &= y                  x &= y
 \end{align}            \end{align}
 ```
 

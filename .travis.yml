@@ -7,10 +7,11 @@ python:
   - "3.4"
 install:
   - "pip install coveralls"
+  - "pip install coverage"
   - "pip install pytest-cov"
   - "python setup.py develop"
 script:
-  py.test --cov tests/test_main.py
+  coverage run --source pretex -m py.test
 after_success:
   coveralls
 notifications:

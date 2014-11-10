@@ -88,20 +88,23 @@ def transform_math(math_string, excluded_commands=None, env_type=None):
                           ("cdot", re_cdot, r"\g<before>\cdot \g<after>"),
                           ("dots", re_dots, r"\g<before>\dots \g<after>"),
                           ("braket", re_braket, r"\\braket{\1}"),
-                          ("frac_compact", re_frac_compact, r"\g<before>\\frac{\g<nom>}{\g<denom>}\g<after>"),]
+                          ("frac_compact", re_frac_compact, r"\g<before>\\frac{\g<nom>}{\g<denom>}\g<after>")]
 
     for name, pattern, repl in re_transformations:
         if name not in excluded_commands:
             math_string, trafo_count[name] = re.subn(pattern, repl, math_string)
 
-    # auto_align transformation
-    lines = math_string.split(r"\\")
-    if env_type == "align" and "auto_align" not in excluded_commands and \
-            all(line.count(r"=") == 1 and line.count(r"&=") == 0 for line in lines):
-        line_split = [line.split(r"=") for line in lines]
-        line_joined = [r"&=".join(l) for l in line_split]
-        lines_joined = r"\\".join(line_joined)
-        math_string = lines_joined
+    # auto_align
+    if env_type == "align" and "auto_align" not in excluded_commands:
+        if r"\\" not in math_string:
+            content_split = [line for line in math_string.split("\n") if line and not line.isspace()]
+            math_string = "\n" + " \\\\\n".join(content_split) + "\n"
+        lines = math_string.split(r"\\")
+        if all(line.count(r"=") == 1 and line.count(r"&=") == 0 for line in lines):
+            line_split = [line.split(r"=") for line in lines]
+            line_joined = [r"&=".join(l) for l in line_split]
+            lines_joined = r"\\".join(line_joined)
+            math_string = lines_joined
 
     # simple transformations
     simple_transformations = [("arrow", r" -> ", r" \to "),
