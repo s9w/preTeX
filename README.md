@@ -51,19 +51,10 @@ In an `align` math environment when there is
 
 1. Only one "=" on every line and
 2. None of them is aligned by "&="
+
 Then they all get auto-aligned by replacing the `=` with `&=`. Also if there is no line separation with `\\`, it's added automatically.
 
-```
-\begin{align}   ->    \begin{align}
-  a = b \\               a &= b \\
-  x = y                  x &= y
-\end{align}            \end{align}
-
-\begin{align}   ->    \begin{align}
-  a &= b                  a &= b \\
-  x &= y                  x &= y
-\end{align}            \end{align}
-```
+![](https://raw.githubusercontent.com/s9w/preTeX/master/docs/auto_align.gif)
 
 ### dot
 Makes writing time derivations much easier. Instead of writing `\dot{a}`, you can just write `a.`. Same for `\ddot`. Works for some more complex structures, too. Examples:
