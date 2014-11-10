@@ -95,7 +95,7 @@ def transform_math(math_string, excluded_commands=None, env_type=None):
             math_string, trafo_count[name] = re.subn(pattern, repl, math_string)
 
     # auto_align
-    if env_type == "align" and "auto_align" not in excluded_commands:
+    if env_type in ["align", "align*"] and "auto_align" not in excluded_commands:
         if r"\\" not in math_string:
             content_split = [line for line in math_string.split("\n") if line and not line.isspace()]
             math_string = "\n" + " \\\\\n".join(content_split) + "\n"

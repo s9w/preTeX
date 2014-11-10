@@ -37,7 +37,7 @@ geq  | `a>=b` | `a\geq b`
 ll  | `a<<b` | `a\ll b`
 gg  | `a>>b` | `a\gg b`
 neq  | `a != b` | `a \neq b`
-cdot  | `a*b` | `a\cdot b` | Works anywhere in math except for the case of `a^*` to prevent wrongful use in complex conjugation
+cdot  | `a*b` | `a\cdot b` | see below for more info
 braket | `<a|b|c>` | `\braket{a|b|c}` | Does require the [braket](http://mirror.selfnet.de/tex-archive/macros/latex/contrib/braket/braket.pdf) package of course
 dots | `1, 2, ...` | `1, 2, \dots`
 dot | `x..` | `\ddot{x}` | see below for more info
@@ -55,6 +55,9 @@ In an `align` math environment when there is
 Then they all get auto-aligned by replacing the `=` with `&=`. Also if there is no line separation with `\\`, it's added automatically.
 
 ![](https://raw.githubusercontent.com/s9w/preTeX/master/docs/auto_align.gif)
+
+### cdot
+Works anywhere in math except for the case of `a^*` to prevent wrongful use in complex conjugation.
 
 ### dot
 Makes writing time derivations much easier. Instead of writing `\dot{a}`, you can just write `a.`. Same for `\ddot`. Works for some more complex structures, too. Examples:

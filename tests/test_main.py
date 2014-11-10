@@ -105,17 +105,17 @@ x &= y
 """
 
     test_string_4 = r"""
-\begin {align}
+\begin {align*}
 a = b
 x = y
-\end{align}
+\end{align*}
 """
 
     test_string_4_expected = r"""
-\begin {align}
+\begin {align*}
 a &= b \\
 x &= y
-\end{align}
+\end{align*}
 """
     assert pretex.replace_math_outer(test_string_1, ["auto_align"]) == test_string_1
     assert pretex.replace_math_outer(test_string_1) == test_string_1_expected
