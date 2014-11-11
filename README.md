@@ -36,7 +36,7 @@ ll  | `a<<b` | `a\ll b`
 gg  | `a>>b` | `a\gg b`
 neq  | `a != b` | `a \neq b`
 cdot  | `a*b` | `a\cdot b` | see below for more info
-braket | `<a|b|c>` | `\braket{a|b|c}` | Needs [braket](http://mirror.selfnet.de/tex-archive/macros/latex/contrib/braket/braket.pdf) package
+braket | `<a|b|c>` | `\braket{a|b|c}` | see below for more info
 dots | `1, 2, ...` | `1, 2, \dots`
 sub_superscript | `\int_n=1 ^42+x` | `\int_{n=1} ^{42+x}` | see below for more info
 dot | `x..` | `\ddot{x}` | see below for more info
@@ -57,6 +57,21 @@ Then they all get auto-aligned by replacing the `=` with `&=`. Also if there is 
 
 ### cdot
 Works anywhere in math except for the case of `a^*` to prevent wrongful use in complex conjugation.
+
+### braket
+A "natural" syntax for writing bras, kets, brakets and ketbras is supported. For `|ket>` and `<bra|` and `|ket><bra|`, there can't be any whitespace or curly braces in them and there have to be reasonable limits (space, braces, string start/end) before and after. That's because there is one tricky case where this could blow up:
+
+```latex
+{ x | x>0 }
+```
+
+There's also `<a|b>` or `<a|b|c>` for which the rules are a bit more relaxed (whitespace allowed inside). They all get translated into their respective `\ket{}`, `\bra{}` and `\braket{}` commands. Those are not included in vanilla LaTeX, but you could either use the LaTeX package [braket](http://mirror.selfnet.de/tex-archive/macros/latex/contrib/braket/braket.pdf) which defines these, or define your own versions. Examples:
+
+```latex
+<a|b|c>     -> \braket{a|b|c}
+|ket> <bra| -> \ket{ket} \bra{bra}
+|ke t>      -> |ke t>               % no whitespace inside!
+```
 
 ### dot
 Makes writing time derivations much easier. Instead of writing `\dot{a}`, you can just write `a.`. Same for `\ddot`. Works for some more complex structures, too. Examples:

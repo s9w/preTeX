@@ -30,29 +30,32 @@ def test_re_ddot_compl():
 
 
 def test_math_detection():
-    valid_testcases = [(r"a$x -> y$b", r"a$x \to y$b"),
-                       (r"a$x -> y\$x -> y$b", r"a$x \to y\$x \to y$b")]
+    valid_testcases = [(r"1$x -> y$b", r"1$x \to y$b"),
+                       (r"2$x -> y\$x -> y$b", r"2$x \to y\$x \to y$b")]
     for test_input, test_output in valid_testcases:
         assert pretex.replace_math_outer(test_input) == test_output
 
 
 def test_re_ddot_easy():
-    assert pretex.replace_math_outer(r"$b.f$") == r"$b.f$"
-    assert pretex.replace_math_outer(r"$b. f$") == r"$\dot{b} f$"
-    assert pretex.replace_math_outer(r"$b.  f$") == r"$\dot{b}  f$"
-    assert pretex.replace_math_outer(r"$ab.. f$") == r"$\ddot{ab} f$"
-    assert pretex.replace_math_outer(r"$f=f(x., x.., t)$") == r"$f=f(\dot{x}, \ddot{x}, t)$"
+    valid_testcases = [(r"$a \phi.. b$", r"$a \ddot{\phi} b$"),
+                       (r"$b.f$", r"$b.f$"),
+                       (r"$b. f$", r"$\dot{b} f$"),
+                       (r"$b. f$", r"$\dot{b} f$"),
+                       (r"$ab.. f$", r"$\ddot{ab} f$"),
+                       (r"$f=f(x., x.., t)$", r"$f=f(\dot{x}, \ddot{x}, t)$")]
+    for test_input, test_output in valid_testcases:
+        assert pretex.replace_math_outer(test_input) == test_output
 
 
 def test_re_sub_superscript():
-    testcases = [(r"foo $\int_a^b-2 x^2$ bar!", r"foo $\int_a^{b-2} x^2$ bar!"),
-                 (r"foo ${\oint_ a^b-2 x^2$ bar!", r"foo ${\oint_ a^{b-2} x^2$ bar!"),
-                 (r"${\int\limits_ a^b-2 x ^2$ bar!", r"${\int\limits_ a^{b-2} x ^2$ bar!"),
-                 (r"$u_tt$", r"$u_{tt}$"),
-                 (r"$u _ t$", r"$u _ t$"),
-                 (r"$f_a=1$", r"$f_{a=1}$"),
-                 (r"$a _ tt ^   a,b$", r"$a _ {tt} ^   {a,b}$")]
-    for test_input, test_output in testcases:
+    valid_testcases = [(r"foo $\int_a^b-2 x^2$ bar!", r"foo $\int_a^{b-2} x^2$ bar!"),
+                       (r"foo ${\oint_ a^b-2 x^2$ bar!", r"foo ${\oint_ a^{b-2} x^2$ bar!"),
+                       (r"${\int\limits_ a^b-2 x ^2$ bar!", r"${\int\limits_ a^{b-2} x ^2$ bar!"),
+                       (r"$u_tt$", r"$u_{tt}$"),
+                       (r"$u _ t$", r"$u _ t$"),
+                       (r"$f_a=1$", r"$f_{a=1}$"),
+                       (r"$a _ tt ^   a,b$", r"$a _ {tt} ^   {a,b}$")]
+    for test_input, test_output in valid_testcases:
         assert pretex.replace_math_outer(test_input) == test_output
 
 
@@ -75,13 +78,24 @@ def test_cdot():
 
 
 def test_dots():
-    assert pretex.replace_math_outer(r"foo $ bar a, b, ..., n$")  == r"foo $ bar a, b, \dots, n$"
+    assert pretex.replace_math_outer(r"foo $ bar a, b, ..., n$") == r"foo $ bar a, b, \dots, n$"
     assert pretex.replace_math_outer(r"foo $ bar a, b, ... , n$") == r"foo $ bar a, b, \dots , n$"
     assert pretex.replace_math_outer(r"foo $ bar a..., b,... , n$") == r"foo $ bar a\dots, b,\dots , n$"
 
 
 def test_braket():
-    assert pretex.replace_math_outer(r"foo $ bar <a|b|c>$") == r"foo $ bar \braket{a|b|c}$"
+    valid_testcases = [(r"foo $ bar <a|b|c>$", r"foo $ bar \braket{a|b|c}$", {}),
+                       (r"foo $ bar <a|b>$", r"foo $ bar \braket{a|b}$", {}),
+                       (r"$|ket>$", r"$\ket{ket}$", {}),
+                       (r"$|ket><bra|$", r"$\ket{ket}\bra{bra}$", {}),
+                       (r"$x|ket> <bra| x$", r"$x\ket{ket} \bra{bra} x$", {}),
+                       (r"$|ket>x$", r"$|ket>x$", {}),
+                       (r"$|ke t>$", r"$|ke t>$", {}),
+                       (r"$= { x | x>0 }$", r"$= { x | x>0 }$", {}),
+                       (r"$|ket><bra|$", r"$\Ket{ket}\Bra{bra}$", {"braket_style": "braket_expanding"})]
+
+    for test_input, test_output, modes in valid_testcases:
+        assert pretex.replace_math_outer(test_input, modes=modes) == test_output
 
 
 def test_simple():
@@ -151,7 +165,7 @@ x &= y
 def test_skip():
     invariant_inputs = [(r"$a.$", ["dot"]),
                         (r"$a..$", ["dot"]),
-                        (r"foo ${\oint\limits_   a^b-2 x^2$ bar!", ["sub_superscript"]),
+                        (r"foo ${\oint\limits_   a^b-2 x^2$", ["sub_superscript"]),
                         (r"foo $\frac a+b c+d x$", ["frac"]),
                         (r"foo $ bar a*b$", ["cdot"]),
                         (r"foo $ bar a, b, ..., n$", ["dots"]),
