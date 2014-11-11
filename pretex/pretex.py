@@ -33,11 +33,18 @@ re_frac = re.compile(r"""
 """, re.VERBOSE)
 
 re_cdot = re.compile(r"""
-(?P<before>.)(?<!\^)\*(?P<after>.)
+(?<!\^)           # no ^ before to save complex conjugation
+\*                # the *
+(?P<wspace>\ *)   # whitespace
+(?P<after>[\w\\]) # alphanum + \ for greek letters
 """, re.VERBOSE)
 
 re_dots = re.compile(r"""
-(?P<before>[^\.])\.\.\.(?P<after>[^\.])
+(?<!\.)           # no dot before
+\.{3}             # ...
+(?!\.)            # no dot after
+(?P<wspace>\ *)   # whitespace
+(?P<after>.)      # what comes after
 """, re.VERBOSE)
 
 re_braket = re.compile(r"""
@@ -73,21 +80,39 @@ re_sub_superscript = re.compile(r"""
 
 def transform_math(math_string, excluded_commands=None, env_type=None):
     """ the actual transformations with the math contents """
+    def sanitize_whitespace(ws_string, after=None):
+        if ws_string or not ws_string and after==",": #has whitespace or no whitespace but comma following
+            return ws_string
+        else:
+            return " "
+
+    def repl_dot(matchobj):
+        if matchobj.group('dot_type') == ".":
+            dot_command = r"\dot"
+        else:
+            dot_command = r"\ddot"
+        return "{before}{dot_command}{{{content}}}".format(before=matchobj.group('before'),
+                                                           dot_command=dot_command,
+                                                           content=matchobj.group('content'))
+
+    def repl_cdot(matchobj):
+        whitespace = sanitize_whitespace(matchobj.group('wspace'))
+        return r"\cdot{whitespace}{after}".format(whitespace=whitespace, after=matchobj.group('after'))
+
     def repl_dots(matchobj):
-        return "{before}{command}{{{content}}}".format(before=matchobj.group('before'),
-                                                       command=r"\dot" if matchobj.group(
-                                                           'dot_type') == "." else r"\ddot",
-                                                       content=matchobj.group('content'))
+        whitespace = sanitize_whitespace(matchobj.group('wspace'), after=matchobj.group('after'))
+        print("dots_whitespace:", [whitespace])
+        return r"\dots{whitespace}{after}".format(whitespace=whitespace, after=matchobj.group('after'))
 
     # RegEx transformations
     if excluded_commands is None:
         excluded_commands = []
     trafo_count = dict()
-    re_transformations = [("dot", re_dot_special, repl_dots),
-                          ("dot", re_dot_normal, repl_dots),
+    re_transformations = [("dot", re_dot_special, repl_dot),
+                          ("dot", re_dot_normal, repl_dot),
                           ("frac", re_frac, r"{\g<nom>}{\g<denom>}"),
-                          ("cdot", re_cdot, r"\g<before>\cdot \g<after>"),
-                          ("dots", re_dots, r"\g<before>\dots \g<after>"),
+                          ("cdot", re_cdot, repl_cdot),
+                          ("dots", re_dots, repl_dots),
                           ("braket", re_braket, r"\\braket{\1}"),
                           ("frac_compact", re_frac_compact, r"\g<before>\\frac{\g<nom>}{\g<denom>}\g<after>"),
                           ("sub_superscript", re_sub_superscript, r"\g<operator>\g<before>{\g<content>}\g<after>")]
@@ -110,15 +135,23 @@ def transform_math(math_string, excluded_commands=None, env_type=None):
 
     # simple transformations
     simple_transformations = [("arrow", r" -> ", r" \to "),
-                              ("approx", r"~=", r"\approx "),
-                              ("leq", r"<=", r"\leq "),
-                              ("geq", r">=", r"\geq "),
-                              ("ll", r"<<", r"\ll "),
-                              ("gg", r">>", r"\gg "),
-                              ("neq", r" != ", r" \neq ")]
-    for name, old, new in simple_transformations:
+                              ("approx", r"~=", r"\approx"),
+                              ("leq", r"<=", r"\leq"),
+                              ("geq", r">=", r"\geq"),
+                              ("ll", r"<<", r"\ll"),
+                              ("gg", r">>", r"\gg"),
+                              ("neq", r"!=", r"\neq")]
+    single_backslash = r"\ "[0]
+    for name, source, target in simple_transformations:
         if name not in excluded_commands:
-            math_string = math_string.replace(old, new)
+            needs_whitespace = single_backslash in target and target[-1] != " "
+            if needs_whitespace:
+                if source+" " in math_string:
+                    source += " "
+                    target += " "
+                else:
+                    target += " "
+            math_string = math_string.replace(source, target)
 
     return math_string
 

@@ -35,8 +35,11 @@ def test_math_detection():
     for test_input, test_output in valid_testcases:
         assert pretex.replace_math_outer(test_input) == test_output
 
+
 def test_re_ddot_easy():
+    assert pretex.replace_math_outer(r"$b.f$") == r"$b.f$"
     assert pretex.replace_math_outer(r"$b. f$") == r"$\dot{b} f$"
+    assert pretex.replace_math_outer(r"$b.  f$") == r"$\dot{b}  f$"
     assert pretex.replace_math_outer(r"$ab.. f$") == r"$\ddot{ab} f$"
     assert pretex.replace_math_outer(r"$f=f(x., x.., t)$") == r"$f=f(\dot{x}, \ddot{x}, t)$"
 
@@ -55,6 +58,7 @@ def test_re_sub_superscript():
 
 def test_frac():
     assert pretex.replace_math_outer(r"foo $\frac a+b c+d x$") == r"foo $\frac{a+b}{c+d} x$"
+    assert pretex.replace_math_outer(r"foo $\frac   a+b   c+d   x$") == r"foo $\frac{a+b}{c+d}   x$"
     assert pretex.replace_math_outer(r"foo $\frac{a+b}{c+d} x$") == r"foo $\frac{a+b}{c+d} x$"
 
 
@@ -65,12 +69,15 @@ def test_frac_tiny():
 
 def test_cdot():
     assert pretex.replace_math_outer(r"foo $ bar a*b$") == r"foo $ bar a\cdot b$"
+    assert pretex.replace_math_outer(r"foo $ bar a* b$") == r"foo $ bar a\cdot b$"
+    assert pretex.replace_math_outer(r"foo $ bar a*  b$") == r"foo $ bar a\cdot  b$"
     assert pretex.replace_math_outer(r"foo $ bar a^*$") == r"foo $ bar a^*$"
 
 
 def test_dots():
-    assert pretex.replace_math_outer(r"foo $ bar a, b, ..., n$") == r"foo $ bar a, b, \dots , n$"
-    assert pretex.replace_math_outer(r"foo $ bar a..., b, ..., n$") == r"foo $ bar a\dots , b, \dots , n$"
+    assert pretex.replace_math_outer(r"foo $ bar a, b, ..., n$")  == r"foo $ bar a, b, \dots, n$"
+    assert pretex.replace_math_outer(r"foo $ bar a, b, ... , n$") == r"foo $ bar a, b, \dots , n$"
+    assert pretex.replace_math_outer(r"foo $ bar a..., b,... , n$") == r"foo $ bar a\dots, b,\dots , n$"
 
 
 def test_braket():
@@ -78,14 +85,16 @@ def test_braket():
 
 
 def test_simple():
-    assert pretex.replace_math_outer(r"$a -> b$") == r"$a \to b$"
     valid_testcases = [("arrow", r"$a -> b$", r"$a \to b$"),
-                    ("approx", r"$a~=b$", r"$a\approx b$"),
-                    ("leq", r"$a<=b$", r"$a\leq b$"),
-                    ("geq", r"$a>=b$", r"$a\geq b$"),
-                    ("ll", r"$a<<b$", r"$a\ll b$"),
-                    ("gg", r"$a>>b$", r"$a\gg b$"),
-                    ("neq", r"$a != b$", r"$a \neq b$")]
+                       ("arrow", r"$a ->  b$", r"$a \to  b$"),
+                       ("approx", r"$a~=b$", r"$a\approx b$"),
+                       ("approx", r"$a~= b$", r"$a\approx b$"),
+                       ("approx", r"$a~=  b$", r"$a\approx  b$"),
+                       ("leq", r"$a<=b$", r"$a\leq b$"),
+                       ("geq", r"$a>=b$", r"$a\geq b$"),
+                       ("ll", r"$a<<b$", r"$a\ll b$"),
+                       ("gg", r"$a>>b$", r"$a\gg b$"),
+                       ("neq", r"$a != b$", r"$a \neq b$")]
     for name, old, new in valid_testcases:
         assert pretex.replace_math_outer(old) == new
         assert pretex.replace_math_outer(old, [name]) == old

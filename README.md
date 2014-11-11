@@ -12,18 +12,16 @@ out: The limit $\sum_{i=0}^{N+1} \ddot{q_i} \dot{p} \frac{a+b}{x^2-1}$
 
 ![](https://raw.githubusercontent.com/s9w/preTeX/master/docs/sc.gif)
 
-This is not intended to replace LaTeX macros (`\newcommand` etc), but rather enable things that are impossible or very tedious otherwise. To use, either install via `(sudo) pip install pretex` or simply put the `pretex.py` wherever you need it. The only mandatory argument is an input filename. You can also supply an output filename (default is `{original}_t.tex`) and exclude transformations. Usage:
+This is not intended to replace LaTeX macros (`\newcommand` etc), but rather enable things that are impossible or very tedious otherwise. To use, either install with `(sudo) pip install pretex` or simply put the `pretex.py` wherever you need it. The only mandatory argument is an input filename. You can also supply an output filename (default is `{original}_t.tex`) and exclude transformations. Usage:
 
 ```
 pretex thesis.tex                                     # for installed version
 python pretex.py thesis.tex                           # for copied file
 python pretex.py thesis.tex -o thesis_output.tex
-python pretex.py thesis.tex --skip limits --skip cdot
+python pretex.py thesis.tex --skip braket --skip cdot
 ```
 
-No dependencies, tested with Python 2.6, 2.7, 3.2, 3.3, 3.4
-
-Works in any math mode I know of. That is: `$x$`, `$$x$$`, `\(x\)`, `\[x\]` for inline and in every of these math environments (starred and unstarred): `equation`, `align`, `math`, `displaymath`, `eqnarray`, `gather`, `flalign`, `multiline`, `alignat`. You can still write escaped dollar signs in math, they won't mess things up.
+No dependencies, tested with Python 2.6, 2.7, 3.2, 3.3, 3.4. Works in any math mode I know of. That is: `$x$`, `$$x$$`, `\(x\)`, `\[x\]` for inline and in every of these math environments (starred and unstarred): `equation`, `align`, `math`, `displaymath`, `eqnarray`, `gather`, `flalign`, `multiline`, `alignat`. You can still write escaped dollar signs in math, they won't mess things up.
 
 ## Transformations
 Overview, but more below the table.
