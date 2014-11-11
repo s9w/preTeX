@@ -75,7 +75,7 @@ Rule of thumb: The dot expression works with surrounding spaces or at the beginn
 When sub- or superscripting things with `_` or `^` you can delimit the **contents** by spaces or other **reasonable delimiters** instead of framing them in `{}`.
  
 - **Content** means any alphanumeric characters, +, -, *, =. Or a comma, but only if followed by an alphanumeric char
-- **Reasonable delimiters** means between the _ and the content you can use nothing or any amount of whitespace. After the content can be either whitespace, end of math environment, newline or closing brackets
+- **Reasonable delimiters** means between the `_`/ `^` and the content you can use nothing or any amount of whitespace. After the content can be either whitespace, end of math environment, newline or closing brackets
 
 It preserves whitespace and only braces things that need them (two or more characters). Following examples demonstrate its use and also that its careful enough to not change ugly but correct latex code
 
@@ -91,7 +91,7 @@ x_1, f=5         % not touched
 ```
 
 ### displaymath
-Instead of writing `$\displaymath \int_i^\infty$`, just write `d\int_i^\infty$`. So a single d before inline math makes it set in displaymath. Note that this is technically the only transformation that works outside of math mode.
+Instead of writing `$\displaymath \int_i^\infty$`, just write `d$\int_i^\infty$`. So a single d before inline math makes it set in displaymath. Note that this is technically the only transformation that works outside of math mode.
 
 ### frac
 Instead of writing `\frac{}{}`, you can just use spaces as delimiters.
