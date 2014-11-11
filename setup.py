@@ -4,7 +4,7 @@ from setuptools import setup
 
 
 setup(name='preTeX',
-      version="0.1.2",
+      version="0.2.0",
       packages=['pretex'],
       entry_points={
            'console_scripts': [

@@ -23,16 +23,6 @@ re_dot_normal = re.compile(r"""
 (?=$|\ |\n|,|\)|\})
 """, re.VERBOSE)
 
-re_int_sum = re.compile(r"""
-(?<=\\)
-(?P<symbol>sum|prod|int|iint|iiint|idotsint|oint|limits)
-\ *?_\ *?
-(?P<arg_1>[^\ \n$]+)
-\ *\^\ *
-(?P<arg_2>[^\ \n$]+)
-(?=$|\ |\n|,)
-""", re.VERBOSE)
-
 re_frac = re.compile(r"""
 (?<=\\frac)
 \ +?
@@ -68,10 +58,16 @@ re_frac_compact = re.compile(r"""
 (?P<after>$|\ |\n|\)|\})
 """, re.VERBOSE)
 
-re_subscript = re.compile(r"""
-(?<=_)
-(?P<content>\w{2,})
-(?P<after>$|\ |\n|\)|\})
+re_sub_superscript = re.compile(r"""
+(?P<operator>[_\^]) #_
+(?P<before>\ *?)   #whitespace
+(?P<content>(?:
+   [a-zA-Z0-9+\-\*=]| #alphanum, +-*=
+  ,[a-zA-Z0-9]        #or comma, but only if followed by alphanum
+  ){2,}) #alphanum, comma, +-*
+(?P<after>
+  $|\ |\n|\)|\}
+)
 """, re.VERBOSE)
 
 
@@ -89,13 +85,12 @@ def transform_math(math_string, excluded_commands=None, env_type=None):
     trafo_count = dict()
     re_transformations = [("dot", re_dot_special, repl_dots),
                           ("dot", re_dot_normal, repl_dots),
-                          ("limits", re_int_sum, r"\g<symbol>_{\2}^{\3}"),
                           ("frac", re_frac, r"{\g<nom>}{\g<denom>}"),
                           ("cdot", re_cdot, r"\g<before>\cdot \g<after>"),
                           ("dots", re_dots, r"\g<before>\dots \g<after>"),
                           ("braket", re_braket, r"\\braket{\1}"),
                           ("frac_compact", re_frac_compact, r"\g<before>\\frac{\g<nom>}{\g<denom>}\g<after>"),
-                          ("subscript", re_subscript, r"{\g<content>}\g<after>")]
+                          ("sub_superscript", re_sub_superscript, r"\g<operator>\g<before>{\g<content>}\g<after>")]
 
     for name, pattern, repl in re_transformations:
         if name not in excluded_commands:

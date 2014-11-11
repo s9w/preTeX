@@ -6,7 +6,7 @@
 preTeX is a Python (2 and 3) LaTeX preprocessor designed to make LaTeX syntax more concise and thereby the writing process faster and the code more readable. It consists of a number of "transformations", which are really RegEx-powered replacements. It's focused on math. Examples in text and gif:
 
 ```latex
- in: The limit $\sum_i=0 ^ N+1 q_i.. p. \frac a+b x^2-1$
+ in: The limit $\sum_ i=0 ^ N+1        q_i..     p. \frac a+b  x^2-1 $
 out: The limit $\sum_{i=0}^{N+1} \ddot{q_i} \dot{p} \frac{a+b}{x^2-1}$
 ```
 
@@ -40,12 +40,12 @@ neq  | `a != b` | `a \neq b`
 cdot  | `a*b` | `a\cdot b` | see below for more info
 braket | `<a|b|c>` | `\braket{a|b|c}` | Needs [braket](http://mirror.selfnet.de/tex-archive/macros/latex/contrib/braket/braket.pdf) package
 dots | `1, 2, ...` | `1, 2, \dots`
+sub_superscript | `\int_n=1 ^42+x` | \int_{n=1} ^{42+x}` | see below for more info
 dot | `x..` | `\ddot{x}` | see below for more info
-limits | `\sum_i=1 ^ 1+1` | `\sum_{i=1}^{1+1}` | see below for more info
 displaymath | `d$x^2$` | `$\displaymath x^2$` | see below for more info
 frac | `\frac a+b c*d` | `\frac{a+b}{c*d}` | see below for more info
 frac_compact | `a+b // c*d` | `\frac{a+b}{c*d}`
-subscript | `u_tt` | `u_{tt}` | 2 or more letters in subscript
+
 
 ### auto_align
 In an `align` math environment when there is
@@ -73,11 +73,34 @@ foo \vec{abc}. bar -> foo \dot{\vec{abc}} bar
 
 Rule of thumb: The dot expression works with surrounding spaces or at the beginning/end inside braces.
 
-### limits
-Instead of `\int_{down}^{up}`, just leave the braces and delimit everything with spaces. Works for `sum`, `prod`, `int`, `iint`, `iiint`, `idotsint`, `oint` - with or without a following `\limits`.
+### sub_superscript
+When sub- or superscripting things with `_` or `^` you can delimit the **contents** by spaces or other **reasonable delimiters** instead of framing them in `{}`.
+ 
+- **Content** means any alphanumeric characters, +, -, *, =. Or a comma, but only if followed by an alphanumeric char
+- **Reasonable delimiters** means between the _ and the content you can use nothing or any amount of whitespace. After the content can be either whitespace, end of math environment, newline or closing brackets
+
+It preserves whitespace and only braces things that need them (two or more characters). Following examples demonstrate its use and also that its careful enough to not change ugly but correct latex code
+
 ```latex
-\sum _ i=1 ^ e^2+4 -> \sum_{i=1}^{e^2+4}
+u_tt             -> u_{tt}
+u_ t             -> u_ t
+\int_i=1 ^\infty -> \int_{i=1} ^\infty
+f_a=4            -> f_{a=4}
+\phi_a=1,b=2     -> \phi_{a=1,b=2} 
+x_1x_2x_3        % not touched
+x_1,x_2,x_3      % not touched
+x_1, f=5         % not touched
+x_a=1,b=2        -> x_{x_a,b=2}  %although this is so big it should probably be {}'d
 ```
+
+Note that this is careful enough to not touch the ugly but correct latex code of 
+x_1x_2x_3
+x_1,x_2,x_3
+
+But does transform 
+x_1, f=5
+x_a=1,b=2
+
 
 ### Easy `\displaymath` switch
 Instead of writing `$\displaymath x^2$`, just write `d$x^2$`. So a single d before inline math makes it set in displaymath. Note that this is technically the only transformation that works outside of math mode.

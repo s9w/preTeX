@@ -15,15 +15,18 @@ def silent_remove(filename):
 
 
 def test_re_ddot_compl():
-    invalid_inputs = [r"$\phi..b$", r"$a\vec x..b$", r"$a\vec{abc}..b$"]
-    for i in invalid_inputs:
+    invalid_testcases = [r"$\phi..b$", r"$a\vec x..b$", r"$a\vec{abc}..b$"]
+    for i in invalid_testcases:
         assert pretex.replace_math_outer(i) == i
-    assert pretex.replace_math_outer(r"$a \phi.. b$") == r"$a \ddot{\phi} b$"
-    assert pretex.replace_math_outer(r"$a \phi..$") == r"$a \ddot{\phi}$"
-    assert pretex.replace_math_outer(r"$\varphi. $") == r"$\dot{\varphi} $"
-    assert pretex.replace_math_outer(r"$a \vec x.. b$") == r"$a \ddot{\vec x} b$"
-    assert pretex.replace_math_outer(r"${a \vec{abc}.)$") == r"${a \dot{\vec{abc}})$"
-    assert pretex.replace_math_outer(r"$a q_i.. b$") == r"$a \ddot{q_i} b$"
+
+    valid_testcases = [(r"$a \phi.. b$", r"$a \ddot{\phi} b$"),
+                       (r"$a \phi..$", r"$a \ddot{\phi}$"),
+                       (r"$\varphi. $", r"$\dot{\varphi} $"),
+                       (r"$a \vec x.. b$", r"$a \ddot{\vec x} b$"),
+                       (r"${a \vec{abc}.)$", r"${a \dot{\vec{abc}})$"),
+                       (r"$a q_i.. b$", r"$a \ddot{q_i} b$")]
+    for test_input, test_output in valid_testcases:
+        assert pretex.replace_math_outer(test_input) == test_output
 
 
 def test_re_ddot_easy():
@@ -32,10 +35,16 @@ def test_re_ddot_easy():
     assert pretex.replace_math_outer(r"$f=f(x., x.., t)$") == r"$f=f(\dot{x}, \ddot{x}, t)$"
 
 
-def test_re_int_sum():
-    assert pretex.replace_math_outer(r"foo $\int_a^b-2 x^2$ bar!") == r"foo $\int_{a}^{b-2} x^2$ bar!"
-    assert pretex.replace_math_outer(r"foo ${\oint_   a^b-2 x^2$ bar!") == r"foo ${\oint_{a}^{b-2} x^2$ bar!"
-    assert pretex.replace_math_outer(r"${\int\limits_   a^b-2 x^2$ bar!") == r"${\int\limits_{a}^{b-2} x^2$ bar!"
+def test_re_sub_superscript():
+    testcases = [(r"foo $\int_a^b-2 x^2$ bar!", r"foo $\int_a^{b-2} x^2$ bar!"),
+                 (r"foo ${\oint_ a^b-2 x^2$ bar!", r"foo ${\oint_ a^{b-2} x^2$ bar!"),
+                 (r"${\int\limits_ a^b-2 x ^2$ bar!", r"${\int\limits_ a^{b-2} x ^2$ bar!"),
+                 (r"$u_tt$", r"$u_{tt}$"),
+                 (r"$u _ t$", r"$u _ t$"),
+                 (r"$f_a=1$", r"$f_{a=1}$"),
+                 (r"$a _ tt ^   a,b$", r"$a _ {tt} ^   {a,b}$")]
+    for test_input, test_output in testcases:
+        assert pretex.replace_math_outer(test_input) == test_output
 
 
 def test_frac():
@@ -58,27 +67,20 @@ def test_dots():
     assert pretex.replace_math_outer(r"foo $ bar a..., b, ..., n$") == r"foo $ bar a\dots , b, \dots , n$"
 
 
-def test_subscript():
-    assert pretex.replace_math_outer(r"foo $u_tt$") == r"foo $u_{tt}$"
-    assert pretex.replace_math_outer(r"foo $u_t$") == r"foo $u_t$"
-    assert pretex.replace_math_outer(r"foo $u_t.$") == r"foo $\dot{u_t}$"
-    assert pretex.replace_math_outer(r"foo $u_tt\phi$") == r"foo $u_tt\phi$"
-
-
 def test_braket():
     assert pretex.replace_math_outer(r"foo $ bar <a|b|c>$") == r"foo $ bar \braket{a|b|c}$"
 
 
 def test_simple():
     assert pretex.replace_math_outer(r"$a -> b$") == r"$a \to b$"
-    simple_tests = [("arrow", r"$a -> b$", r"$a \to b$"),
+    valid_testcases = [("arrow", r"$a -> b$", r"$a \to b$"),
                     ("approx", r"$a~=b$", r"$a\approx b$"),
                     ("leq", r"$a<=b$", r"$a\leq b$"),
                     ("geq", r"$a>=b$", r"$a\geq b$"),
                     ("ll", r"$a<<b$", r"$a\ll b$"),
                     ("gg", r"$a>>b$", r"$a\gg b$"),
                     ("neq", r"$a != b$", r"$a \neq b$")]
-    for name, old, new in simple_tests:
+    for name, old, new in valid_testcases:
         assert pretex.replace_math_outer(old) == new
         assert pretex.replace_math_outer(old, [name]) == old
 
@@ -134,13 +136,14 @@ x &= y
 def test_skip():
     invariant_inputs = [(r"$a.$", ["dot"]),
                         (r"$a..$", ["dot"]),
-                        (r"foo ${\oint\limits_   a^b-2 x^2$ bar!", ["limits"]),
+                        (r"foo ${\oint\limits_   a^b-2 x^2$ bar!", ["sub_superscript"]),
                         (r"foo $\frac a+b c+d x$", ["frac"]),
                         (r"foo $ bar a*b$", ["cdot"]),
                         (r"foo $ bar a, b, ..., n$", ["dots"]),
                         (r"foo $ bar <a|b|c>$", ["braket"]),
                         (r"foo $ a. <a|b|c>$", ["braket", "dot"]),
-                        (r"foo $a // b$", ["frac_compact"]),]
+                        (r"foo $a // b$", ["frac_compact"]),
+                        (r"u_tt", ["sub_superscript"])]
     for invariant_input, exclude_cmd in invariant_inputs:
         assert pretex.replace_math_outer(invariant_input, exclude_cmd) == invariant_input
 
