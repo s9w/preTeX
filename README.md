@@ -38,13 +38,14 @@ ll  | `a<<b` | `a\ll b`
 gg  | `a>>b` | `a\gg b`
 neq  | `a != b` | `a \neq b`
 cdot  | `a*b` | `a\cdot b` | see below for more info
-braket | `<a|b|c>` | `\braket{a|b|c}` | Does require the [braket](http://mirror.selfnet.de/tex-archive/macros/latex/contrib/braket/braket.pdf) package of course
+braket | `<a|b|c>` | `\braket{a|b|c}` | Needs [braket](http://mirror.selfnet.de/tex-archive/macros/latex/contrib/braket/braket.pdf) package
 dots | `1, 2, ...` | `1, 2, \dots`
 dot | `x..` | `\ddot{x}` | see below for more info
 limits | `\sum_i=1 ^ 1+1` | `\sum_{i=1}^{1+1}` | see below for more info
 displaymath | `d$x^2$` | `$\displaymath x^2$` | see below for more info
 frac | `\frac a+b c*d` | `\frac{a+b}{c*d}` | see below for more info
 frac_compact | `a+b // c*d` | `\frac{a+b}{c*d}`
+subscript | `u_tt` | `u_{tt}` | 2 or more letters in subscript
 
 ### auto_align
 In an `align` math environment when there is

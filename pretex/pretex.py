@@ -68,6 +68,12 @@ re_frac_compact = re.compile(r"""
 (?P<after>$|\ |\n|\)|\})
 """, re.VERBOSE)
 
+re_subscript = re.compile(r"""
+(?<=_)
+(?P<content>\w{2,})
+(?P<after>$|\ |\n|\)|\})
+""", re.VERBOSE)
+
 
 def transform_math(math_string, excluded_commands=None, env_type=None):
     """ the actual transformations with the math contents """
@@ -88,7 +94,8 @@ def transform_math(math_string, excluded_commands=None, env_type=None):
                           ("cdot", re_cdot, r"\g<before>\cdot \g<after>"),
                           ("dots", re_dots, r"\g<before>\dots \g<after>"),
                           ("braket", re_braket, r"\\braket{\1}"),
-                          ("frac_compact", re_frac_compact, r"\g<before>\\frac{\g<nom>}{\g<denom>}\g<after>")]
+                          ("frac_compact", re_frac_compact, r"\g<before>\\frac{\g<nom>}{\g<denom>}\g<after>"),
+                          ("subscript", re_subscript, r"{\g<content>}\g<after>")]
 
     for name, pattern, repl in re_transformations:
         if name not in excluded_commands:

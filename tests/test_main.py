@@ -58,6 +58,13 @@ def test_dots():
     assert pretex.replace_math_outer(r"foo $ bar a..., b, ..., n$") == r"foo $ bar a\dots , b, \dots , n$"
 
 
+def test_subscript():
+    assert pretex.replace_math_outer(r"foo $u_tt$") == r"foo $u_{tt}$"
+    assert pretex.replace_math_outer(r"foo $u_t$") == r"foo $u_t$"
+    assert pretex.replace_math_outer(r"foo $u_t.$") == r"foo $\dot{u_t}$"
+    assert pretex.replace_math_outer(r"foo $u_tt\phi$") == r"foo $u_tt\phi$"
+
+
 def test_braket():
     assert pretex.replace_math_outer(r"foo $ bar <a|b|c>$") == r"foo $ bar \braket{a|b|c}$"
 
