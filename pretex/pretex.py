@@ -135,22 +135,26 @@ def replace_math_outer(math_outer_old, excluded_commands=None):
         )
 
     re_extract_math = re.compile(r"""
-        (?P<prefix>(?<=\ )d|)
-        (?P<env_opening>
-            \$\$|
-            \$|
-            \\\(|
-            \\\[|
-          \\begin\ *?{(?P<env_name>(?:equation|align|math|displaymath|eqnarray|gather|flalign|multiline|alignat)\*?)}
-        )
-        (?P<env_content>[^\$]+?)
-        (?P<env_closing>
-            \$\$|
-            \$|
-            \\\)|
-            \\\]|
-            \\end\ *?{(?P=env_name)}
-        )
+(?P<prefix>(?<=\ )d|)
+(?P<env_opening>
+  \$\$|
+  \$|
+  \\\(|
+  \\\[|
+  \\begin\ *?{(?P<env_name>
+    (?:
+      equation|align|math|displaymath|eqnarray|gather|flalign|multiline|alignat
+    )
+    \*
+  ?)}
+)
+(?P<env_content>
+  (?:\n|\\\$|.)+?
+)
+(?P<env_closing>
+  (?P=env_opening)|
+  \\end\ *?{(?P=env_name)}
+)
         """, re.VERBOSE)
 
     string_new = re.sub(re_extract_math, repl=replace_math_inner, string=math_outer_old)

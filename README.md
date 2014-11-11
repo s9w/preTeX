@@ -23,7 +23,7 @@ python pretex.py thesis.tex --skip limits --skip cdot
 
 No dependencies, tested with Python 2.6, 2.7, 3.2, 3.3, 3.4
 
-Works in any math mode I know of. That is: `$x$`, `$$x$$`, `\(x\)`, `\[x\]` for inline and in every of these math environments (starred and unstarred): `equation`, `align`, `math`, `displaymath`, `eqnarray`, `gather`, `flalign`, `multiline`, `alignat`.
+Works in any math mode I know of. That is: `$x$`, `$$x$$`, `\(x\)`, `\[x\]` for inline and in every of these math environments (starred and unstarred): `equation`, `align`, `math`, `displaymath`, `eqnarray`, `gather`, `flalign`, `multiline`, `alignat`. You can still write escaped dollar signs in math, they won't mess things up.
 
 ## Transformations
 Overview, but more below the table.

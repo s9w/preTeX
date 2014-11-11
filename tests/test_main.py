@@ -29,6 +29,12 @@ def test_re_ddot_compl():
         assert pretex.replace_math_outer(test_input) == test_output
 
 
+def test_math_detection():
+    valid_testcases = [(r"a$x -> y$b", r"a$x \to y$b"),
+                       (r"a$x -> y\$x -> y$b", r"a$x \to y\$x \to y$b")]
+    for test_input, test_output in valid_testcases:
+        assert pretex.replace_math_outer(test_input) == test_output
+
 def test_re_ddot_easy():
     assert pretex.replace_math_outer(r"$b. f$") == r"$\dot{b} f$"
     assert pretex.replace_math_outer(r"$ab.. f$") == r"$\ddot{ab} f$"
