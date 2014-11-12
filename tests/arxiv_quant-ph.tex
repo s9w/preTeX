@@ -1,0 +1,582 @@
+\documentclass[prl,twocolumn,showpacs,floatfix,superscriptaddress,nofootinbib]{revtex4-1}
+
+\usepackage{amssymb,amsmath,amstext}                %%    American Physical Society math etc extensions
+\usepackage{graphicx}                                                  %%    Include figure files
+%\usepackage{bm}                                                         %%   Allows bold in math
+%\usepackage{latexsym}                                               %%   More math symbols
+\usepackage{hyperref}  %%   Manage links
+%\usepackage{epstopdf}                                               %%   help with eps -> pdf 
+ \usepackage{color}                                                     %%   change color
+ \usepackage{appendix}                                             %%   formating appendicies
+%\usepackage{mathptmx}                                             %%   comapct fonts. Default font to Adobe Times Roman
+%\usepackage{fleqn}                                                      %%  left-align equations
+% \usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+ \usepackage{bbold}
+ \usepackage{bbm}
+ \usepackage{ulem}
+ 
+\DeclareMathOperator{\Tr}{Tr}
+\newcommand{\br}[1]{\left(#1\right)}
+\newcommand{\Br}[1]{\left[#1\right]}
+\newcommand{\unity}{\ensuremath{\mathbbm{1}}}
+
+%===================================================================================================================
+\begin{document}
+%===================================================================================================================
+% Title & Abstract
+%===================================================================================================================
+\title{Truncating an exact Matrix Product State for the XY model: \\ correlations and the transfer matrix}
+\author{Marek M. Rams}
+\affiliation{Institute of Physics, Jagiellonian University,  Łojasiewicza 11, 30-348 Krak\'ow, Poland }
+\affiliation{Institute of Physics, Krak\'ow University of Technology, Podchorazych 2, 30-084 Krak\'ow, Poland }
+
+\author{Valentin Zauner}
+\affiliation{Vienna Center for Quantum Science and Technology, Faculty of Physics, University of Vienna, Vienna, Austria}
+
+\author{Jutho Haegeman}
+\affiliation{Ghent University, Krijgslaan 281, 9000 Gent, Belgium}
+
+
+\author{Frank Verstraete}
+\affiliation{Vienna Center for Quantum Science and Technology, Faculty of Physics, University of Vienna, Vienna, Austria}
+\affiliation{Ghent University, Krijgslaan 281, 9000 Gent, Belgium}
+
+\begin{abstract}
+We discuss how to analytically obtain an -- essentially infinite -- Matrix Product State (MPS) representation of the ground state of the XY model. 
+On the one hand this allows to illustrate how the algebraic part of the correlation function emerges in the exact case using standard MPS language. 
+On the other hand we study the consequences of truncating the bond dimension of the exact MPS which is also part of many tensor network algorithms and we focus on how well the truncated MPS transfer matrix reproduces the dominant part of the exact quantum transfer matrix. 
+In the gapped phase we observe that the correlation length obtained from a truncated MPS approaches the exact value following a power law in effective bond dimension. In the gapless phase we find a good match between a state obtained numerically from standard MPS techniques with finite bond dimension, and a state obtained by effective finite imaginary time evolution in our framework. 
+This provides a direct hint for a geometric interpretation of Finite Entanglement Scaling at the critical point.
+\end{abstract}
+
+\maketitle
+
+%===================================================================================================================
+%Introduction
+%===================================================================================================================
+
+Over the recent decades, Matrix Product States (MPS) \cite{Fannes1992,Verstraete2008,Schollwock2011} and related numerical techniques have become the standard framework for simulating low energy states of local Hamiltonians in 1D. 
+While MPS with finite bond dimension are an exact representation of the ground state only for a certain uniquely designed class of parent Hamiltonians (such as the celebrated AKLT model \cite{AKLT1987}), for generic local gapped Hamiltonians, MPS of finite bond dimension nevertheless approximate local quantities in the ground state essentially to arbitrary precision \cite{Verstraete2006}. 
+However, for the long-range behavior of the system this is not necessarily the case as correlations of MPS with finite bond dimension necessarily decay exponentially \cite{Fannes1992}. 
+The question of how well MPS are able to reproduce correlations at long distances becomes particularly interesting in view of recent observations linking the minima of dispersion relations of elementary excitations with the rate of decay of momentum-filtered correlations \cite{Zauner2014,Haegeman2014}, or the new results on so called Finite Entanglement Scaling at the critical point \cite{Tagliacozzo2008,Pollmann2009,Vid2014}.
+
+In this article we study a particular example where such questions can be addressed analytically, albeit in the framework of MPS. 
+To that end, we show how to construct an exact MPS representation of the ground state of the XY model -- a prototypical spin model in 1D -- with in principle exponentially diverging bond dimension. 
+In a next step we show how to obtain from this an MPS representation with finite bond dimension and examine how this truncation -- which is also a part of many numerical algorithms -- affects the spectrum of the transfer matrix and in particular the long-distance behavior of correlations.
+
+%===================================================================================================================
+% Section: Solving transfer matrix
+%===================================================================================================================
+
+{\it The ground state of the XY model.--- } The $S=1/2$ XY model on a chain of $N$ spins is defined by the Hamiltonian
+\small
+\begin{equation} \label{eq:HXY}
+   H_{XY} = -\sum_{n=1}^N\Br{\frac{1+\gamma}{2} \sigma_n^x \sigma_{n+1}^x+\frac{1-\gamma}{2} \sigma_n^y \sigma_{n+1}^y + g \sigma^z_n},
+\end{equation}
+\normalsize
+where $\sigma^{x,y,z}_n$ are standard Pauli operators acting on site $n$, and periodic boundary conditions are assumed.
+In order to construct an MPS representation of the ground state $|\Psi_{XY} \rangle$, we exploit the observation by Suzuki \cite{Suzuki1971} that $H_{XY}$ commutes and -- more importantly -- shares the ground state with an operator $V$ given by
+\begin{eqnarray}  \label{eq:Vop} 
+      &V = V_1^{\frac12} V_2 V_1^{\frac12}, \\
+      &V_1 = \exp\Br{\overline K_1 \sum_{n=1}^N \sigma^z_n};  \ V_2 = \exp\Br{ K_2 \sum_{n=1}^N \sigma^x_n \sigma^x_{n+1}}, \nonumber
+\end{eqnarray}
+which appears naturally as the transfer matrix in the solution of the classical 2D Ising model \cite{RMP_LSM}.
+We follow the notation of \cite{RMP_LSM} and define the conjugated coefficient $\overline K_1 = -\frac12 \ln (\tanh K_1)$ where we assume that $K_{1,2} \ge 0$. 
+
+For the sake of clarity we briefly reiterate the main steps of diagonalizing $V$. The subsequent use of a Jordan-Wigner transformation  
+$\sigma^z_n = 1-2 c_n^\dagger c_n$, $\sigma^x_n + i \sigma^y_n = 2 c_n \prod_{m<n} \left( 1-2 c^\dagger_m c_m \right)$ 
+[with $c_n$ fermionic annihilation operators], a Fourier transform 
+$c_n = e^{-i \pi/4} N^{-\frac12} \sum_k c_k e^{i k n}$, 
+and a Bogoliubov transformation 
+$c_k =\cos \theta_k \gamma_k - \sin \theta_k \gamma_{-k}^\dagger$ 
+allows to rewrite $V$ as \cite{2DIsing_comment,normalization_comment}:
+\begin{equation} \label{eq:Vdiag}
+V = \exp \left[- \sum_k \epsilon_k \gamma_k^\dagger \gamma_{k} \right]=\exp \left[- H_V \right],
+\end{equation}
+where the single particle energies $\epsilon_k \ge 0$ are given by
+\begin{equation*}
+   \cosh \epsilon_k = \cosh 2 \overline K_1 \cosh 2 K_2 - \cos k \sinh 2 \overline K_1 \sinh 2 K_2.
+\end{equation*} 
+and the Bogoliubov angles $\theta_k$ are determined as
+\begin{equation*}
+   \tan 2 \theta_k = \frac{\sin k  \sinh 2 K_2}{  \sinh 2 \overline K_1 \cosh 2 K_2 - \cos k \cosh 2 \overline K_1 \sinh 2 K_2  }.
+\end{equation*}
+
+The Hamiltonian of the XY model \eqref{eq:HXY} can be diagonalized following exactly the same steps as those for $V$, with Bogoliubov angles 
+$\tan 2 \theta_k  = \gamma \sin k / \br {g - \cos k}$.
+With
+\begin{equation} \label{eq:XYmap}
+   \gamma = \tanh 2 K_1, \quad g = \frac{\tanh 2 \overline K_1}{ \tanh 2 K_2},
+\end{equation}
+$H_{XY}$ and $H_V$ then commute and share the same ground state. 
+The part of the XY model phase diagram covered by the above mapping is shown in Fig. \ref{fig:pd}.
+
+%===================================================================================================================
+% Section: MPO
+%===================================================================================================================
+
+{\it Exact MPS form.---}
+Exponentials of operators of the form in Eq. \eqref{eq:Vop} can be efficiently decomposed in terms of Matrix Product Operators (MPOs) with bond dimension $2$ \cite{Murg2010}:
+\begin{equation} \label{eq:VMPO}
+V =  \sum_{s_1,\dotsc, s_N=0}^1   \Tr \Br{C^{s_1} \dotsm C^{s_N}} X^{s_1}  \otimes \dotsm \otimes X^{s_N},
+\end{equation}
+up to normalization \cite{normalization_comment}, where
+\begin{equation*}
+\begin{split}
+      C^0 = \sqrt2 \begin{pmatrix} \cosh K_2 & 0  \\ 0&   \sinh K_2 \end{pmatrix}, \;
+      C^1 = \sqrt{\sinh 2 K_2} \begin{pmatrix} 0 & 1  \\ 1 & 0 \end{pmatrix}, \\
+      X^0 = \sqrt2 \begin{pmatrix} \cosh K_1 & 0  \\ 0&   \sinh K_1 \end{pmatrix}, \;
+      X^1 = \sqrt{\sinh 2 K_1} \begin{pmatrix} 0 & 1  \\ 1 & 0 \end{pmatrix}.
+\end{split}
+\end{equation*}
+We refer to \cite{Murg2010} for details of the derivation. 
+We only point out that in the context of Suzuki-Trotter expansions of (the exponent of) the quantum Ising model Hamiltonian, which was considered in Ref.~\onlinecite{Murg2010}, parameters $\overline K_1$ and $K_2$ are small and proportional to an (infinitesimal) time step, while in the decomposition of $V$ in Eq.~\eqref{eq:Vop} there is no Suzuki-Trotter approximation error and $\overline K_1$ and $ K_2$ can in principle be arbitrary.
+
+%============================
+% Figure: duality 
+%============================
+\begin{figure}[t] 
+\begin{center}
+\includegraphics{Fig1.eps}
+\end{center}
+\caption{(color online). Phase diagram of the XY model in Eq. \eqref{eq:HXY}. Blue hatching (without boundaries) shows the range of parameters covered by the mapping in Eq. \eqref{eq:XYmap}. Red dashed lines indicate critical lines.}
+\label{fig:pd}
+\end{figure}
+%=============================
+
+By applying $V$ to some initial state $|\Psi_0\rangle$ $L$ times, the ground state $\vert \Psi_{XY}\rangle$ of the XY model is obtained in the limit $L \to \infty$ (pending normalization).
+This is equivalent to performing imaginary time evolution with the Hamiltonian $H_V$ in Eq. \eqref{eq:Vdiag}, where the effective imaginary time of evolution is proportional to $L$. 
+This procedure is depicted in the top half of Fig. \ref{fig:network}a, where each row represents a single operator $V$ in MPO form with local tensors $O = \sum_{s=0}^1 C^s \otimes X^s$.
+
+Alternatively, one can look at this picture in the vertical direction, interpreting each column $A^i$ as an exact MPS representation of $\vert \Psi_{XY}\rangle$ with bond dimension $2^L$, that is,
+$\vert \Psi_{XY}\rangle  = \sum_{i_1,\dotsc, i_N}   \Tr \Br{A^{i_1} \dotsm A^{i_N}} \vert i_1\dotsc i_N  \rangle = \vert \Psi(A)\rangle$.
+Due to the symmetry between $C^s$ and $X^s$, which is apparent from Eq. \eqref{eq:VMPO}, we can obtain $A^i$ simply by inverting the steps leading to the MPO decomposition of $V$.
+The only additional complication comes from the boundaries of $A^{i}$, representing the physical (spin) degrees of freedom and the initial state $\vert \Psi_0 \rangle$, respectively.
+After some algebra we obtain
+\begin{eqnarray}  \label{eq:A} 
+      &A^i = U_1^{\frac12} R^i U_2 U_1^{\frac12}, \\
+      &U_1 = \exp\Br{\overline K_2 \sum_{l=1}^{L} \tau^z_{l}}; \ U_2 =  \exp\Br{ K_1 \sum_{l=1}^{L-1} \tau^x_{l} \tau^x_{l+1}}. \nonumber
+\end{eqnarray}
+Here $l =1,2, \dotsc, L$ labels the auxiliary degrees of freedom along the vertical direction and $\tau^{x,y,z}_l$ are Pauli operators acting on these. 
+$R^i$ is a localized operator acting on auxiliary site $l=1$, with $R^0 = \sqrt{\cosh K_1}\unity$ and $R^1 = \sqrt{\sinh K_1} \, \tau^x_1$.  
+For a graphical representation see Fig. \ref{fig:network}b.
+Notice that $R^i$ commutes with $U_2$, but not with $U_1$.
+
+As an initial (top) state we use for convenience a product state 
+$\vert \Psi_0 \rangle = \vert 0_1 0_2 \dotsc 0_N \rangle$ 
+with $\sigma^z_n |0_n\rangle = |0_n\rangle$ fully polarized in $+Z$ direction. 
+This state is an eigenstate of the parity operator $P = \prod_{n=1}^N \sigma^z_n $ with eigenvalue $+1$. 
+As $P$ commutes with $V$, the final state $\vert \Psi_{XY} \rangle$ has the same parity as $\vert \Psi_0 \rangle$. 
+In particular, this means that in the ferromagnetic phase we consider the symmetric superposition of the two symmetry broken ground states.
+
+%=============================
+% Figure: Network
+%=============================
+\begin{figure}[t]
+\begin{center}
+\includegraphics[width=\columnwidth]{Fig2.eps}
+\end{center}
+\caption{(color online). (a) Decomposition of the ground state $|\Psi_{XY} \rangle$  into a two-dimensional tensor network. Rows represent operator $V$ in MPO form with local tensors $O$.
+Half-columns constitute the MPS decomposition of $|\Psi_{XY} \rangle$ with MPS matrices $A^i$, while a full (infinite) column represents the (quantum) transfer matrix $\mathcal{T}_F$ at zero temperature. 
+(b) MPS matrix $A_i$ as given by Eq. \eqref{eq:A}.}
+ \label{fig:network}
+\end{figure}
+%============================= 
+
+%===================================================================================================================
+% Section: Correlation functions
+%===================================================================================================================
+
+{\it Correlation functions.---} We have cast the ground state of the XY model in an exact MPS form, where each MPS matrix $A^i$ has bond dimension $2^L$ and the limit $L \rightarrow \infty$ is assumed. 
+However, before addressing the question of finding an efficient MPS approximation with low bond dimension, we will discuss the asymptotic behavior of the correlation functions in the exact case.
+From now on, for the rest of this article, we will assume $N\to\infty$ and we treat the system as infinite with open boundary conditions.
+
+Following standard notation \cite{Verstraete2008,Schollwock2011} we define the MPS transfer matrix as $\mathcal{T}_F  = \sum_{i=0}^1 \bar{A}^{i} \otimes A^i$ (see Fig. \ref{fig:network}a). 
+Up to the open boundary conditions and exchanging $K_1$  and $K_2$, $\mathcal{T}_F$ has the same form as $V$ in Eq. \eqref{eq:Vop}. 
+For simplicity, in this section, we approximate $\mathcal{T}_F$ by using periodic boundary conditions.
+We also define the (spin) operator transfer matrix 
+$\mathcal{T}_{F,\hat O} = \sum_{i,j=0}^1 \hat O_{i,j} \bar{A}^{i} \otimes A^j$. 
+For $\hat O = \sigma^z$ we find that $\mathcal{T}_{F,\sigma^{z}} = \mathcal{O}_{z} \mathcal{T}_F$, where $\mathcal{O}_z =  \exp \Br{-2 K_1 \tau_{-1} \tau_{1}}$ and $\tau_l = \cosh \overline K_2 \tau^x_l + i \sinh \overline K_2 \tau^y_l $.
+
+For the sake of clarity and without loss of generality, we further consider the static connected correlation function
+\begin{equation} \label{eq:correlations}
+C_{zz}(R)= \langle \sigma^z_0 \sigma^z_R \rangle - \langle \sigma_z \rangle^2 =  \sum_{\alpha \neq \emptyset} f_\alpha^{zz} e^{ - E_\alpha R}
+\end{equation}
+in the paramagnetic phase only. 
+Here we have defined the form factors 
+$f_\alpha^{zz} = ( \varphi_\emptyset \vert \mathcal{O}_z  \vert \varphi_\alpha ) ( \varphi_\alpha \vert \mathcal{O}_z  \vert \varphi_\emptyset )$, 
+where $|\varphi_\alpha )$ are the eigenvectors of the transfer matrix ${\mathcal{T}_F}$ to eigenvalues $e^{- E_\alpha }$.
+${\mathcal{T}_F}$ -- which is hermitian by construction -- is normalized in such a way that the eigenvalue to the dominant eigenvector $|\varphi_\emptyset)$ is equal to one -- that is $E_\emptyset=0$ and $E_{\alpha\neq\emptyset} > 0$ -- such that $\vert\Psi_{XY} \rangle$ is properly normalized.
+Other correlation functions, also in different phases, can be obtained following the same arguments.
+                                 
+In the limit $L\rightarrow \infty$ the spectrum of the transfer matrix consists of continuous bands as the states $\vert\varphi_{\alpha \neq \emptyset})$ are obtained from the vacuum $\vert \varphi_\emptyset )$ by exciting free-fermionic quasiparticles and  $E_\alpha$ follows from summing up the corresponding single particle energies $\epsilon_k^{\mathcal{T}_F}$, where
+\begin{equation*}
+\cosh \epsilon_k^{\mathcal{T}_F} = \cosh 2 \overline K_2 \cosh 2 K_1 - \cos k \sinh 2 \overline K_2 \sinh 2 K_1.
+\end{equation*}
+
+Now, in order to obtain the leading asymptotic of the correlation function, it is sufficient to know the dispersion around the minimum of the lowest relevant band -- i.e. for which the form factors $f_\alpha^{zz}$ are nonzero -- and the scaling of those form factors.
+In the case of $C_{zz}(R)$ the only nonzero form factor contributions come from $\alpha = \{k_1,k_2 \}$, that is, where two quasiparticles with momenta $k_1$ and $k_2$ are excited.
+Notice that form factors corresponding to the lowest single particle band $\alpha=\{k_1\}$ vanish, since both $\mathcal{T}_{F}$ and $\mathcal{O}_z$ conserve parity.
+
+Expanding around the minimum of $ \epsilon_k^{\mathcal{T}_F}$ at $k=0$ we obtain
+\begin{equation*}
+      \epsilon^{\mathcal{T}_F}_k \simeq \Delta +  a_p  k^2; \ \  f^{zz}_{k_1,k_2}  \simeq b_p \frac{\pi^2}{L^2}  (k_1-k_2)^2,
+\end{equation*}
+with the gap $\Delta=2 \vert \overline K_2 - K_1\vert $ and the coefficients 
+$a_p = \sinh(2 \overline K_2)\sinh(2 K_1) / 2 \sinh(2 \vert \overline K_2 - K_1\vert)$ 
+and 
+$b_p = a_p^2 / \pi^2$.
+Now, for large $R$ the correlation function behaves asymptotically as
+\begin{equation*}
+C_{zz}(R)  \approx \sum_{k_1 > k_2} \frac{\pi^2 }{L^2} b_p (k_1-k_2)^2  e^{-R[2 \Delta + a_p (k_1^2 + k_2 ^2)]}.
+\end{equation*}
+In the limit of $L \to \infty$ we treat $k_{1,2}$ as continuous variables with $dk_{1,2} = \frac{\pi}{L}$ and we have
+\begin{equation*}
+C_{zz}(R)  \approx e^{-2 \Delta R }  \iint_{-\infty}^{\infty} \frac12 dk_1 dk_2 b_p (k_1 -k_2)^2 e^{-R a_p (k_1^2 + k_2^2)},
+\end{equation*}
+where we can extend the limits of integration to $\pm \infty$ for large $a_p R$. 
+Naturally, we recognize the correlation length as $\xi = \Delta^{-1}$, which is the slowest possible decay resulting from $\mathcal{T}^F$. 
+Performing integrals yields the leading algebraic dependence on $R$,
+\begin{equation*}
+C_{zz}(R)  \approx \frac{b_p \pi }{2 a_p^2 } \frac{1}{R^2}e^{-2 R/\xi }=\frac{1 }{2 \pi } \frac{1}{R^2}e^{-2 R/\xi }, 
+\end{equation*}
+where we recover the classic result by Barouch and McCoy \cite{Barouch1971}. 
+
+Exactly at the critical point the dispersion relation is qualitatively different with $\epsilon^{\mathcal T}_k \simeq a_c |k|$, which is accompanied by a similar change in the form factors. 
+In the leading order in $k$, 
+$f^{zz}_{k_1,k_2}  \simeq b_c \frac{\pi}{L} $, for $k_1 \cdot k_2 <0$, 
+where $a_c = \sinh 2 K_1$ and $b_c = a_c^2 / \pi^2$.  
+Calculations similar to the above again allow us to recover the algebraic asymptotic dependence on $R$, as 
+$C_{zz}(R)  \approx \frac{b_c}{a_c^2}\frac{1}{R^2} = \frac{1}{\pi^2 R^2}$, 
+in agreement with \cite{Barouch1971}.
+
+To summarize this part, notice that on the one hand the gap of the transfer matrix sets the correlation length while on the other hand, the full (low energy part of the) continuous band contributes {\it equally} (in the sense of form factors being proportional to $dk$) to form the algebraic part. 
+The exponent is determined by the low energy dispersion of the transfer matrix and the corresponding form factors, as well as symmetries, resulting, for instance, in double integrals in the case of $C_{zz}$ above (see also the discussion in Sec. IVA in Ref.~\onlinecite{Zauner2014}).
+
+%===================================================================================================================
+% Section: Truncating MPS
+%===================================================================================================================
+
+{\it Efficient MPS representation.--- }
+The results above are obtained analytically in the limit of exponentially diverging bond dimension $D$, where $D=2^L$ with $L\to \infty$. 
+However, above all, MPS serve as a class of variational states that lie at the heart of many numerical techniques, where only modest bond dimensions are feasible. It is therefore important to understand what information about the quasi-exact state is retained after truncating to an efficient MPS approximation with finite bond dimension $D$, i.e. $ \lvert \Psi (A) \rangle \simeq \lvert {\Psi} (\tilde A) \rangle$, with $\tilde A^i$ matrices $\in\mathbb{C}^{D\times D}$, where we follow standard truncation procedures for infinite systems \cite{Orus2008}.
+
+To that end, we obtain the reduced density operator of the MPS $|\Psi(A)\rangle$ on a half-infinite chain and truncate in its diagonal basis. 
+For this particular case, where the transfer matrix $\mathcal{T}_F$ is Hermitian and its left and right dominant eigenvector are both given by $|\varphi_\emptyset)$, the physical density operator of the half infinite chain is equivalent to the reduced density matrix $\rho$ of $|\varphi_\emptyset)$ with support on the $L$ site auxiliary system with $l>0$ (see Appendix and Fig. \ref{fig:network}). 
+Reduced density matrices for systems which can be diagonalized by mapping onto free-fermionic models have been studied extensively, see \cite{Peschel2009} for a review.
+As such, it can be expressed as 
+$\rho = \frac{1}{Z} \exp \left(- \sum_{m=1}^L \delta_m f^\dagger_m f_m \right)$, 
+where $f_m$ are fermionic annihilation operators and  $\delta_m>0$ is the entanglement spectrum arranged in ascending order. 
+Efficiently truncating to an MPS with bond dimension $D=2^{\chi}$ is now equivalent to keeping only the first $\chi$ (most relevant) \textit{fermionic modes} of $\rho$.
+This amounts to the projection
+\begin{equation}
+\label{eq:Anew}
+\tilde A^i =  ( 0_{\chi +1} 0_{\chi +2} \dotsc |A^i | 0_{\chi +1} 0_{\chi +2} \dotsc ),
+\end{equation}
+where $f_m |0_m) =0 $. 
+Notice that this procedure is {\it not} fully equivalent to just keeping the $D$ largest singular values of $\rho$ as it additionally retains the free-fermionic structure of the problem with new 
+\begin{equation}
+\label{eq:newrho}
+\tilde \rho = \frac1Z \exp \left(- \sum_{m=1}^\chi \delta_m f^\dagger_m f_m \right).
+\end{equation} 
+
+For the remainder of this article we will focus on the spectrum of the transfer matrix generated by 
+$|\Psi (\tilde A)\rangle$, i.e. $\tilde{ \mathcal{T}} = \sum_{i=0}^1 \bar{\tilde{A}}^{i} \otimes \tilde A^i$, which can again be diagonalized as
+\begin{equation} \label{eq:teps}
+\tilde{ \mathcal{T}} = \exp\left[- \sum_{m=1}^{2\chi} \tilde \epsilon_m d^\dagger_m d_m \right],
+\end{equation}
+where the spectrum  is determined by single particle energies $\tilde \epsilon_m >0 $ arranged in ascending order \cite{truncation}. 
+
+
+%============================
+% Figure: Numerics
+%============================
+\begin{figure}[t] 
+\begin{center}
+\includegraphics{Fig3.eps}
+\end{center}
+\caption{(color online). (a,b) XY model in the gapped phase with $g=1.01$ and $\gamma = 0.8$. 
+(a) Single particle energies $\tilde \epsilon_m$ of Eq. \eqref{eq:teps} for different $\chi$.  For rescaled index $m/\chi$, the data points collapse onto a single curve. The solid line is a quadratic fit to the first 4 points with $\chi=10$.
+(b) Relative error of the correlation length $(\tilde \epsilon_1-\Delta)/\Delta$ as a function of $\chi$. It shows power-law behavior $\log \big[(\tilde \epsilon_1 - \Delta)/\Delta\big] = -2.0518 \log \chi +1.6944$.  
+(c,d) XY model at a critical point with $g=1$ and $\gamma = 0.5$.
+(c) Smallest single particle energies $\tilde \epsilon_m$ for different $\chi$ quickly approach the exact smallest values from $L = 8240$.
+(d) Comparison of the transfer matrix spectrum obtained for $L=8240$ truncated to $\chi=3$, and the spectrum from truncating iDMRG results with $D'=70$ down to $D=2^{3}=8$ \cite{iDMRG*}. See text for details.
+}
+\label{fig:num}
+\end{figure}
+%=============================
+
+%===================================================================================================================
+% Section: Gapped
+%===================================================================================================================
+
+
+{\it Gapped system.--- }
+For the non-critical case, we simulate the XY model for a particular set of parameters $g=1.01$ and $\gamma=0.8$ in the paramagnetic phase.   
+We show the resulting single particle energies $\tilde \epsilon_m$ for several different $\chi$ in Fig \ref{fig:num}a.
+
+Notably, we observe that the low energy part of the spectrum collapses onto a single curve when the index $m=1,2 \ldots, 2 \chi$ is rescaled by $\chi$.
+Moreover, the lowest part of the spectrum shows quadratic behavior in $m$, consistent with the observation in Fig.~9 of Ref.~\onlinecite{Zauner2014}. In other words the results are consistent with the scaling of the form $\tilde \epsilon_m -\Delta \simeq a (m/\chi)^2$.
+
+The universal quadratic behavior observed above implies that the gap of the truncated transfer matrix $\tilde \epsilon_1$ is shifted from the value of the true gap $\Delta$, and approaches it as a power law in $\chi$ with exponent equal 2. 
+That is indeed observed in Fig \ref{fig:num}b where we show the relative error in the gap (i.e. the inverse of the correlation length) for increasing $\chi$. We fit
+$$
+(\tilde \epsilon_1-\Delta)/\Delta \simeq p_1 \chi^{-p_2},
+$$ 
+with $p_2 \simeq 2.0518$ close to 2.  Notice, that for this particular set of parameters, even for $\chi=10$ the correlation length obtained from the free-fermionic MPS still underestimates the exact value by $\simeq 5 \%$ \cite{Appendix}, where the exact gap of the full transfer matrix is given as $\Delta = \epsilon_{k=0}^{\mathcal{T}_F}  = 0.0124035 \dotsc$
+ 
+It is apparent that a finite value of $\chi$ results both in an underestimation of the correlation length and the breakdown of the asymptotic algebraic dependence of the correlation function on $R$ above some length scale dictated by $\chi$. 
+Correspondingly, by increasing $\chi$, the MPS is able to better reconstruct the low energy part of the continuous band which is responsible for the asymptotic algebraic part of the exact correlation function.
+
+%===================================================================================================================
+% Section: Gapless
+%===================================================================================================================
+
+
+{\it Critical system.--- } 
+For the gapless case, we simulate the XY model for a particular critical set of parameters $g=1$ and $\gamma=0.5$. 
+Because of the vanishing energy gap of $V$, the actual ground state cannot be well approximated for any finite $L$. 
+In that case, the spectrum of the transfer matrix $\mathcal{T}_F$ is necessarily discrete, where the low energy part behaves as $\epsilon_k^{\mathcal{T}_F} \simeq a_c k$. 
+The quasi-momenta take values $k=\frac{\pi}{2L} (1,3,5,7,\dotsc)$, which are universal for open boundary conditions. Fig. \ref{fig:num}c shows data for $L=8240$, as well as $\tilde \epsilon_m$ in Eq. \eqref{eq:teps} obtained from truncation for several different $\chi$.  
+Most importantly, we observe that the $\tilde \epsilon_m$ reproduce the low energy structure for  finite $L$ increasing well with growing $\chi$.
+
+On the other hand, conventional MPS calculations using iDMRG \cite{DMRG,McCulloch2008} try to approximate the critical ground state by the best possible state with finite correlation length \cite{Vid2014,Tagliacozzo2008,Pollmann2009,Pirvu2012}. 
+A priori there is no reason to expect a good match between these two approximations (iDMRG and free-fermionic MPS with finite L), we however obtain good agreement nonetheless. 
+
+To that end  we analyze the state obtained with iDMRG and bond dimension  $D'=70$ and compare it with data for $L=8240$. 
+The value of $L$ is obtained here by matching the ratio of the first two Schmidt values, corresponding to $\delta_0$ in Eq. \eqref{eq:newrho}, to the one obtained from iDMRG.  
+Most importantly, even for iDMRG at the critical point, we are able to identify groups of Schmidt values corresponding to the free-fermionic structure in Eq. \eqref{eq:newrho} \cite{iDMRG*}. 
+
+This allows us to compare the resulting spectra of the Transfer Matrix  ($D^2=2^{2\chi}$ eigenvalues) for several values of $\chi$ and corresponding iDMRG* \cite{iDMRG*}. 
+As can be seen in Fig. \ref{fig:num}d for $\chi=3$, picking the correct Schmidt values results in a clear structure of the Transfer Matrix spectrum, consistent with the one given by Eq. \eqref{eq:teps}. 
+Similar matches are obtained for different values of $\chi$ \cite{Appendix}.
+ 
+The above results allow us to conclude that the state obtained with iDMRG contains the structure which is fully consistent with a free-fermionic theory on a strip of finite width. 
+This provides a strong hint that so called Finite Entanglement Scaling \cite{Vid2014,Tagliacozzo2008,Pollmann2009,Pirvu2012} -- scaling observed while simulating the (conformally invariant) critical theory using MPS with finite $D$ -- can be interpreted in a geometric way. 
+This cannot be seen that easily when one looks directly at iDMRG and the ratios of the dominant eigenvalues of the Transfer Matrix (cf. \cite{Vid2014}), since the ratios change if we enforce the free-fermionic structure on the MPS, and even then, for a given state and $\chi =3,4$ the ratios are still far from expected values of $(1,3,5,\dotsc)$ on a strip, see Fig. \ref{fig:num}c and the Appendix. 
+
+Finally, while we were able to find a value of $L$ in a free-fermionic MPS which is a good match to a particular MPS obtained from iDMRG with given bond dimension $D'$, the current analysis does not provide any hint why, for given bond dimension $D'$, iDMRG should yield an MPS approximation corresponding to an effective imaginary time evolution of the system up to some finite imaginary time proportional to $L$. 
+Or equivalently, how to choose $D'$ for an iDMRG calculation to reproduce results from a finite $L$ free-fermionic calculation. 
+Even more, while the comparison shown in Fig. \ref{fig:num}d is remarkably good, it is possible that even a better match could be found if we allow the finite $L$ free-fermionic theory to slightly move out of the critical point -- as is usually the case for Finite Size Scaling \cite{Privman1990}.
+That is, we would need to scan not only the values of $L$, but also $g$'s and $\gamma$'s close to the exact critical values -- see e.g. \cite{Tagliacozzo2008} in that context.
+
+%===================================================================================================================
+% Section: Conclusion
+%===================================================================================================================
+
+
+We can conclude, that an MPS  with finite bond dimension can be understood as a particular renormalization group procedure applied to the exact transfer matrix, whose dominant part is increasingly well reproduced with increasing bond dimension. Still the comparison with the RG scheme based on a description in terms of an effective impurity -- proposed in Sec.~V.C of Ref.~\cite{Zauner2014} -- remains to be done.
+
+Discussions with Vid Stojevic and Viktor Eisler are gratefully acknowledged.  
+We acknowledge support by NCN grant 2013/09/B/ST3/01603 (M.M.R.), EU grants SIQS and QUERG and the Austrian FWF SFB grants FoQuS and ViCoM (V.Z. and F.V.), and Research Foundation Flanders (J.H.).
+
+%===================================================================================================================
+% The Bibliography
+%===================================================================================================================
+
+\begin{thebibliography}{99}
+\bibitem{Fannes1992} M. Fannes, B. Nachtergaele, and R. Werner, Comm. Math. Phys. {\bf 144}, 443 (1992).
+\bibitem{Verstraete2008} F. Verstraete, V. Murg, and J.I. Cirac, Adv. Phys. {\bf 57}, 143 (2008).
+\bibitem{Schollwock2011} U. Schollw\"ock, Annals of Physics {\bf 326}, 96 (2011).
+\bibitem{AKLT1987}  I. Affleck, T. Kennedy, E.H. Lieb, H. Tasaki,  Phys. Rev. Lett. {\bf 59}, 799 (1987).
+\bibitem{Verstraete2006} F.~Verstraete, J.I.~Cirac, Phys. Rev. B {\bf 73}, 094423 (2006)
+\bibitem{Zauner2014} V. Zauner at. al., arXiv:1408.5140 (2014). 
+\bibitem{Haegeman2014} J.~Haegeman, V.~Zauner, N.~Schuch and F.~Verstraete, arXiv:1410.5443 (2014). 
+\bibitem{Tagliacozzo2008} L. Tagliacozzo, T. de Oliveira, S. Iblisdir, and J. Latorre, Phys. Rev. B {\bf 78}, 024410 (2008).
+\bibitem{Pollmann2009} F. Pollmann, S. Mukerjee, A.Turner, and J. Moore, Phys. Rev. Lett. {\bf 102}, 255701 (2009).
+\bibitem{Vid2014} V. Stojevic, J. Haegeman, I. P. McCulloch,  L. Tagliacozzo, F. Verstraete,  ArXiv:1401.7654 (2014).
+\bibitem{Suzuki1971} M. Suzuki, Prog. Theor. Phys. {\bf 46}, 1337 (1971); {\it ibid. } {\bf 56}, 1454 (1976).
+\bibitem{RMP_LSM} T.D. Schultz, D.C. Mattis, and E.H. Lieb, Rev. Mod. Phys. {\bf 36}, 856 (1964).
+\bibitem{Murg2010} V. Murg, J.I. Cirac, B. Pirvu, and F. Verstraete, New J. Phys { \bf 12}, 025012 (2010).
+\bibitem{Barouch1971} E. Barouch, and B.M. McCoy, Phys. Rev. A {\bf 3}, 786 (1971).
+\bibitem{Orus2008} R. Or\'us, and G. Vidal, Phys. Rev. B {\bf 78}, 155117 (2008).
+\bibitem{Peschel2009} I. Peschel, and V. Eisler, J. Phys. A: Math. Theor. {\bf 42} 504003 (2009).
+\bibitem{Pirvu2012} B. Pirvu, G. Vidal, F.Verstraete, and L. Tagliacozzo, Phys. Rev. B {\bf 86}, 075117 (2012).
+\bibitem{Abraham1971} D.B. Abraham, Stud. App. Math. {\bf 1}, 71 (1971).
+\bibitem{Privman1990} V. Privman, {\it Finite Size Scaling and Numerical Simulation of Statistical Systems} (World Scientific Publishing Company, Incorporated, 1990).
+\bibitem{2DIsing_comment} {To be precise, for periodic boundary conditions one has to separately consider subspaces with even and odd parity (see \cite{RMP_LSM} for details). This however does not
+affect any of our conclusions. We also note that in the context of the classical 2D Ising model \cite{RMP_LSM,Abraham1971} it is more convenient to work with a transfer matrix of the form $V_2^{1/2}V_1 V_2^{1/2}$,
+while in our case Eq. \eqref{eq:Vop} is more natural. }
+\bibitem{normalization_comment} {For clarity we neglect the -- in this case irrelevant  -- normalization factors throughout the article and reintroduce them only when necessary}.
+\bibitem{truncation} {For technical details regarding the truncation we refer to the Appendix. We just point out here that we diagonalize $\mathcal{T}_F$ and $\tilde{ \mathcal{T}}$ numerically, with finite sizes $2L$ and $2\chi$ respectively, and open boundary conditions, using the formalism of ``transformation matrices'' (see e.g.  \cite{Abraham1971}).}
+ \bibitem{DMRG} S.R.~White, Phys. Rev. Lett. {\bf 69}, 2863 (1992); 
+ Phys. Rev. B {\bf 48}, 10345 (1993)
+ \bibitem{McCulloch2008} I.P.~McCulloch, arXiv:0804.2509 (2008)
+\bibitem{iDMRG*}  We obtain an MPS for some larger bond dimension $D'$ and subsequently truncate to $D=2^\chi$ by keeping only Schmidt values corresponding to Eq. \eqref{eq:newrho}. They can be identified by finding groups of Schmidt values which have constant ratios (with reasonable precision), resulting from the structure of Eq. \eqref{eq:newrho}. 
+\bibitem{Appendix} For additional numerical evidence and comparison with iDMRG \cite{DMRG,McCulloch2008}, we refer to the Appendix.
+
+\end{thebibliography}
+ 
+% \onecolumngrid
+
+\renewcommand{\theequation}{A\arabic{equation}}
+\setcounter{equation}{0}    % reset counter 
+\section*{Appendix}           % use *-form to suppress numbering
+\setcounter{figure}{0}                                           % reset counter
+\renewcommand{\thefigure}{A\arabic{figure}}     % use *-form to suppress numbering
+
+{\it Transfer matrix.--- } We define the transfer matrix as $\mathcal{T}_F  = \sum_{i=0}^1 \bar{A}^{i} \otimes A^{i}$, where for the XY model, matrices $A^i$ are given by Eq. \eqref{eq:A}, resulting in
+\begin{eqnarray}  
+      &\mathcal{T}_F = W_1^{\frac12} W_2 W_1^{\frac12}, \\
+      &W_1 = \exp\Br{\overline K_2 \sum_{l=1}^{2L}  \tau^z_l};  \ W_2 = \exp\Br{ K_1 \sum_{l=1}^{2L-1} \tau^x_l \tau^x_{l+1}}. \nonumber
+\end{eqnarray}
+We have reindexed the auxiliary spins along the vertical direction for convenience, so that sites with $l=1,2,\dotsc L$ correspond to $A^i$ and sites with $l=L+1,\dotsc, 2 L$ to $\bar{A}^{i}$. 
+Operators of this form were diagonalized by Abraham \cite{a:Abraham1971} using the formalism of transformation matrices. Here we reiterate the main steps of the derivation.
+
+Firstly, $\mathcal{T}_F$ is mapped onto a free-fermionic model by means of a Jordan-Wigner transformation $\tau_n^z = 1-2 c_n^\dagger c_n$, $\tau^x_n + i \tau^y_n = 2 c_n \prod_{m<n} \left( 1-2 c^\dagger_m c_m \right)$, where $c_n$ are fermionic annihilation operators. 
+It is convenient to introduce Majorana fermions $c^M_{2n-1} = c_n + c_n^\dagger$ and $c^M_{2n} = i( c_n  - c_n^\dagger)$, with $\{c^M_m,c^M_n\}=2 \delta_{m,n}$, where we will use superscript $^M$ to indicate Majorana fermions.
+Now, 
+\begin{eqnarray*}  
+   &W_1 = \exp\Br{\overline K_2 \sum_{l=1}^{2L}  i c^M_{2l-1} c^M_{2l}},  \\
+   &W_2 = \exp\Br{ K_1 \sum_{l=1}^{2L-1} i c^M_{2l} c^M_{2l+1}}. 
+\end{eqnarray*}
+
+\noindent We define a (row) vector $\vec c^M = (c^M_1,c^M_2,c^M_3, \ldots, c^M_{4L})$ and for an operator $T$, which is an exponential of a free-fermionic Hamiltonian, we consider the similarity transformation
+\begin{equation}
+\label{eq_a_similarity}
+T \vec c^M T^{-1} = \vec c^M R[T],
+\end{equation}
+which defines a $4 L \times 4 L $ transformation matrix $R[T]$. Above, it is understood that $T \vec c^M T^{-1} = (T c^M_1 T^{-1}, T c^M_2 T^{-1} , \ldots, T c^M_{4L} T^{-1})$.
+
+It is convenient to introduce a $2\times2$ matrix
+\begin{equation*}
+u(x)= 
+\begin{pmatrix}
+\cosh  x & i \sinh  x \\
+- i \sinh  x & \cosh  x \\
+\end{pmatrix}.
+\end{equation*}
+The transformation matrices for $W_1^{1/2}$, $W_2$ are block diagonal 
+\begin{eqnarray*}
+ & R[W_1^{1/2}] = \bigoplus_{n=1}^{2L} u(\overline K_2), \\
+ & R[W_2] = 1 \oplus \left( \bigoplus_{n=1}^{2L-1} u(2 \overline K_1) \right) \oplus 1.
+ \end{eqnarray*}
+The transformation matrix for $\mathcal{T}_F$ is found simply by multiplying transformation matrices for $W_1^{1/2}$ and $W_2$
+\begin{equation}
+\label{eq:RTF}
+R[\mathcal{T}_F] = R[W_1^{1/2}] R[W_2] R[W_1^{1/2}].
+\end{equation}
+Subsequently, the transfer matrix is diagonalized by finding $U_\mathcal{T} \in SO(4L)$ which brings $R[\mathcal{T}_F]$ into canonical form 
+\begin{eqnarray*}
+& R[\mathcal{T}_F] = U_\mathcal{T} R_a^M U_\mathcal{T}^T, \\
+& R_a = \bigoplus_{n=1}^{2L} u(\epsilon^{\mathcal{T}_F}_n).
+\end{eqnarray*}
+This gives single particle energies $\epsilon^{\mathcal{T}_F}_n>0$ and  $U_\mathcal{T}$ defines a new fermionic basis $\vec a^M = \vec c^M U_\mathcal{T}$, for which (up to normalization)
+\begin{equation*}
+ \mathcal{T}_F = \exp \Br{i \sum_{n=1}^{2L} \frac12 \epsilon_n^{\mathcal{T}_F} a^M_{2n-1} a^M_{2n}} = \exp \Br{-\sum_{n=1}^{2L}\epsilon_n^{\mathcal{T}_F} a_n^\dagger a_n}.
+\end{equation*}
+ The dominant eigenvector of $\mathcal{T}_F$ is annihilated by all annihilation operators $a_n| \psi_\emptyset ) =(a^M_{2n-1} - i a_{2n}^M) | \psi_\emptyset ) =0$.
+
+{\it Reduced density matrix.--- } The reduced density matrix $\rho$ of $|\psi_\emptyset )$ with support on sites $l=1,2,\dotsc,L$ is diagonalized following standard techniques \cite{a:Peschel2009} by considering a $2L\times 2L$ covariance matrix for a half-chain 
+\begin{equation*}
+C_{[1,2,\dotsc,L]} = \Br{(\psi_\emptyset| c^M_m c^M_n  | \psi_\emptyset)}_{m,n = 1,2, \dotsc,2L} = \mathbb{1} + i B^{M}.
+\end{equation*}
+where $B^{M}$ is skew-symmetric. The reduced density matrix is diagonalized by bringing $B^M$ into canonical form
+\begin{eqnarray*}
+& B^M = U_B B_f^M U_B^T, \\
+& B^M_f = \bigoplus_{n=1}^L \begin{pmatrix}
+0 &  - \tanh \frac{\delta_n}{2} \\
+ \tanh \frac{\delta_n}{2}  & 0 \\
+\end{pmatrix},
+\end{eqnarray*}
+where $\delta_m$ defines the entanglement spectrum. $U_B \in SO(2L)$ defines a new set of Majorana fermions $(f_1^M,\dotsc,f_{2L}^M) =  (c_1^M,\dotsc,c_{2L}^M) U_\mathcal{B}$, for which 
+\begin{equation*}
+ \rho = \frac{1}{Z} \exp \Br{i \sum_{n=1}^{L} \frac{\delta_n}{2} f^M_{2n-1} f^M_{2n}} =\frac{1}{Z} \exp \Br{-\sum_{n=1}^{L} \delta_n f^\dagger_n f_n} . 
+\end{equation*}
+Similarly, we obtain $(f^M_{2L+1},f^M_{2L+2},\dotsc,f^M_{4L})$ by considering the reduced density matrix supported on sites $L+1,\dotsc,2L$. 
+
+
+{\it Truncation.---}  Finally, we describe how to obtain the truncated transfer matrix $\tilde {\mathcal{T}}=\sum_{i=1}^2  \bar{\tilde A}^{i}  \otimes \tilde A^i$, where 
+$\tilde A^i$ are given by Eq. \eqref{eq:Anew} and we keep the $\chi$ most relevant fermionic modes, i.e. we discard $f$-modes for  $\Lambda = \{\chi+1,\chi+2,\dotsc,L\} \cup \{ L+\chi+1,L+\chi+2,\dotsc ,2 L\}$. 
+
+We work directly with the transfer matrix and get 
+$$
+\tilde{\mathcal{T}} = (\otimes _{j \in \Lambda } (0_j|)  \mathcal{T}^F  (\otimes_{j \in \Lambda }| 0_j)),$$ 
+where states $|0_j)$ for which $f_j|0_j) =0$ are obtained from the diagonalization of the reduced density matrix. We use the formalism of the transformation matrix, extending it to the case of non-invertible projections, cf. Eq. \eqref{eq_a_similarity}.
+
+First we obtain the transformation matrix for $\mathcal{T}_F$ in the $f$-fermionic base as
+\begin{equation*}
+\mathcal{T}^F \vec f \mathcal{T}^F = \vec f R[\mathcal{T}^F]^f,
+\end{equation*} 
+where for convenience we reorder  
+$\vec f =\{\vec f_a, \vec f_b, \vec f_c \} $ with $\vec f_a$ describing the relevant modes $\vec f_a = \{f_j, f_j^\dagger : j \notin \Lambda \}$, $\vec f_b = \{f_j : j \in \Lambda\}$  are annihilation operators corresponding to the truncated modes, and finally  $\vec f_c = \{f_j^\dagger : j \in \Lambda\}$ denote the corresponding creation operators. $R[\mathcal{T}^F]^f$ can be directly obtained from $R[\mathcal{T}^F]$ in Eq. \eqref{eq:RTF} by a suitable basis rotation from $\vec a^M$ to $\vec f$. 
+
+\noindent Here, the relevant sub-matrices of $R[\mathcal{T}^F]^f$ are 
+\begin {align*}
+R_{aa} &= \Br{R[\mathcal{T}^F]^f}_{m,n = 1,\dotsc 4 \chi} \\
+R_{ab} &= \Br{R[\mathcal{T}^F]^f}_{m = 1,\dotsc 4 \chi, n = 4\chi +1, \dotsc, 2 L + 2 \chi } \\
+R_{ba} &= \Br{R[\mathcal{T}^F]^f}_{m = 4\chi +1, \dotsc 2 L + 2 \chi, m = 1,\dotsc 4 \chi} \\
+R_{bb} &= \Br{R[\mathcal{T}^F]^f}_{m,n = 4\chi +1, \dotsc 2 L+2 \chi} 
+\end {align*}
+Namely, $R_{aa}$ describes transformation of  $\vec f_a$  into  $\vec f_a$ under the similarity transformation given by $\mathcal{T}^F$,
+ $R_{ab}$  corresponds to the transformation $\vec f_a$  into  $\vec f_b$, etc.
+ 
+The transformation matrix corresponding to $\tilde {\mathcal{T}}$, 
+\begin{equation}
+\label{eq:tT}  
+\tilde{ \mathcal{T}} \vec f_a \tilde{ \mathcal{T}}^{-1} = \vec  f_a \tilde R [\tilde{\mathcal {T}} ],
+\end{equation}
+is found as
+\begin{equation}
+\label{eqa:Rtruncate}  
+R[\tilde{\mathcal{T}}] = R_{aa} - R_{ab} R_{bb}^{-1} R_{ba}. 
+\end{equation}
+Now, bringing $R[\tilde{\mathcal{T}}]$ into canonical form -- similar to $R[{\mathcal{T}^F}]$ -- yields the spectrum $\tilde \epsilon_m$, where
+$$
+\tilde {\mathcal{T}} = \exp \Br{\sum _{m=1}^{2\chi} \tilde \epsilon_m d_m^\dagger d_m }. 
+$$
+
+In order to derive equation Eq.  \eqref{eqa:Rtruncate} we consider 
+\begin{equation}
+\label{eq:PTP}
+\hat P \mathcal{T}^F \vec f \hat P = \hat P \vec f \mathcal{T}^F \hat P R[\mathcal{T}^F]^f,
+\end{equation}
+
+\noindent where the projection $P_\Lambda =\prod_{j\in\Lambda}|0_j)(0_j|= \prod_{j\in\Lambda} c_j c_j^\dagger$. 
+Notice that $\vec f_b \hat P =0$ and $\hat P \vec f_c  =0$.  
+Rewriting Eq. \eqref{eq:PTP} we obtain 
+\begin{eqnarray*}
+\hat P \mathcal{T}^F \hat P \vec f_a &=& \vec f_a \hat P \mathcal{T}^F \hat P R_{aa} + \hat P \vec f_b\mathcal{T}^F \hat P R_{ba}, \\
+0 &=& \vec f_a \hat P \mathcal{T}^F \hat P R_{ab} +\hat P \vec f_b\mathcal{T}^F \hat P R_{bb}. 
+\end{eqnarray*}
+Eliminating $\hat P \vec f_b\mathcal{T}^F \hat P$ from the above equation we obtain 
+$$
+\hat P \mathcal{T}^F \hat P \vec f_a  =  \vec f_a \hat P \mathcal{T}^F \hat P (R_{aa}  - R_{ab} R_{bb}^{-1} R_{ba}).
+$$
+Now it is enough to notice that $\hat P \mathcal{T}^F \hat P \sim  \hat  P \tilde{ \mathcal{T}} \hat P$ and since $\hat P$ works nontrivially only on modes $f_j$ with $j \in \Lambda$, and  $\tilde {\mathcal{T}}$ on modes with $j \notin \Lambda$ we obtain Eq. \eqref{eq:tT} with $R[\tilde {\mathcal{T}}]$ given by Eq. \eqref{eqa:Rtruncate}.
+
+%============================
+% Figure: Numerics
+%============================
+\begin{figure}[t] 
+\begin{center}
+\includegraphics{FigA1.eps}
+\includegraphics{FigA2.eps}
+\end{center}
+\caption{(color online). (a) XY model in the gapped phase with $g=1.01$ and $\gamma = 0.8$.  Comparison with iDMRG calculations, where the red line represents the exact gap $\Delta$ and crosses represent the gap $\tilde \epsilon_1$ of the finite $\chi$ approximation of the transfer matrix. The blue line shows (minus log of) the transfer matrix gap obtained from an iDMRG ground state approximation, plotted as a function of $\log_2(D)$. Finally, green circles represent data obtained from truncating iDMRG with $D'=120$ down to a smaller bond dimension while only selecting Schmidt states preserving the free-fermionic structure in Eq. \eqref{eq:newrho}.
+(b) XY model at a critical point with $g=1$ and $\gamma = 0.5$. Comparison of single particle energies in Eq. \eqref{eq:teps} obtained from truncating from $L=8240$ and iDMRG with $D'=70$, see text for details.}
+\label{fig:Anum}
+\end{figure}
+%============================
+
+
+{\it  Numerical comparison with {\rm iDMRG}.---} 
+Finally, we show further comparisons of our free-fermionic results with conventional MPS calculations using iDMRG.
+
+In Fig. \ref{fig:Anum}a  we plot the gap of the transfer matrix (i.e. the inverse of the correlation lenght) in the gapped phase with $g=1.01$ and $\gamma=0.8$. We obtain a very good match between free-fermionic results and iDMRG, provided the correct $2^{\chi}$ Schmidt-states are selected from an MPS obtained from iDMRG with initially larger bond dimension (labeled as iDMRG*). Without preserving the structure of Eq. \eqref{eq:newrho} but rather just keeping the largest Schmidt values during truncation, standard iDMRG is able to approach the exact gap $\Delta$ faster with increasing $D$, but in an irregular way without any clear scaling. This is natural, since it contains (partial) contributions from higher free-fermionic modes.
+
+In Fig. \ref{fig:Anum}b we concentrate on the critical point with $g=1$ and $\gamma=0.5$. The structure of the Transfer Matrix in Fig. \ref{fig:num}d allows us to compute single particle energies corresponding to the ones in Eq. \eqref{eq:teps} directly from iDMRG* and compare them with the ones obtained with free-fermions for finite $L$. 
+The results are shown in Fig. \ref{fig:Anum}b  where the match for $\chi = 2,3,4$ is remarkably good (compare also Fig. \ref{fig:num}c). It is worth stressing here one more time, that all the points labeled iDMRG* are acquired  from the same initial state obtained from iDMRG with $D'=70$, which was subsequently truncated down by picking the correct Schmidt values. Similarly all the point corresponding to $\chi=2,3,4$ are obtained by truncating the free-fermionic transfer matrix with L=8240.
+
+\begin{thebibliography}{99}
+\bibitem{a:Abraham1971} D.B. Abraham, Stud. App. Math. {\bf 1}, 71 (1971).
+\bibitem{a:Peschel2009} I. Peschel, and V. Eisler, J. Phys. A: Math. Theor. {\bf 42} 504003 (2009).
+
+\end{thebibliography}
+
+
+%===================================================================================================================
+\end{document}
+%===================================================================================================================
