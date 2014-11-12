@@ -104,6 +104,14 @@ re_sub_superscript = re.compile(r"""
 )
 """, re.VERBOSE)
 
+re_label = re.compile(r"""
+(
+(?:\\label\{)
+(?:[^{}]+)
+(?:\})
+)
+""", re.VERBOSE)
+
 
 def transform_standard(math_string, excluded_commands=None):
     def sanitize_whitespace(st, str_following=None):
@@ -204,10 +212,14 @@ def transform_math(math_string, excluded_commands=None, env_type=None, modes={})
 
     if excluded_commands is None:
         excluded_commands = []
-    math_string = transform_standard(math_string, excluded_commands)
-    math_string = transform_auto_align(math_string, excluded_commands, env_type)
-    math_string = transform_braket(math_string, excluded_commands, modes)
-    math_string = transform_simple(math_string, excluded_commands)
+
+    math_string_parts = re.split(re_label, math_string)
+    for i in range(0, len(math_string_parts), 2):
+        math_string_parts[i] = transform_standard(math_string_parts[i], excluded_commands)
+        math_string_parts[i] = transform_auto_align(math_string_parts[i], excluded_commands, env_type)
+        math_string_parts[i] = transform_braket(math_string_parts[i], excluded_commands, modes)
+        math_string_parts[i] = transform_simple(math_string_parts[i], excluded_commands)
+        math_string = "".join(math_string_parts)
     return math_string
 
 

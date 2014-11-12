@@ -176,7 +176,6 @@ def test_skip():
     for invariant_input, exclude_cmd in invariant_inputs:
         assert pretex.replace_math_outer(invariant_input, exclude_cmd) == invariant_input
 
-
 def test_unicode():
     assert pretex.replace_math_outer(r"äüöé $äüöé\frac a+b c+d x$") == r"äüöé $äüöé\frac{a+b}{c+d} x$"
 
@@ -211,8 +210,18 @@ def test_main_complex(monkeypatch):
         test_expected_content = file_read.read()
     assert test_file_content == test_expected_content
     silent_remove("tests/test_file_t.tex")
-
-
+#
+#
+# def test_arxiv(monkeypatch):
+#     monkeypatch.setattr(sys, 'argv', ['xxx', 'tests/arxiv_astro-ph.tex'])
+#     pretex.main()
+#     with io.open("tests/arxiv_astro-ph.tex", 'r', encoding='utf-8') as file_read:
+#         test_file_content = file_read.read()
+#     with io.open("tests/arxiv_astro-ph_t.tex", 'r', encoding='utf-8') as file_read:
+#         test_expected_content = file_read.read()
+#     assert test_file_content == test_expected_content
+#
+#
 def test_main_same_overwrite(monkeypatch):
     monkeypatch.setattr(sys, 'argv', ['xxx', 'testtex'])
     with pytest.raises(SystemExit):
