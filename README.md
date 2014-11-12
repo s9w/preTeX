@@ -12,15 +12,13 @@ out: The limit $\sum_{i=0}^{N+1} \ddot{q_i} \dot{p} \frac{a+b}{x^2-1}$
 
 ![](https://raw.githubusercontent.com/s9w/preTeX/master/docs/sc.gif)
 
-More examples and a complete list below
-
 ## Motivation
 
-The math syntax of LaTeX is powerful and a defacto standard even outside of LaTeX. But it's ~30 years old and has some curiosities and makes it awkward to transfer certain expressions from your brain into TeX code. There's a powerful macro system which can alleviate some of it, but it's limited. That's where preTeX comes into play. It translates "natural" expressions into 100% correct LaTeX code. 
+The math syntax of LaTeX is powerful and a defacto standard even outside of LaTeX. But it's ~30 years old and has some curiosities that make it awkward to transfer certain expressions from your brain into TeX code. There's a macro system which can alleviate some of it, but it's limited. That's where preTeX comes into play. It translates "natural" expressions into 100% correct LaTeX code without interfering if it's not deliberate. 
 
 ## Safety
 
-Most of the transformations do things that would be expected of a modern LaTeX and are mistakenly assumed by non-gurus, like translating `>>` to `\gg`. Others are more agressive but simplify the syntax greatly. Only the safe ones are enabled by default and the entire process can be controlled by command line arguments or inline with LaTeX comments. It's excessively tested to be safe and unintended changes are almost impossible. The automatic testing currently checks against 8 randomly selected arXiv papers (>270KB raw latex) and makes sure they're untouched. Also the input file is never overwritten.
+Most of the transformations do things that would be expected of a modern LaTeX and are mistakenly assumed by non-gurus, like translating `>>` to `\gg`. Others are more aggressive but simplify the syntax greatly. Only the safe ones are enabled by default and the entire process can be controlled by command line arguments or inline with LaTeX comments. It's excessively tested to be safe and unintended changes are almost impossible. The automatic testing currently checks against 8 randomly selected arXiv papers (>270KB raw latex) and makes sure they're untouched. Also the input file is never overwritten.
 
 It only works inside math code, ignores comments and everything in lables and isn't confused by escaped dollar signs. Also even the most exotic use of whitespace should be preserved as long as it's valid LaTeX. The inserted commands get their needed whitespace added, but only if necessary.
 
@@ -45,7 +43,7 @@ $x.$   % will not be transformed
 
 There are no dependencies on other packages and fully tested with Python 2.6, 2.7, 3.2, 3.3, 3.4. Works in any math mode I know of. That is: `$x$`, `$$x$$`, `\(x\)`, `\[x\]` for inline and in every of these math environments (starred and unstarred): `equation`, `align`, `math`, `displaymath`, `eqnarray`, `gather`, `flalign`, `multiline`, `alignat`.
 
-Tip: This works perfectly together with Pandoc, which makes it possible to mix LaTeX with Markdown code. 
+Hint: This works well together with Pandoc, which makes it possible to mix LaTeX with Markdown code. 
 
 ## Transformations
 Overview, but more below the table.
@@ -113,11 +111,11 @@ This is for relaxing the LaTeX rules with sub- or superscripting things with `_`
 
 ![](https://raw.githubusercontent.com/s9w/preTeX/master/docs/sub_superscript.png)
 
-Conservative means that the whitespace before and after both have be one more more whitespaces. The content can be any alphanumeric character plus any of +, -, +, = and commas.
+Conservative means that there has to be whitespace before and after. The content can be any alphanumeric character plus any of +, -, +, = and commas.
 
-Aggressive means the whitespace before is optional and the whitespace after can be a number of "reasonable" things, i.e. whitespace, end of string, ending braces or another operator.
+Aggressive means the whitespace before is optional and after there has to one of a number of "reasonable" things, i.e. whitespace, end of string, ending braces or another operator.
 
-All modes preserves whitespace and only braces things that need them (two or more characters). Following examples demonstrate its use and also that its careful enough to not change ugly but correct latex code
+All modes preserves whitespace and only brace things that need them (two or more characters). Following examples demonstrate its use and also that its careful enough to not change ugly but correct latex code
 
 ```latex
 x_1,x_2,x_3         % not touched
@@ -138,7 +136,7 @@ foo \frac a+b c*d bar -> foo \frac{a+b}{c*d} bar
 
 ## Roadmap / Ideas
 
-- Auto insert `\left` before brakets etc? But it's sometimes unwanted. Maybe some kind of heuristic
+- Auto insert `\left` / `\right` before brakets etc? But it's sometimes unwanted. Maybe some kind of heuristic
 - braket-size would be neat to be able to set. Right now they default to the small versions (`\ket` etc). There are big versions (`\Ket`) but I have no clue what's a clever way to indicate their use in the code. Right now that's a config var, but that's global or too much effort for a per-use-case
 - command line config should override inline config
 - verbose mode that reports changes
