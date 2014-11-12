@@ -1,68 +1,41 @@
-\documentclass[12pt]{article}
-\usepackage{amsmath}
-\title{preTeX test file
-\begin{document}
+abc
 
-\maketitle
-% pretex braket_expanding
+$x.$
 
-\section{inline}
-This is an epic test file. This should not be translated: x. But some of these: $\dot{x} \dot{x} \ddot{y}
-\ddot{b_i} \dot{a} \ddot{\varphi_i}$. $\displaystyle \frac{a}{b}$. $u_{tt}$. $a \to b$. $a _ {tt} ^ {a,b}$.
-$a _ {tt} ^   {a,b}$
-a$x \to y\$x \to y$b
-$a \to b$
-$a\cdot b$
-$a\cdot b$
-$a\braket{bra|mid|ket}b$
-$a\braket{bra|ket}b$
-$a \ket{\ket} b$
-$a \bra{bra} b$
-$a \ket{k}\bra{bra} b$
-$= { x | x>0 }$
+% pretex config dot disabled
+$x.$
+$x.$
+% pretex config dot enabled
+$\dot{x}$
 
-\section{single and multiple labels}
-\begin{eqnarray}
-    \dot{x}
-    \Sigma(R) = \Sigma_{0} \left(\frac{R}{R_{\rm c}}\right)^{-q}{\rm exp}\left[-\left(\frac{R}{R_{\rm c}}\right)^{2-q}\right],
-    a \dot{x} a \label{eq_test} x \dot{x} x
-\end{eqnarray}
+$\ddot{x}$
+% pretex config dot disabled
+$x.$
 
-\begin{eqnarray}
-    \dot{x}
-    \Sigma(R) = \Sigma_{0} \left(\frac{R}{R_{\rm c}}\right)^{-q}{\rm exp}\left[-\left(\frac{R}{R_{\rm c}}\right)^{2-q}\right],
-    a \dot{x} a \label{eq_test} x \dot{x} x  x \dot{x} x \label{eq_test} x \dot{x} x
-\end{eqnarray}
+$x..$
+% pretex config dot enabled
+$\dot{x}$
 
-\section{markdown}
-- this is markdown list
-- should still work! $a\cdot b$ but not $a^*$ and not here... $x^2 \braket{1|2|3}$.
-
-\section{envs}
-\begin {align}
-a &= b \\
-x &= y
-\end{align}
-
-\begin {align}
-a = x = b \\
-x = y
-\end{align}
+$\ddot{x}$
 
 \begin {align}
 a = b \\
-x &= y
+x = y
 \end{align}
 
+% pretex config auto_align enabled
 \begin {align}
 a &= b \\
 x &= y
 \end{align}
 
-\begin {align*}
-a &= \dot{b} \\
-x &= y
-\end{align*}
+\section{configs and sub_superscript}
+% pretex config sub_superscript disabled
+$a_ abc $
+% pretex config sub_superscript conservative
+$a_ {abc} $
+$a_abc$
+% pretex config sub_superscript aggressive
+$a_{abc}$
 
-newline
-\end{document}
+% pretex config sub_superscript conservative

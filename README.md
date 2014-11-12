@@ -12,7 +12,21 @@ out: The limit $\sum_{i=0}^{N+1} \ddot{q_i} \dot{p} \frac{a+b}{x^2-1}$
 
 ![](https://raw.githubusercontent.com/s9w/preTeX/master/docs/sc.gif)
 
-This is not intended to replace LaTeX macros (`\newcommand` etc), but rather enable things that are impossible or very tedious otherwise. To use, either install with `(sudo) pip install pretex` or simply put the `pretex.py` wherever you need it. The only mandatory argument is an input filename. You can also supply an output filename (default is `{original}_t.tex`) and exclude transformations. Usage:
+More examples and a complete list below
+
+## Motivation
+
+The math syntax of LaTeX is powerful and a defacto standard even outside of LaTeX. But it's ~30 years old and has some curiosities and makes it awkward to transfer certain expressions from your brain into TeX code. There's a powerful macro system which can alleviate some of it, but it's limited. That's where preTeX comes into play. It translates "natural" expressions into 100% correct LaTeX code. 
+
+## Safety
+
+Most of the transformations do things that would be expected of a modern LaTeX and are mistakenly assumed by non-gurus, like translating `>>` to `\gg`. Others are more agressive but simplify the syntax greatly. Only the safe ones are enabled by default and the entire process can be controlled by command line arguments or inline with LaTeX comments. It's excessively tested to be safe and unintended changes are almost impossible. The automatic testing currently checks against 8 randomly selected arXiv papers (>270KB raw latex) and makes sure they're untouched. Also the input file is never overwritten.
+
+It only works inside math code, ignores comments and everything in lables and isn't confused by escaped dollar signs. Also even the most exotic use of whitespace should be preserved as long as it's valid LaTeX. The inserted commands get their needed whitespace added, but only if necessary.
+
+## Usage
+
+To use, either install with `(sudo) pip install pretex` or simply put the `pretex.py` wherever you need it. The only mandatory argument is an input filename. You can also supply an output filename (default is `{original}_t.tex`) and exclude transformations. Usage:
 
 ```
 pretex thesis.tex                                     # for installed version
@@ -21,29 +35,37 @@ python pretex.py thesis.tex -o thesis_output.tex
 python pretex.py thesis.tex --skip braket --skip cdot
 ```
 
-No dependencies, tested with Python 2.6, 2.7, 3.2, 3.3, 3.4. Works in any math mode I know of. That is: `$x$`, `$$x$$`, `\(x\)`, `\[x\]` for inline and in every of these math environments (starred and unstarred): `equation`, `align`, `math`, `displaymath`, `eqnarray`, `gather`, `flalign`, `multiline`, `alignat`. You can still write escaped dollar signs in math, they won't mess things up.
+The default configuration can be seen in the table below. Besides skipping, the config can be changed in the sources files itself with comments
+```
+% pretex config dot enabled
+$x.$   % will be transformed
+% pretex config dot disabled
+$x.$   % will not be transformed
+```
+
+There are no dependencies on other packages and fully tested with Python 2.6, 2.7, 3.2, 3.3, 3.4. Works in any math mode I know of. That is: `$x$`, `$$x$$`, `\(x\)`, `\[x\]` for inline and in every of these math environments (starred and unstarred): `equation`, `align`, `math`, `displaymath`, `eqnarray`, `gather`, `flalign`, `multiline`, `alignat`.
+
+Tip: This works perfectly together with Pandoc, which makes it possible to mix LaTeX with Markdown code. 
 
 ## Transformations
 Overview, but more below the table.
 
-name  | input | output | notes
-------------- | -----|--------|---
-arrow  | `a -> b` | `a \to b`
-approx  | `a~=b` | `a\approx b`
-leq  | `a<=b` | `a\leq b`
-geq  | `a>=b` | `a\geq b`
-ll  | `a<<b` | `a\ll b`
-gg  | `a>>b` | `a\gg b`
-neq  | `a != b` | `a \neq b`
-cdot  | `a*b` | `a\cdot b` | see below for more info
-braket | `<a|b|c>` | `\braket{a|b|c}` | see below for more info
-dots | `1, 2, ...` | `1, 2, \dots`
-sub_superscript | `\int_n=1 ^42+x` | `\int_{n=1} ^{42+x}` | see below for more info
-dot | `x..` | `\ddot{x}` | see below for more info
-displaymath | `d$x^2$` | `$\displaymath x^2$` | see below for more info
-frac | `\frac a+b c*d` | `\frac{a+b}{c*d}` | see below for more info
-frac_compact | `a+b // c*d` | `\frac{a+b}{c*d}`
-
+name  | input | output | default | notes
+------------- | -----|--------|---|---
+arrow  | `a -> b` | `a \to b` | enabled
+approx  | `a~=b` | `a\approx b` | enabled
+leq  | `a<=b` | `a\leq b` | enabled
+geq  | `a>=b` | `a\geq b` | enabled
+ll  | `a<<b` | `a\ll b` | enabled
+gg  | `a>>b` | `a\gg b` | enabled
+neq  | `a != b` | `a \neq b` | enabled
+cdot  | `a*b` | `a\cdot b` | enabled | see below for more info
+braket | `<a|b|c>` | `\braket{a|b|c}` | enabled | see below for more info
+dots | `1, 2, ...` | `1, 2, \dots` | enabled
+sub_superscript | `\int_ n=1 ^ 42+x` | `\int_ {n=1} ^{42+x}` | conservative | see below for more info
+dot | `x..` | `\ddot{x}` | disabled | see below for more info
+auto_align |  |  | disabled | see below for more info
+frac | `\frac a+b c*d` | `\frac{a+b}{c*d}` | enabled | see below for more info
 
 ### auto_align
 In an `align` math environment when there is
@@ -87,26 +109,25 @@ foo \vec{abc}. bar -> foo \dot{\vec{abc}} bar
 Rule of thumb: The dot expression works with surrounding spaces or at the beginning/end inside braces.
 
 ### sub_superscript
-When sub- or superscripting things with `_` or `^` you can delimit the **contents** by spaces or other **reasonable delimiters** instead of framing them in `{}`.
- 
-- **Content** means any alphanumeric characters, +, -, *, =. Or a comma, but only if followed by an alphanumeric char
-- **Reasonable delimiters** means between the `_`/ `^` and the content you can use nothing or any amount of whitespace. After the content can be either whitespace, end of math environment, newline or closing brackets
+This is for relaxing the LaTeX rules with sub- or superscripting things with `_` or `^`. There are two different modes for this (besides disabling): `conservative` and `aggressive`. A little infographic for reference:
 
-It preserves whitespace and only braces things that need them (two or more characters). Following examples demonstrate its use and also that its careful enough to not change ugly but correct latex code
+![](https://raw.githubusercontent.com/s9w/preTeX/master/docs/sub_superscript.png)
+
+Conservative means that the whitespace before and after both have be one more more whitespaces. The content can be any alphanumeric character plus any of +, -, +, = and commas.
+
+Aggressive means the whitespace before is optional and the whitespace after can be a number of "reasonable" things, i.e. whitespace, end of string, ending braces or another operator.
+
+All modes preserves whitespace and only braces things that need them (two or more characters). Following examples demonstrate its use and also that its careful enough to not change ugly but correct latex code
 
 ```latex
-u_tt             -> u_{tt}
-u_ t             -> u_ t
+x_1,x_2,x_3         % not touched
+x_1, f=5            % not touched
+u_ tt bar        -> u_ {tt} bar % all modes
+u_tt             -> u_{tt}      % this and all following only in aggressive!
 \int_i=1 ^\infty -> \int_{i=1} ^\infty
 f_a=4            -> f_{a=4}
 \phi_a=1,b=2 b   -> \phi_{a=1,b=2} b 
-x_1x_2x_3        % not touched
-x_1,x_2,x_3      % not touched
-x_1, f=5         % not touched
 ```
-
-### displaymath
-Instead of writing `$\displaymath \int_i^\infty$`, just write `d$\int_i^\infty$`. So a single d before inline math makes it set in displaymath. Note that this is technically the only transformation that works outside of math mode.
 
 ### frac
 Instead of writing `\frac{}{}`, you can just use spaces as delimiters.
@@ -115,3 +136,10 @@ Instead of writing `\frac{}{}`, you can just use spaces as delimiters.
 foo \frac a+b c*d bar -> foo \frac{a+b}{c*d} bar
 ```
 
+## Roadmap / Ideas
+
+- Auto insert `\left` before brakets etc? But it's sometimes unwanted. Maybe some kind of heuristic
+- braket-size would be neat to be able to set. Right now they default to the small versions (`\ket` etc). There are big versions (`\Ket`) but I have no clue what's a clever way to indicate their use in the code. Right now that's a config var, but that's global or too much effort for a per-use-case
+- command line config should override inline config
+- verbose mode that reports changes
+- add additional blocks against inline text environments
