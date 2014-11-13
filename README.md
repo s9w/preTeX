@@ -41,7 +41,7 @@ $x.$   % will be transformed
 $x.$   % will not be transformed
 ```
 
-There are no dependencies on other packages and fully tested with Python 2.6, 2.7, 3.2, 3.3, 3.4. Works in any math mode I know of. That is: `$x$`, `$$x$$`, `\(x\)`, `\[x\]` for inline and in every of these math environments (starred and unstarred): `equation`, `align`, `math`, `displaymath`, `eqnarray`, `gather`, `flalign`, `multiline`, `alignat`.
+There are no dependencies on other packages and fully tested with Python 2.7, 3.2, 3.3, 3.4. Works in any math mode I know of. That is: `$x$`, `$$x$$`, `\(x\)`, `\[x\]` for inline and in every of these math environments (starred and unstarred): `equation`, `align`, `math`, `displaymath`, `eqnarray`, `gather`, `flalign`, `multiline`, `alignat`.
 
 Hint: This works well together with Pandoc, which makes it possible to mix LaTeX with Markdown code. 
 
@@ -57,13 +57,13 @@ geq  | `a>=b` | `a\geq b` | enabled :white_check_mark:
 ll  | `a<<b` | `a\ll b` | enabled :white_check_mark:
 gg  | `a>>b` | `a\gg b` | enabled :white_check_mark:
 neq  | `a != b` | `a \neq b` | enabled :white_check_mark:
-cdot  | `a*b` | `a\cdot b` | enabled :white_check_mark: | see below for more info
-braket | `<a|b|c>` | `\braket{a|b|c}` | enabled :white_check_mark: | see below for more info
+cdot  | `a*b` | `a\cdot b` | enabled :white_check_mark: | see [below](#cdot) for more info
+braket | `<a|b|c>` | `\braket{a|b|c}` | enabled :white_check_mark: | see [below](#braket) for more info
 dots | `1, 2, ...` | `1, 2, \dots` | enabled :white_check_mark:
-sub_superscript | `\int_n=1^42+x` | `\int_{n=1}^{42+x}` | conservative | see below for more info
-dot | `x..` | `\ddot{x}` | disabled :x: | see below for more info
+sub_superscript | `\int_n=1^42+x` | `\int_{n=1}^{42+x}` | conservative | see [below](#sub_superscript) for more info
+dot | `x..` | `\ddot{x}` | disabled :x: | see [below](#dot) for more info
 auto_align |  |  | disabled :x: | see below for more info
-frac | `\frac a+b c*d` | `\frac{a+b}{c*d}` | enabled :white_check_mark: | see below for more info
+frac | `\frac a+b c*d` | `\frac{a+b}{c*d}` | enabled :white_check_mark: | see [below](#frac) for more info
 
 ### auto_align
 In an `align(*)` math environment when there is
