@@ -1,22 +1,20 @@
-abc
+\documentclass[12pt]{article}
+\usepackage{amsmath}
+\begin{document}
 
-$x.$
+\section{Intro}
+This is part of a unit test. \LaTeX{} source, but should also be safe with **markdown** syntax.
+
+\section{config}
+Testing the inline configurations. This should't work by default: $x.$
+
+% pretex config dot enabled
+But this should: $\dot{x}$
 
 % pretex config dot disabled
 $x.$
-$x.$
-% pretex config dot enabled
-$\dot{x}$
 
-$\ddot{x}$
-% pretex config dot disabled
-$x.$
-
-$x..$
-% pretex config dot enabled
-$\dot{x}$
-
-$\ddot{x}$
+\section{auto_align}
 
 \begin {align}
 a = b \\

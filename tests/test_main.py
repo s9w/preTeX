@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import argparse
 import copy
 import pytest
 import sys
 import os
 import io
 from pretex import pretex
+
+config_default = pretex.get_default_config()
 
 
 def silent_remove(filename):
@@ -15,15 +18,10 @@ def silent_remove(filename):
         pass
 
 
-config_default = dict(arrow="enabled", approx="enabled", leq="enabled", geq="enabled", ll="enabled", gg="enabled",
-                      neq="enabled", cdot="enabled", braket="enabled", dots="enabled", sub_superscript="conservative",
-                      dot="disabled", frac="enabled", braket_style="small", auto_align="disabled")
-
-
 def test_re_ddot_compl():
     invalid_testcases = [r"$\phi..b$", r"$a\vec x..b$", r"$a\vec{abc}..b$"]
     for i in invalid_testcases:
-        assert pretex.replace_math_outer(i, config_default) == i
+        assert pretex.transform_math_env(i, config_default) == i
 
     valid_testcases = [(r"$a \phi.. b$", r"$a \ddot{\phi} b$"),
                        (r"$a \phi..$", r"$a \ddot{\phi}$"),
@@ -35,14 +33,14 @@ def test_re_ddot_compl():
     config = copy.deepcopy(config_default)
     config["dot"] = "enabled"
     for test_input, test_output in valid_testcases:
-        assert pretex.replace_math_outer(test_input, config) == test_output
+        assert pretex.transform_math_env(test_input, config) == test_output
 
 
 def test_math_detection():
     valid_testcases = [(r"1$x -> y$b", r"1$x \to y$b"),
                        (r"2$x -> y\$x -> y$b", r"2$x \to y\$x \to y$b")]
     for test_input, test_output in valid_testcases:
-        assert pretex.replace_math_outer(test_input, config_default) == test_output
+        assert pretex.transform_math_env(test_input, config_default) == test_output
 
 
 def test_re_ddot_easy():
@@ -56,7 +54,7 @@ def test_re_ddot_easy():
     config = copy.deepcopy(config_default)
     config["dot"] = "enabled"
     for test_input, test_output in valid_testcases:
-        assert pretex.replace_math_outer(test_input, config) == test_output
+        assert pretex.transform_math_env(test_input, config) == test_output
 
 
 def test_re_sub_superscript():
@@ -66,40 +64,40 @@ def test_re_sub_superscript():
                        (r"$a_bc_d$", r"$a_bc_d$"),
                        (r"$a_ abc b$", r"$a_ abc b$")]
     for test_input, test_output in valid_testcases:
-        assert pretex.replace_math_outer(test_input, config) == test_output
+        assert pretex.transform_math_env(test_input, config) == test_output
 
     config = copy.deepcopy(config_default)
     config["sub_superscript"] = "conservative"
     valid_testcases = [(r"$a_abc$", r"$a_abc$"),
                        (r"$a_ abc b$", r"$a_ {abc} b$")]
     for test_input, test_output in valid_testcases:
-        assert pretex.replace_math_outer(test_input, config) == test_output
+        assert pretex.transform_math_env(test_input, config) == test_output
 
     config = copy.deepcopy(config_default)
     config["sub_superscript"] = "aggressive"
     valid_testcases = [(r"$a_abc$", r"$a_{abc}$"),
                        (r"$a_ abc b$", r"$a_ {abc} b$")]
     for test_input, test_output in valid_testcases:
-        assert pretex.replace_math_outer(test_input, config) == test_output
+        assert pretex.transform_math_env(test_input, config) == test_output
 
 
 def test_frac():
-    assert pretex.replace_math_outer(r"foo $\frac a+b c+d x$", config_default) == r"foo $\frac{a+b}{c+d} x$"
-    assert pretex.replace_math_outer(r"foo $\frac   a+b   c+d   x$", config_default) == r"foo $\frac{a+b}{c+d}   x$"
-    assert pretex.replace_math_outer(r"foo $\frac{a+b}{c+d} x$", config_default) == r"foo $\frac{a+b}{c+d} x$"
+    assert pretex.transform_math_env(r"foo $\frac a+b c+d x$", config_default) == r"foo $\frac{a+b}{c+d} x$"
+    assert pretex.transform_math_env(r"foo $\frac   a+b   c+d   x$", config_default) == r"foo $\frac{a+b}{c+d}   x$"
+    assert pretex.transform_math_env(r"foo $\frac{a+b}{c+d} x$", config_default) == r"foo $\frac{a+b}{c+d} x$"
 
 
 def test_cdot():
-    assert pretex.replace_math_outer(r"foo $ bar a*b$", config_default) == r"foo $ bar a\cdot b$"
-    assert pretex.replace_math_outer(r"foo $ bar a* b$", config_default) == r"foo $ bar a\cdot b$"
-    assert pretex.replace_math_outer(r"foo $ bar a*  b$", config_default) == r"foo $ bar a\cdot  b$"
-    assert pretex.replace_math_outer(r"foo $ bar a^*$", config_default) == r"foo $ bar a^*$"
+    assert pretex.transform_math_env(r"foo $ bar a*b$", config_default) == r"foo $ bar a\cdot b$"
+    assert pretex.transform_math_env(r"foo $ bar a* b$", config_default) == r"foo $ bar a\cdot b$"
+    assert pretex.transform_math_env(r"foo $ bar a*  b$", config_default) == r"foo $ bar a\cdot  b$"
+    assert pretex.transform_math_env(r"foo $ bar a^*$", config_default) == r"foo $ bar a^*$"
 
 
 def test_dots():
-    assert pretex.replace_math_outer(r"foo $ bar a, b, ..., n$", config_default) == r"foo $ bar a, b, \dots, n$"
-    assert pretex.replace_math_outer(r"foo $ bar a, b, ... , n$", config_default) == r"foo $ bar a, b, \dots , n$"
-    assert pretex.replace_math_outer(r"foo $ bar a..., b,... , n$", config_default) == r"foo $ bar a\dots, b,\dots , n$"
+    assert pretex.transform_math_env(r"foo $ bar a, b, ..., n$", config_default) == r"foo $ bar a, b, \dots, n$"
+    assert pretex.transform_math_env(r"foo $ bar a, b, ... , n$", config_default) == r"foo $ bar a, b, \dots , n$"
+    assert pretex.transform_math_env(r"foo $ bar a..., b,... , n$", config_default) == r"foo $ bar a\dots, b,\dots , n$"
 
 
 def test_braket():
@@ -113,7 +111,7 @@ def test_braket():
                        (r"$= { x | x>0 }$", r"$= { x | x>0 }$")]
 
     for test_input, test_output in valid_testcases:
-        assert pretex.replace_math_outer(test_input, config_default) == test_output
+        assert pretex.transform_math_env(test_input, config_default) == test_output
 
 
 def test_simple():
@@ -129,10 +127,10 @@ def test_simple():
                        ("neq", r"$a != b$", r"$a \neq b$")]
 
     for name, string_input, string_output in valid_testcases:
-        assert pretex.replace_math_outer(string_input, config_default) == string_output
+        assert pretex.transform_math_env(string_input, config_default) == string_output
         config = copy.deepcopy(config_default)
         config[name] = "disabled"
-        assert pretex.replace_math_outer(string_input, config) == string_input
+        assert pretex.transform_math_env(string_input, config) == string_input
 
 
 def test_auto_align():
@@ -180,14 +178,14 @@ x &= y
     config = copy.deepcopy(config_default)
     config["auto_align"] = "enabled"
 
-    assert pretex.replace_math_outer(test_string_1, config) == test_string_1_expected
-    assert pretex.replace_math_outer(test_string_2, config) == test_string_2
-    assert pretex.replace_math_outer(test_string_3, config) == test_string_3
-    assert pretex.replace_math_outer(test_string_4, config) == test_string_4_expected
+    assert pretex.transform_math_env(test_string_1, config) == test_string_1_expected
+    assert pretex.transform_math_env(test_string_2, config) == test_string_2
+    assert pretex.transform_math_env(test_string_3, config) == test_string_3
+    assert pretex.transform_math_env(test_string_4, config) == test_string_4_expected
 
     config = copy.deepcopy(config_default)
     config["auto_align"] = "disabled"
-    assert pretex.replace_math_outer(test_string_1, config) == test_string_1
+    assert pretex.transform_math_env(test_string_1, config) == test_string_1
 
 
 def test_skip():
@@ -204,11 +202,11 @@ def test_skip():
         config_test = copy.deepcopy(config_default)
         for cmd in exclude_cmds:
             config_test[cmd] = "disabled"
-        assert pretex.replace_math_outer(invariant_input, config_test) == invariant_input
+        assert pretex.transform_math_env(invariant_input, config_test) == invariant_input
 
 
 def test_unicode():
-    assert pretex.replace_math_outer(r"äüöé $äüöé\frac a+b c+d x$", config_default) == r"äüöé $äüöé\frac{a+b}{c+d} x$"
+    assert pretex.transform_math_env(r"äüöé $äüöé\frac a+b c+d x$", config_default) == r"äüöé $äüöé\frac{a+b}{c+d} x$"
 
 
 @pytest.fixture(scope="module")
@@ -271,7 +269,7 @@ def test_next_config():
     # no tags
     with io.open(r"tests/test_tags_none.tex", 'r', encoding='utf-8') as file_read:
         test_file_content = file_read.read()
-    assert pretex.next_config(test_file_content, config_default) == (-1, config_default)
+    assert pretex.next_config(test_file_content, config_default) == (999999, config_default)
 
     # real test
     with io.open(r"tests/test_tags.tex", 'r', encoding='utf-8') as file_read:
@@ -289,20 +287,21 @@ def test_next_config():
 
     test_config = next_config_set[1]
     next_config_set = pretex.next_config(test_file_content, test_config, next_config_set[0]+1)
-    assert next_config_set == (-1, config_expected)
+    assert next_config_set == (999999, config_expected)
 
 
 def test_parse_filenames():
-
     with pytest.raises(SystemExit):
         pretex.parse_cmd_arguments(config_default, [])
     with pytest.raises(SystemExit):
         pretex.parse_cmd_arguments(config_default, ["test_no_extension"])
     with pytest.raises(ValueError):
         pretex.parse_cmd_arguments(config_default, ["test.tex", "-o", "test.tex"])
+    with pytest.raises(argparse.ArgumentTypeError):
+        pretex.parse_cmd_arguments(config_default, ["test.tex", "-s", "unknown_command"])
 
-    assert pretex.parse_cmd_arguments(config_default, ["test.tex", "-o", "test2.tex"]) == ("test.tex", "test2.tex", config_default)
-    assert pretex.parse_cmd_arguments(config_default, ["test.tex"]) == ("test.tex", "test_t.tex", config_default)
+    assert pretex.parse_cmd_arguments(config_default, ["in.tex", "-o", "out.tex"]) == ("in.tex", "out.tex", config_default)
+    assert pretex.parse_cmd_arguments(config_default, ["in.tex"]) == ("in.tex", "in_t.tex", config_default)
 
     config_expected = config_default
     config_expected["cdot"] = "disabled"
@@ -311,4 +310,4 @@ def test_parse_filenames():
     config_expected = config_default
     config_expected["geq"] = "disabled"
     config_expected["frac_compact"] = "disabled"
-    assert pretex.parse_cmd_arguments(config_default, ["test.tex", "-s", "frac_compact", "--skip", "geq"]) == ("test.tex", "test_t.tex", config_expected)
+    assert pretex.parse_cmd_arguments(config_default, ["in.tex", "-s", "frac_compact", "--skip", "geq"]) == ("in.tex", "in_t.tex", config_expected)

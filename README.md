@@ -3,7 +3,7 @@
 
 # preTeX
 
-preTeX is a Python (2 and 3) LaTeX preprocessor designed to make LaTeX syntax more concise and thereby the writing process faster and the code more readable. It consists of a number of "transformations", which are largely RegEx-powered replacements. It's focused on math. Examples in text and gif:
+preTeX is a Python (2 and 3) LaTeX preprocessor designed to make LaTeX syntax more concise and thereby the writing process faster and the code more readable. It consists of a number of [Transformations](#transformations), which are largely RegEx-powered replacements. It's focused on math. Examples in text and gif:
 
 ```latex
  in: The limit $\sum_ i=0 ^ N+1        q_i..     p. \frac a+b  x^2-1 $
@@ -12,13 +12,13 @@ out: The limit $\sum_{i=0}^{N+1} \ddot{q_i} \dot{p} \frac{a+b}{x^2-1}$
 
 ![](https://raw.githubusercontent.com/s9w/preTeX/master/docs/sc.gif)
 
-## Motivation
+## Why / Motivation
 
-The math syntax of LaTeX is powerful and a defacto standard even outside of LaTeX. But it's ~30 years old and has some curiosities that make it awkward to transfer certain expressions from your brain into TeX code. There's a macro system which can alleviate some of it, but it's limited. That's where preTeX comes into play. It translates "natural" expressions into 100% correct LaTeX code without interfering if it's not deliberate. 
+The math syntax of LaTeX is powerful and a defacto standard even outside of LaTeX. But it's ~30 years old and has some curiosities that make it awkward to transfer certain expressions from your brain into TeX code. There's a macro system which can alleviate some of it, but it's still limited to the slash-and-{}-heavy tex syntax. That's where preTeX comes into play. It translates "natural" expressions into 100% correct LaTeX code.
 
 ## Safety
 
-Most of the transformations do things that would be expected of a modern LaTeX and are mistakenly assumed by non-gurus, like translating `>>` to `\gg`. Others are more aggressive but simplify the syntax greatly. Only the safe ones are enabled by default and the entire process can be controlled by command line arguments or inline with LaTeX comments. It's excessively tested to be safe and unintended changes are almost impossible. The automatic testing currently checks against 8 randomly selected arXiv papers (>270KB raw latex) and makes sure they're untouched. Also the input file is never overwritten.
+Most of the transformations do things that would be expected of a modern LaTeX and are mistakenly assumed by non-gurus, like translating `>>` to `\gg`. Others are more aggressive but simplify the syntax greatly. Only the safe ones are enabled by default and the entire process can be controlled by command line arguments or inline with LaTeX comments. It's excessively tested to be safe and unintended changes are almost impossible. The automatic testing currently checks against 8 randomly selected [arXiv](http://arxiv.org/) papers (>270KB raw latex) and makes sure they're untouched. Also the input file is never overwritten.
 
 It only works inside math code, ignores comments and everything in lables and isn't confused by escaped dollar signs. Also even the most exotic use of whitespace should be preserved as long as it's valid LaTeX. The inserted commands get their needed whitespace added, but only if necessary.
 
@@ -50,23 +50,23 @@ Overview, but more below the table.
 
 name  | input | output | default | notes
 ------------- | -----|--------|---|---
-arrow  | `a -> b` | `a \to b` | enabled
-approx  | `a~=b` | `a\approx b` | enabled
-leq  | `a<=b` | `a\leq b` | enabled
-geq  | `a>=b` | `a\geq b` | enabled
-ll  | `a<<b` | `a\ll b` | enabled
-gg  | `a>>b` | `a\gg b` | enabled
-neq  | `a != b` | `a \neq b` | enabled
-cdot  | `a*b` | `a\cdot b` | enabled | see below for more info
-braket | `<a|b|c>` | `\braket{a|b|c}` | enabled | see below for more info
-dots | `1, 2, ...` | `1, 2, \dots` | enabled
-sub_superscript | `\int_ n=1 ^ 42+x` | `\int_ {n=1} ^{42+x}` | conservative | see below for more info
-dot | `x..` | `\ddot{x}` | disabled | see below for more info
-auto_align |  |  | disabled | see below for more info
-frac | `\frac a+b c*d` | `\frac{a+b}{c*d}` | enabled | see below for more info
+arrow  | `a -> b` | `a \to b` | enabled :white_check_mark:
+approx  | `a~=b` | `a\approx b` | enabled :white_check_mark:
+leq  | `a<=b` | `a\leq b` | enabled :white_check_mark:
+geq  | `a>=b` | `a\geq b` | enabled :white_check_mark:
+ll  | `a<<b` | `a\ll b` | enabled :white_check_mark:
+gg  | `a>>b` | `a\gg b` | enabled :white_check_mark:
+neq  | `a != b` | `a \neq b` | enabled :white_check_mark:
+cdot  | `a*b` | `a\cdot b` | enabled :white_check_mark: | see below for more info
+braket | `<a|b|c>` | `\braket{a|b|c}` | enabled :white_check_mark: | see below for more info
+dots | `1, 2, ...` | `1, 2, \dots` | enabled :white_check_mark:
+sub_superscript | `\int_n=1^42+x` | `\int_{n=1}^{42+x}` | conservative | see below for more info
+dot | `x..` | `\ddot{x}` | disabled :x: | see below for more info
+auto_align |  |  | disabled :x: | see below for more info
+frac | `\frac a+b c*d` | `\frac{a+b}{c*d}` | enabled :white_check_mark: | see below for more info
 
 ### auto_align
-In an `align` math environment when there is
+In an `align(*)` math environment when there is
 
 1. Only one "=" on every line and
 2. None of them is aligned by "&="
@@ -111,9 +111,9 @@ This is for relaxing the LaTeX rules with sub- or superscripting things with `_`
 
 ![](https://raw.githubusercontent.com/s9w/preTeX/master/docs/sub_superscript.png)
 
-Conservative means that there has to be whitespace before and after. The content can be any alphanumeric character plus any of +, -, +, = and commas.
+**Conservative** means that there has to be whitespace before and after. The content can be any alphanumeric character plus any of +, -, *, = and commas.
 
-Aggressive means the whitespace before is optional and after there has to one of a number of "reasonable" things, i.e. whitespace, end of string, ending braces or another operator.
+**Aggressive** means the whitespace before is optional and after there has to one of a number of "reasonable" things, i.e. whitespace, end of string, ending braces or another operator.
 
 All modes preserves whitespace and only brace things that need them (two or more characters). Following examples demonstrate its use and also that its careful enough to not change ugly but correct latex code
 
@@ -128,7 +128,7 @@ f_a=4            -> f_{a=4}
 ```
 
 ### frac
-Instead of writing `\frac{}{}`, you can just use spaces as delimiters.
+Instead of writing `\frac{}{}`, use spaces as delimiters.
 
 ```latex
 foo \frac a+b c*d bar -> foo \frac{a+b}{c*d} bar
