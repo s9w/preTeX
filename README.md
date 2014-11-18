@@ -17,7 +17,7 @@ The math syntax of LaTeX is powerful and a defacto standard even outside of LaTe
 ## Safety
 Most of the transformations do things that would be expected of a modern LaTeX and are mistakenly assumed by non-gurus, like translating `>>` to `\gg`. Others are more aggressive but simplify the syntax greatly. Only the safe ones are enabled by default and the entire process can be controlled by command line arguments.
 
-preTeX is currently automatically tested on 8 randomly selected [arXiv](http://arxiv.org/) papers (323KB raw latex) and makes sure they're untouched with default settings. Transformations are considered safe when they pass that test (among normal unit tests of course).
+preTeX is currently automatically tested on 8 randomly selected [arXiv](http://arxiv.org/) papers (323KB raw LaTeX) and makes sure they're untouched with default settings. Transformations are considered safe when they pass that test (among normal unit tests of course).
 
 ## Usage
 To use, either install with `(sudo) pip install pretex` or simply put the `pretex.py` wherever you need it. The only mandatory argument is an input filename. You can also supply an output filename (default is `{original}_t.tex`) and exclude transformations. Usage:
@@ -33,10 +33,9 @@ The default configuration can be seen in the table below.
 
 There are no dependencies on other packages and fully tested with Python 2.7, 3.2, 3.3, 3.4. Works in any math mode I know of. That is: `$x$`, `$$x$$`, `\(x\)`, `\[x\]` for inline and in every of these math environments (starred and unstarred): `equation`, `align`, `math`, `displaymath`, `eqnarray`, `gather`, `flalign`, `multiline`, `alignat`.
 
-Hint: This works well together with Pandoc, which makes it possible to mix LaTeX with Markdown code. 
+Hint: This works well together with [Pandoc](https://github.com/jgm/pandoc/), which makes it possible to mix LaTeX with Markdown code. 
 
 ## Transformations
-Overview, but more below the table.
 
 name  | input | output | default | notes
 ------------- | -----|--------|---|---
@@ -101,7 +100,7 @@ For time derivations. Instead of writing `\dot{a}`, just write `a.`. Same for `\
 
 Rule of thumb: The dot expression works with surrounding spaces or at the beginning/end inside braces.
 
-**Status:** There is one use case that breaks this: Using punctuation in math mode. If you end a perfectly valid math expression with a dot and actually want to make a dot, this can make an unwanted change. Example: `$a_i.$`. That's why it's disabled by default unfortunately. This was just one case out of ~5000 lines of tex code though. Working on it.
+**Status:** There is one use case that breaks this: Using punctuation in math mode. If you end a perfectly valid math expression with a dot and actually want to make a dot, this can make an unwanted change. Example: `$a_i.$`. That's why it's disabled by default at the moment. This was just one case out of ~5000 lines of tex code though. Working on it.
 
 ### sub_superscript
 This is for relaxing the LaTeX rules with sub- or superscripting things with `_` or `^`.
@@ -126,4 +125,4 @@ Instead of writing `\frac{}{}`, use spaces as delimiters.
 - Auto insert `\left` / `\right` before brakets etc? But it's sometimes unwanted. Maybe some kind of heuristic
 - braket-size would be neat to be able to set. Right now they default to the small versions (`\ket` etc). There are big versions (`\Ket`) but I have no clue what's a clever way to indicate their use in the code. Right now that's a config var, but that's global or too much effort for a per-use-case
 - Verbose mode that reports changes
-- Working on experimental visualizer. Primarily for debugging, but could be used for more. Not currently documented
+- Working on experimental html visualizer. Primarily for debugging, but could be used for more. Not currently documented
