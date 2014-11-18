@@ -6,6 +6,7 @@ import re
 import textwrap
 from .trafos import transform_auto_align, transform_main
 
+
 def get_inside_str(s):
     return textwrap.dedent(s)[1:-1]
 
@@ -15,13 +16,12 @@ class Transformer(object):
         self.tree = dict()
         self.config = self.get_default_config()
 
-        # self.viz = Viz()
-
     @staticmethod
     def get_default_config():
-        config = {key: "enabled" for key in ["arrow", "approx", "leq", "geq", "ll", "gg", "neq", "cdot", "braket", "dots", "frac"]}
+        config = {key: "enabled" for key in
+                  ["arrow", "approx", "leq", "sub_superscript", "geq", "ll",
+                   "gg", "neq", "cdot", "braket", "dots", "frac"]}
         config.update({key: "disabled" for key in ["auto_align", "dot"]})
-        config["sub_superscript"] = "conservative"
         config["braket_style"] = "small"
         return config
 

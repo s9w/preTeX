@@ -7,9 +7,9 @@ import json
 import sys
 import os
 import io
-import textwrap
 from pretex import pretex
 from pretex.Transformer import Transformer
+from pretex.Transformer import get_inside_str
 
 
 def silent_remove(filename):
@@ -23,10 +23,6 @@ def silent_remove(filename):
 def trans(request):
     ttt = Transformer()
     return ttt
-
-
-def get_inside_str(s):
-    return textwrap.dedent(s)[1:-1]
 
 
 class TestClass:
@@ -174,16 +170,34 @@ class TestClass:
     #         assert trans.transform_math_env(test_input) == test_output
 
 
-    def test_re_sub_superscript_aggressive(self, trans):
+    def test_re_sub_superscript(self, trans):
         trans.config["sub_superscript"] = "enabled"
         test_cases = [
             (r"a_abc", r"a_{abc}"),
             (r"a_ abc b", r"a_ {abc} b"),
-            # (r"e^a+b", r"e^{a+b}")
+            (r"e^a+b", r"e^{a+b}"),
+            (r"\tau_1+\tau_2", ""),
+            (r"\tau_\alpha", "")
         ]
         for test_input, expected_output in test_cases:
             output = trans.get_transformed_math(test_input, trans.config)
-            assert output[0] == expected_output
+            assert output[0] == (expected_output or test_input)
+
+
+    def test_re_sub_superscript_agg(self, trans):
+        trans.config["sub_superscript"] = "aggressive"
+        test_cases = [
+            (r"a_abc", r"a_{abc}"),
+            (r"a_ abc b", r"a_ {abc} b"),
+            (r"e^a+b", r"e^{a+b}"),
+            (r"\tau_1+\tau_2", ""),
+            (r"\tau_\alpha", ""),
+            (r"a_i=0,j=0 ", r"a_{i=0,j=0} "),
+            (r"\int_n=1 ^42+x ", r"\int_{n=1} ^{42+x} ")
+        ]
+        for test_input, expected_output in test_cases:
+            output = trans.get_transformed_math(test_input, trans.config)
+            assert output[0] == (expected_output or test_input)
 
 
     def test_cdot(self, trans):
@@ -191,10 +205,10 @@ class TestClass:
         test_cases = [
             (r"a*b", r"a\cdot b"),
             (r"a*b*c", r"a\cdot b\cdot c"),
-            (r"a^*b", r"a^*b")
+            (r"a^*b", "")
         ]
-        for test_input, output in test_cases:
-            assert trans.get_transformed_math(test_input, trans.config)[0] == output
+        for test_input, expected_output in test_cases:
+            assert trans.get_transformed_math(test_input, trans.config)[0] == (expected_output or test_input)
 
 
     def test_dots(self, trans):

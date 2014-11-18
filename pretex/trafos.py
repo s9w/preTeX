@@ -52,7 +52,6 @@ re_frac = re.compile(r"""
 )
 """, re.VERBOSE)
 
-
 re_cdot = re.compile(r"""
 (?<!\^)               # no ^ before to save complex conjugation
 \*
@@ -102,46 +101,32 @@ re_braket_bra = re.compile(r"""
 (?P<after>$|\ |\n|\)|\})
 """, re.VERBOSE)
 
-# re_sub_superscript_aggressive = re.compile(r"""
-# (?P<operator>[_\^]) # ^ or _
-# (?P<before> # optional whitespace before
-#   \ *?
-# )
-# (?P<content>
-#   [a-zA-Z0-9\\\(] # first should be alphanum or backslash
-#   [a-zA-Z0-9\\+\-\*\=,\(\)]+  # following can be more
-# )
-# (?P<after>
-#   $|\ |\n|\||\^|\_
-# )
-# """, re.VERBOSE)
-
-re_sub_superscript_aggressive = re.compile(r"""
+re_sub_superscript = re.compile(r"""
+(?<![_\^].)
 (?P<operator>[_\^]) # ^ or _
 (?P<before> # optional whitespace before
   \ *?
 )
 (?P<content>
-  [a-zA-Z0-9]{2,}
+  [a-zA-Z0-9]
+  [a-zA-Z0-9\+\*\-]+
 )
 
 (?P<after>
-  $|\ |\n|\||\^|\_
+  $|\ |\n|\|
 )
 """, re.VERBOSE)
 
-# re_sub_superscript_conservative = re.compile(r"""
-# (?P<operator>[_\^]) # ^ or _
-# (?P<before>\ +?) # whitespace before
-# (?P<content>
-#   (?:
-#     [a-zA-Z0-9+\-\*=]
-#   |
-#     ,[a-zA-Z0-9]
-#   ){2,} # two or more, otherwise no brackets needed
-# )
-# (?P<after>\ +?) # whitespace after
-# """, re.VERBOSE)
+re_sub_superscript_agg = re.compile(r"""
+(?P<operator>[_\^]) # ^ or _
+(?P<before> # optional whitespace before
+  \ *?
+)
+(?P<content>
+  [^\ \{\}\n\^\_]{2,}
+)
+(?P<after>\ )
+""", re.VERBOSE)
 
 
 def transform_main(math_string, config):
@@ -161,8 +146,6 @@ def transform_main(math_string, config):
         ("braket", re_braket_ket, r"\g<before>\\ket{\g<ket_c>}\g<after>"),
         ("braket", re_braket_bra, r"\g<before>\\bra{\g<bra_c>}\g<after>"),
 
-        ("sub_superscript", re_sub_superscript_aggressive, r"\g<operator>\g<before>{\g<content>}\g<after>"),
-
         # simple replacements using str.replace(), not regex
         ("arrow", r" -> ", r" \to "),
         ("approx", r"~=", r"\approx "),
@@ -172,6 +155,12 @@ def transform_main(math_string, config):
         ("gg", r">>", r"\gg "),
         ("neq", r"!=", r"\neq ")
     ]
+    if config["sub_superscript"] == "enabled":
+        re_transformations.append(("sub_superscript", re_sub_superscript, r"\g<operator>\g<before>{\g<content>}\g<after>"))
+    elif config["sub_superscript"] == "aggressive":
+        re_transformations.append(("sub_superscript", re_sub_superscript_agg, r"\g<operator>\g<before>{\g<content>}\g<after>"))
+        re_transformations.append(("sub_superscript", re_sub_superscript, r"\g<operator>\g<before>{\g<content>}\g<after>"))
+
 
     for name, pattern, repl in re_transformations:
         if config[name] != "disabled":
@@ -209,12 +198,3 @@ def transform_auto_align(math_string, config, env_type=None):
             math_string = lines_joined
 
     return math_string
-
-
-# def transform_sub_superscript(math_string, config):
-#     if config["sub_superscript"] == "conservative":
-#         return re_sub_superscript_conservative.subn(r"\g<operator>\g<before>{\g<content>}\g<after>", math_string)
-#     elif config["sub_superscript"] == "aggressive":
-#         return re_sub_superscript_aggressive.subn(r"\g<operator>\g<before>{\g<content>}\g<after>", math_string)
-#     else:
-#         return math_string, 0

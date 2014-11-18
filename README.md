@@ -50,9 +50,9 @@ cdot  | `a*b` | `a\cdot b` | enabled :white_check_mark: | see [below](#cdot) for
 dots | `1, 2, ...` | `1, 2, \dots` | enabled :white_check_mark:
 dot | `x..` | `\ddot{x}` | disabled :x: | see [below](#dot) for more info
 braket | `<a|b|c>` | `\braket{a|b|c}` | enabled :white_check_mark: | see [below](#braket) for more info
-sub_superscript | `\int_n=1^42+x` | `\int_{n=1}^{42+x}` | conservative | see [below](#sub_superscript) for more info
-auto_align |  |  | disabled :x: | see below for more info
+sub_superscript | `e^a+b` | `e^{a+b}` | enabled :white_check_mark: | see [below](#sub_superscript) for more info
 frac | `\frac a+b c*d` | `\frac{a+b}{c*d}` | enabled :white_check_mark: | see [below](#frac) for more info
+auto_align |  |  | disabled :x: | see below for more info
 
 ### auto_align
 In an `align(*)` math environment when there is
@@ -81,9 +81,9 @@ A "natural" syntax for writing bras, kets, brakets and ketbras is supported. For
 There's also `<a|b>` or `<a|b|c>` for which the rules are a bit more relaxed (whitespace allowed inside). They all get translated into their respective `\ket{}`, `\bra{}` and `\braket{}` commands. Those are not included in vanilla LaTeX, but you could either use the LaTeX package [braket](http://mirror.selfnet.de/tex-archive/macros/latex/contrib/braket/braket.pdf) which defines these, or define your own versions. Examples:
 
 ```latex
-<a|b|c>     -> \braket{a|b|c}
-|ket> <bra| -> \ket{ket} \bra{bra}
-|ke t>      -> |ke t>               % no whitespace inside!
+<a|b|c>     → \braket{a|b|c}
+|ket> <bra| → \ket{ket} \bra{bra}
+|ke t>      → |ke t>               % no whitespace inside!
 ```
 
 ### dot
@@ -103,22 +103,30 @@ Rule of thumb: The dot expression works with surrounding spaces or at the beginn
 **Status:** There is one use case that breaks this: Using punctuation in math mode. If you end a perfectly valid math expression with a dot and actually want to make a dot, this can make an unwanted change. Example: `$a_i.$`. That's why it's disabled by default at the moment. This was just one case out of ~5000 lines of tex code though. Working on it.
 
 ### sub_superscript
-This is for relaxing the LaTeX rules with sub- or superscripting things with `_` or `^`.
+For relaxing the LaTeX rules with sub- or superscripting things with `_` or `^`. In default mode, what's being raised/lowered has to be alphanumeric, + or -. In particular it's unsafe to use backslashes, equal signs or brackets. That's to make sure that super tight notation like `x^2+a_0` or ambiguous like `\tau_\alpha` stay untouched.
 
 ```latex
-u_tt             -> u_{tt}
+u_tt       → u_{tt}
+e^a+b      → e^{a+b}
+a_abc      → a_{abc}
 ```
 
-(**Status:** There are certain super tight expressions like ` \tau_1+\tau_2 ` that are tricky, that's why there are currently no plus or `=` signs allowed. Also things like `\tau_\alpha` forced me to deactivate the backslashes. Which unfortunately reduced this to the simple case of alphanumeric strings which can be sub-/superscripted.
+There is a more aggressive setting that allows even more relaxed expressions like
 
-In theory I think that's a solvable problem, but I doubt that the answer lies in a RegEx. Proper parsing could open up new ways or something clever. Having two different modes feels hacky and wrong.)
+```latex
+\tau_i=0       → \tau{i=0}
+a_i=0,j=0      → a_{i=0,j=0}
+a_\alpha,\beta → a_{\alpha,\beta}
+```
+
+That "aggressive" mode has to be enabled as a command line option (`--set sss agg`) and requires a space after the expression as a delimiter, even at the end of math mode! But allows anything inside except whitespace and curly brackets.
 
 ### frac
 Instead of writing `\frac{}{}`, use spaces as delimiters.
 
 ```latex
-\frac a+b c*d -> \frac{a+b}{c*d}
-\frac a+b 2   -> \frac{a+b}{2}
+\frac a+b c*d → \frac{a+b}{c*d}
+\frac a+b 2   → \frac{a+b}{2}
 ```
 
 ## Roadmap / Ideas 
