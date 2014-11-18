@@ -20,13 +20,13 @@ Most of the transformations do things that would be expected of a modern LaTeX a
 preTeX is currently automatically tested on 8 randomly selected [arXiv](http://arxiv.org/) papers (323KB raw LaTeX) and makes sure they're untouched with default settings. Transformations are considered safe when they pass that test (among normal unit tests of course).
 
 ## Usage
-To use, either install with `(sudo) pip install pretex` or simply put the `pretex.py` wherever you need it. The only mandatory argument is an input filename. You can also supply an output filename (default is `{original}_t.tex`) and exclude transformations. Usage:
+To use, either install with `(sudo) pip install pretex` or simply put the `pretex.py` wherever you need it. The only mandatory argument is an input filename. You can also supply an output filename (default is `{original}_t.tex`) and change settings. Usage:
 
 ```
 pretex thesis.tex                                     # for installed version
 python pretex.py thesis.tex                           # for copied file
 python pretex.py thesis.tex -o thesis_output.tex
-python pretex.py thesis.tex --skip braket --skip cdot
+python pretex.py thesis.tex --set braket=disabled --set sub_superscript=aggressive
 ```
 
 The default configuration can be seen in the table below.
@@ -106,27 +106,27 @@ Rule of thumb: The dot expression works with surrounding spaces or at the beginn
 For relaxing the LaTeX rules with sub- or superscripting things with `_` or `^`. In default mode, what's being raised/lowered has to be alphanumeric, + or -. In particular it's unsafe to use backslashes, equal signs or brackets. That's to make sure that super tight notation like `x^2+a_0` or ambiguous like `\tau_\alpha` stay untouched.
 
 ```latex
-u_tt       → u_{tt}
-e^a+b      → e^{a+b}
-a_abc      → a_{abc}
+u_tt   →  u_{tt}
+e^a+b  →  e^{a+b}
+a_abc  →  a_{abc}
 ```
 
 There is a more aggressive setting that allows even more relaxed expressions like
 
 ```latex
-\tau_i=0       → \tau{i=0}
-a_i=0,j=0      → a_{i=0,j=0}
-a_\alpha,\beta → a_{\alpha,\beta}
+\tau_i=0        →  \tau{i=0}
+a_i=0,j=0       →  a_{i=0,j=0}
+a_\alpha,\beta  →  a_{\alpha,\beta}
 ```
 
-That "aggressive" mode has to be enabled as a command line option (`--set sss agg`) and requires a space after the expression as a delimiter, even at the end of math mode! But allows anything inside except whitespace and curly brackets.
+That "aggressive" mode has to be enabled as a command line option (`--set sub_superscript aggressive`) and requires a space after the expression as a delimiter, even at the end of math mode! But allows anything inside except whitespace and curly brackets.
 
 ### frac
 Instead of writing `\frac{}{}`, use spaces as delimiters.
 
 ```latex
-\frac a+b c*d → \frac{a+b}{c*d}
-\frac a+b 2   → \frac{a+b}{2}
+\frac a+b c*d  →  \frac{a+b}{c*d}
+\frac a+b 2    →  \frac{a+b}{2}
 ```
 
 ## Roadmap / Ideas 

@@ -147,19 +147,21 @@ class TestClass:
         with pytest.raises(ValueError):
             pretex.parse_cmd_arguments(default_config, ["same_filename.tex", "-o", "same_filename.tex"])
         with pytest.raises(argparse.ArgumentTypeError):
-            pretex.parse_cmd_arguments(default_config, ["test.tex", "-s", "unknown_command"])
+            pretex.parse_cmd_arguments(default_config, ["test.tex", "-s", "unknown_command=disabled"])
+        with pytest.raises(SystemExit):
+            pretex.parse_cmd_arguments(default_config, ["test.tex", "-s", "wrong_format"])
 
         assert pretex.parse_cmd_arguments(default_config, ["in.tex", "-o", "out.tex"]) == ("in.tex", "out.tex", default_config)
         assert pretex.parse_cmd_arguments(default_config, ["in.tex"]) == ("in.tex", "in_t.tex", default_config)
 
         config_expected = copy.deepcopy(default_config)
         config_expected["cdot"] = "disabled"
-        assert pretex.parse_cmd_arguments(default_config, ["test.tex", "-s", "cdot"]) == ("test.tex", "test_t.tex", config_expected)
+        assert pretex.parse_cmd_arguments(default_config, ["test.tex", "-s", "cdot=disabled"]) == ("test.tex", "test_t.tex", config_expected)
 
         config_expected = copy.deepcopy(default_config)
-        config_expected["geq"] = "disabled"
         config_expected["cdot"] = "disabled"
-        assert pretex.parse_cmd_arguments(default_config, ["in.tex", "-s", "cdot", "--skip", "geq"]) == ("in.tex", "in_t.tex", config_expected)
+        config_expected["geq"] = "disabled"
+        assert pretex.parse_cmd_arguments(default_config, ["in.tex", "--set", "cdot=disabled", "--set", "geq=disabled"]) == ("in.tex", "in_t.tex", config_expected)
 
     #
     # def test_re_sub_superscript_conservative(self, trans):

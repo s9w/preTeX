@@ -14,14 +14,21 @@ def parse_cmd_arguments(config, parameters):
 
     def filename_sanitizer(filename):
         if "." not in filename:
-            raise argparse.ArgumentTypeError("String '{s}' does not match required format".format(s=filename))
+            raise argparse.ArgumentTypeError("String '{s}' does not match required format. Should be like filename.tex".format(s=filename))
         return filename
+
+    def setting_sanitizer(setting):
+        print("test doh", setting)
+        if "=" not in setting:
+            print("doh 2!")
+            raise argparse.ArgumentTypeError("String '{s}' does not match required format. Should be setting=value".format(s=setting))
+        return setting
 
     parser = argparse.ArgumentParser()
     parser.add_argument("input_filename", type=filename_sanitizer, help="pyth to file input")
     parser.add_argument("-o", "--output", dest="output_filename", type=filename_sanitizer, help="output file")
-    parser.add_argument("-s", "--skip", dest="excluded_commands", action='append',
-                        help="comma seperated list of transformations to exclude")
+    parser.add_argument("-s", "--set", dest="changed_settings", action='append', type=setting_sanitizer,
+                        help="comma seperated list of changed settings, eg --set ggg")
     args = parser.parse_args(parameters)
 
     # parse output filename
@@ -37,10 +44,12 @@ def parse_cmd_arguments(config, parameters):
 
     # parse skip parameter into config
     config_new = copy.deepcopy(config)
-    for skip_cmd in args.excluded_commands or []:
-        if skip_cmd not in config_new:
-            raise argparse.ArgumentTypeError("Unknown transformation '{trafo}'".format(trafo=skip_cmd))
-        config_new[skip_cmd] = "disabled"
+    if args.changed_settings:
+        for param in args.changed_settings:
+            setting, value = param.split("=")
+            if setting not in config_new:
+                raise argparse.ArgumentTypeError("Unknown setting '{trafo}'".format(trafo=setting))
+            config_new[setting] = value
 
     return args.input_filename, output_filename, config_new
 

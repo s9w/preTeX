@@ -13,8 +13,8 @@ def get_inside_str(s):
 
 class Transformer(object):
     def __init__(self):
-        self.tree = dict()
         self.config = self.get_default_config()
+
 
     @staticmethod
     def get_default_config():
@@ -29,7 +29,6 @@ class Transformer(object):
     def get_transformed_math(self, content, env_type):
         """ the actual transformations with the math contents """
 
-        # changes = dict()
         # math_string = transform_auto_align(math_string, self.config, env_type)
         content, trafos = transform_main(content, self.config)
         return content, trafos
