@@ -5,35 +5,14 @@
 \section{Intro}
 This is part of a unit test. \LaTeX{} source, but should also be safe with **markdown** syntax.
 
-\section{config}
-Testing the inline configurations. This should't work by default: $x.$
-
-% pretex config dot enabled
-But this should: $x.$
-
-% pretex config dot disabled
-$x.$
-
-\section{auto_align}
-
-\begin {align}
-a = b \\
-x = y
-\end{align}
-
-% pretex config auto_align enabled
-\begin {align}
-a = b \\
-x = y
-\end{align}
+\section{Comments}
+normal % comments
+and
+% block
+% comments
+yay!
 
 \section{configs and sub_superscript}
-% pretex config sub_superscript disabled
-$a_ abc $
-% pretex config sub_superscript conservative
-$a_ abc $
-$a_abc$
-% pretex config sub_superscript aggressive
-$a_abc$
+$u_tt$
 
-% pretex config sub_superscript conservative
+\end{document}
