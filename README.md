@@ -88,7 +88,7 @@ There's also `<a|b>` or `<a|b|c>` for which the rules are a bit more relaxed (wh
 ```
 
 ### dot
-Makes writing time derivations much easier. Instead of writing `\dot{a}`, you can just write `a.`. Same for `\ddot`. Works for some more complex structures, too. Examples:
+For time derivations. Instead of writing `\dot{a}`, just write `a.`. Same for `\ddot` and `a..`. Works for some more complex structures, too. Examples:
 
 ```latex
 (?P<frac>\\frac)
@@ -101,30 +101,16 @@ Makes writing time derivations much easier. Instead of writing `\dot{a}`, you ca
 
 Rule of thumb: The dot expression works with surrounding spaces or at the beginning/end inside braces.
 
-**Status:** There is one use case that breaks this: Using punctuation in math mode. If you end a perfectly valid math expression with a dot and actually want to make a dot, this can make an unwanted change. Example: `$a_i.$`. That's why it's disabled by default unfortunately. This was just one case out of ~5000 lines of tex code though. Working on it
+**Status:** There is one use case that breaks this: Using punctuation in math mode. If you end a perfectly valid math expression with a dot and actually want to make a dot, this can make an unwanted change. Example: `$a_i.$`. That's why it's disabled by default unfortunately. This was just one case out of ~5000 lines of tex code though. Working on it.
 
 ### sub_superscript
-This is for relaxing the LaTeX rules with sub- or superscripting things with `_` or `^`. There are two different modes for this (besides disabling): `conservative` and `aggressive`. A little infographic for reference:
-
-![](https://raw.githubusercontent.com/s9w/preTeX/master/docs/sub_superscript.png)
-
-**Conservative** means that there has to be whitespace before and after. The content can be any alphanumeric character plus any of +, -, *, = and commas.
-
-**Aggressive** means the whitespace before is optional and after there has to one of a number of "reasonable" things, i.e. whitespace, end of string, ending braces or another operator.
-
-All modes preserves whitespace and only brace things that need them (two or more characters). Following examples demonstrate its use and also that its careful enough to not change ugly but correct latex code
+This is for relaxing the LaTeX rules with sub- or superscripting things with `_` or `^`.
 
 ```latex
-x_1,x_2,x_3         % not touched
-x_1, f=5            % not touched
-u_ tt bar        -> u_ {tt} bar % all modes
-u_tt             -> u_{tt}      % this and all following only in aggressive!
-\int_i=1 ^\infty -> \int_{i=1} ^\infty
-f_a=4            -> f_{a=4}
-\phi_a=1,b=2 b   -> \phi_{a=1,b=2} b 
+u_tt             -> u_{tt}
 ```
 
-**Status:** There are certain super tight expressions like ` \tau_1+\tau_2 ` that are tricky, that's why there are no plus or `=` signs allowed. Also things like `\tau_\alpha` forced me to deactivate the slashes. Which unfortunately reduced this to the simple case of alphanumeric strings.
+(**Status:** There are certain super tight expressions like ` \tau_1+\tau_2 ` that are tricky, that's why there are currently no plus or `=` signs allowed. Also things like `\tau_\alpha` forced me to deactivate the backslashes. Which unfortunately reduced this to the simple case of alphanumeric strings which can be sub-/superscripted.
 
 In theory I think that's a solvable problem, but I doubt that the answer lies in a RegEx. Proper parsing could open up new ways or something clever. Having two different modes feels hacky and wrong.)
 
@@ -132,10 +118,9 @@ In theory I think that's a solvable problem, but I doubt that the answer lies in
 Instead of writing `\frac{}{}`, use spaces as delimiters.
 
 ```latex
-foo \frac a+b c*d bar -> foo \frac{a+b}{c*d} bar
+\frac a+b c*d -> \frac{a+b}{c*d}
+\frac a+b 2   -> \frac{a+b}{2}
 ```
-
-Problem: If allowing backslashes for valid things like greek letters, it's hard to separate those from another frac, which would blow up quite bad
 
 ## Roadmap / Ideas 
 - Auto insert `\left` / `\right` before brakets etc? But it's sometimes unwanted. Maybe some kind of heuristic
