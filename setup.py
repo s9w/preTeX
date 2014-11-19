@@ -2,12 +2,11 @@
 from setuptools import setup
 
 setup(name='preTeX',
-      version="0.5.0",
-      include_package_data=True,
+      version="0.5.1",
       packages=['pretex'],
-      package_data={
-          'pretex': ['viz/script.js', 'viz/style.css']
-      },
+      # package_data={
+      #     'pretex': ['viz\script.js', 'viz/style.css']
+      # },
       entry_points={
           'console_scripts': [
               'pretex = pretex.pretex:main',
