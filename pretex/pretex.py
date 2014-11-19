@@ -4,7 +4,6 @@ import copy
 import sys
 import argparse
 import io
-
 from .Transformer import Transformer
 
 
@@ -18,15 +17,14 @@ def parse_cmd_arguments(config, parameters):
         return filename
 
     def setting_sanitizer(setting):
-        print("test doh", setting)
         if "=" not in setting:
-            print("doh 2!")
             raise argparse.ArgumentTypeError("String '{s}' does not match required format. Should be setting=value".format(s=setting))
         return setting
 
     parser = argparse.ArgumentParser()
     parser.add_argument("input_filename", type=filename_sanitizer, help="pyth to file input")
     parser.add_argument("-o", "--output", dest="output_filename", type=filename_sanitizer, help="output file")
+    parser.add_argument('--html', action='store_const', const="enabled")
     parser.add_argument("-s", "--set", dest="changed_settings", action='append', type=setting_sanitizer,
                         help="comma seperated list of changed settings, eg --set ggg")
     args = parser.parse_args(parameters)
@@ -48,9 +46,10 @@ def parse_cmd_arguments(config, parameters):
         for param in args.changed_settings:
             setting, value = param.split("=")
             if setting not in config_new:
-                raise argparse.ArgumentTypeError("Unknown setting '{trafo}'".format(trafo=setting))
+                raise argparse.ArgumentTypeError("Unknown setting '{setting}'".format(setting=setting))
             config_new[setting] = value
 
+    config_new["html"] = args.html or "disabled"
     return args.input_filename, output_filename, config_new
 
 
@@ -60,7 +59,7 @@ def main():
 
     with io.open(filename_in, 'r', encoding='utf-8') as file_in, \
             io.open(filename_out, 'w', encoding='utf-8') as file_out:
-        file_content_transformed = optimus_prime.get_transformed_str(file_in.read())
+        file_content_transformed = optimus_prime.get_transformed_str(file_in.read(), filename=filename_in)
         file_out.write(file_content_transformed)
 
 

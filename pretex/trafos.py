@@ -186,22 +186,28 @@ def transform_main(math_string, config):
 
 
 def transform_auto_align(math_string, config, env_type=None):
+    """ Trims the empty lines at the beginning at end. There have to be >=2
+    "real" lines. For the &0, There have to be none of those already, and 0
+    or 1 equal sign on every line. For the \\'s, there have to be none already.
+    Both are independent """
+
+    def isempty(s):
+        return s == "" or s.isspace()
+
     trafos = []
-    math_string_changed = math_string
     if env_type in ["align", "align*"] and config["auto_align"] != "disabled":
-        # add \\'s if missing
-        if r"\\" not in math_string:
-            content_parts = [line for line in math_string.splitlines() if line and not line.isspace()]
-            math_string_changed = "\n" + " \\\\\n".join(content_parts) + "\n"
+        lines = math_string.split("\n")
+        i1 = next((i for i in range(len(lines)) if not isempty(lines[i])), None)
+        i2 = next((i for i in range(len(lines) - 1, 0, -1) if not isempty(lines[i])), None)
+        if i1 and i2:
+            real_line_count = i2 - i1 + 1
+            if real_line_count >= 2:
+                if all(line.count("=") in [0, 1] and line.count("&=") == 0 for line in lines):
+                    lines = [el.replace("=", "&=") for el in lines]
+                    trafos = [{"type": "auto_align", "start": 0, "end": 1}]
+                if r"\\" not in math_string:
+                    lines[i1:i2] = [line + r" \\" if not isempty(line) else "" for line in lines[i1:i2]]
+                    trafos = [{"type": "auto_align", "start": 0, "end": 1}]
+                math_string = "\n".join(lines)
 
-        lines_split = math_string_changed.split(r"\\")
-        if all(line.count("=") == 1 and line.count("&=") == 0 for line in lines_split) and len(lines_split) > 1:
-            line_split = [line.split(r"=") for line in lines_split]
-            line_joined = [r"&=".join(l) for l in line_split]
-            lines_joined = r"\\".join(line_joined)
-            math_string_changed = lines_joined
-
-        if math_string_changed != math_string:
-            trafos = [{"type": "auto_align", "start": 0, "end": 1}]
-
-    return math_string_changed, trafos
+    return math_string, trafos

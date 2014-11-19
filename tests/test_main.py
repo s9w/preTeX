@@ -26,27 +26,6 @@ def trans(request):
 
 
 class TestClass:
-
-    def test_new(self, trans):
-        test_string = r"""header\begin{document}
-\section{config}
-Testing the inline configurations. This should't work by default: $x.$jj
-But this should: $a*b$
-
-$x.$
-\begin{align}d
-a=1
-b =2
-z\end{align}
-the end.
-\end{document}"""
-        trans.config["auto_align"] = "enabled"
-        tree = trans.get_transformed_tree(test_string)
-        print(json.dumps(tree, sort_keys=True, indent=4, separators=(',', ': ')))
-        trans.viz_output(tree)
-        # assert False
-
-
     def test_get_file_parts_full(self, trans):
         test_string = get_inside_str(r'''
             header
@@ -145,13 +124,13 @@ the end.
         with pytest.raises(SystemExit):
             pretex.parse_cmd_arguments(default_config, ["test_no_extension"])
         with pytest.raises(ValueError):
-            pretex.parse_cmd_arguments(default_config, ["same_filename.tex", "-o", "same_filename.tex"])
+            pretex.parse_cmd_arguments(default_config, "same_filename.tex -o same_filename.tex".split())
         with pytest.raises(argparse.ArgumentTypeError):
             pretex.parse_cmd_arguments(default_config, ["test.tex", "-s", "unknown_command=disabled"])
         with pytest.raises(SystemExit):
             pretex.parse_cmd_arguments(default_config, ["test.tex", "-s", "wrong_format"])
 
-        assert pretex.parse_cmd_arguments(default_config, ["in.tex", "-o", "out.tex"]) == ("in.tex", "out.tex", default_config)
+        assert pretex.parse_cmd_arguments(default_config, "in.tex -o out.tex".split()) == ("in.tex", "out.tex", default_config)
         assert pretex.parse_cmd_arguments(default_config, ["in.tex"]) == ("in.tex", "in_t.tex", default_config)
 
         config_expected = copy.deepcopy(default_config)
@@ -161,7 +140,11 @@ the end.
         config_expected = copy.deepcopy(default_config)
         config_expected["cdot"] = "disabled"
         config_expected["geq"] = "disabled"
-        assert pretex.parse_cmd_arguments(default_config, ["in.tex", "--set", "cdot=disabled", "--set", "geq=disabled"]) == ("in.tex", "in_t.tex", config_expected)
+        assert pretex.parse_cmd_arguments(default_config, "in.tex --set cdot=disabled --set geq=disabled".split()) == ("in.tex", "in_t.tex", config_expected)
+
+        config_expected = copy.deepcopy(default_config)
+        config_expected["html"] = "enabled"
+        assert pretex.parse_cmd_arguments(default_config, "in.tex --html".split()) == ("in.tex", "in_t.tex", config_expected)
 
 
     def test_re_sub_superscript(self, trans):
@@ -279,7 +262,7 @@ the end.
             (r"|ke t>", r"|ke t>"),
             (r"= { x | x>0 }", r"= { x | x>0 }")
         ]
-    
+
         for test_input, test_output in testcases:
             result = trans.get_transformed_math(test_input, trans.config)
             assert result[0] == test_output
@@ -306,60 +289,45 @@ the end.
 
 
     def test_auto_align(self, trans):
-        test_string_1 = get_inside_str(r'''
-            \begin {align}
+        test_string_1 = r'''
             a = b \\
             x = y
-            \end{align}
-            ''')
+            '''
 
-        test_string_1_expected = get_inside_str(r'''
-            \begin {align}
+        test_string_1_expected = r'''
             a &= b \\
             x &= y
-            \end{align}
-            ''')
+            '''
 
-        test_string_2 = get_inside_str(r'''
-            \begin {align}
+        test_string_2 = r'''
             a = x = b \\
             x = y
-            \end{align}
-            ''')
-        test_string_3 = get_inside_str(r'''
-            \begin {align}
+            '''
+        test_string_3 = r'''
             a = b \\
             x &= y
-            \end{align}
-            ''')
+            '''
 
-        test_string_4 = get_inside_str(r'''
-            \begin {align*}
+        test_string_4 = r'''
             a = b
-            x = y
-            \end{align*}
-            ''')
 
-        test_string_4_expected = get_inside_str(r'''
-            \begin {align*}
+            x = y
+            '''
+
+        test_string_4_expected = r'''
             a &= b \\
+
             x &= y
-            \end{align*}
-            ''')
+            '''
 
         trans.config["auto_align"] = "enabled"
+        assert trans.get_transformed_math(test_string_1, "align")[0] == test_string_1_expected
+        assert trans.get_transformed_math(test_string_2, "align")[0] == test_string_2
+        assert trans.get_transformed_math(test_string_3, "align")[0] == test_string_3
+        assert trans.get_transformed_math(test_string_4, "align")[0] == test_string_4_expected
 
-        result = trans.get_transformed_math(test_string_1, "align")
-        print("result", result)
-        assert result[0] == test_string_1_expected
-
-        result = trans.get_transformed_math(test_string_2, "align")
-        assert result[0] == test_string_2
-        # assert trans.transform_math_env(test_string_3) == test_string_3
-        # assert trans.transform_math_env(test_string_4) == test_string_4_expected
-        #
-        # trans.config["auto_align"] = "disabled"
-        # assert trans.transform_math_env(test_string_1) == test_string_1
+        trans.config["auto_align"] = "disabled"
+        assert trans.get_transformed_math(test_string_1, "align")[0] == test_string_1
 
 
     def test_skip(self, trans):
@@ -390,17 +358,16 @@ the end.
         request.addfinalizer(cleanup)
 
 
-    def test_main_simple(self, trans, monkeypatch, mock_testfile):
-        monkeypatch.setattr(sys, 'argv', ['xxx', 'test_simple.tex'])
+    def test_main_simple(self, monkeypatch, mock_testfile):
+        monkeypatch.setattr(sys, 'argv', "xxx test_simple.tex".split())
         pretex.main()
         with io.open("test_simple_t.tex", 'r', encoding='utf-8') as file_read:
             test_file_content = file_read.read()
         assert test_file_content == r"$\frac{aa}{bb}$"
 
 
-    def test_main_complex(self, trans, monkeypatch):
-        monkeypatch.setattr(sys, 'argv', ['xxx', 'tests/test_file.tex', '--set', 'auto_align=enabled'])
-        trans.config["auto_align"] = "enabled"
+    def test_main_complex(self, monkeypatch):
+        monkeypatch.setattr(sys, 'argv', "xxx tests/test_file.tex --html --set auto_align=enabled".split())
         pretex.main()
         with io.open("tests/test_file_t.tex", 'r', encoding='utf-8') as file_read:
             test_file_content = file_read.read()
@@ -433,6 +400,5 @@ the end.
                 test_file_content = file_read.read()
             with io.open(output_path, 'r', encoding='utf-8') as file_read:
                 test_expected_content = file_read.read()
-            print("at", filename)
             assert test_file_content == test_expected_content
             silent_remove(output_path)

@@ -1,0 +1,36 @@
+span {
+    font-family: monospace;
+}
+
+.file_tree {
+    background-color: #ececec;
+}
+
+.document {
+    background-color: #c9c9c9;
+}
+
+.math_env {
+    background-color: #99CCFF;
+    cursor: default;
+}
+
+.math_env:hover {
+    background-color: #6699FF;
+}
+
+.pretexted {
+    background-color: #FF99CC;
+}
+
+.pretexted:hover {
+    background-color: #FF6699;
+}
+
+.invisible {
+    display: none !important;
+}
+
+pre{
+    white-space: pre-wrap;
+}

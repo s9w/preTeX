@@ -23,8 +23,8 @@ preTeX is currently automatically tested on 8 randomly selected [arXiv](http://a
 To use, either install with `(sudo) pip install pretex` or simply put the `pretex.py` wherever you need it. The only mandatory argument is an input filename. You can also supply an output filename (default is `{original}_t.tex`) and change settings. Usage:
 
 ```
-pretex thesis.tex                                     # for installed version
-python pretex.py thesis.tex                           # for copied file
+          pretex thesis.tex                       # for installed version
+python pretex.py thesis.tex                       # for copied file
 python pretex.py thesis.tex -o thesis_output.tex
 python pretex.py thesis.tex --set braket=disabled --set sub_superscript=aggressive
 ```
@@ -33,7 +33,10 @@ The default configuration can be seen in the table below.
 
 There are no dependencies on other packages and fully tested with Python 2.7, 3.2, 3.3, 3.4. Works in any math mode I know of. That is: `$x$`, `$$x$$`, `\(x\)`, `\[x\]` for inline and in every of these math environments (starred and unstarred): `equation`, `align`, `math`, `displaymath`, `eqnarray`, `gather`, `flalign`, `multiline`, `alignat`.
 
-Hint: This works well together with [Pandoc](https://github.com/jgm/pandoc/), which makes it possible to mix LaTeX with Markdown code. 
+Hint: This works well together with [Pandoc](https://github.com/jgm/pandoc/), which makes it possible to mix LaTeX with Markdown code.
+
+## HTML output
+This is experimental and mostly used for debbuging right now. Enable with `pretex --html ...`. Should write a `filename_viz.html` file in the sources directory that contains some highlighting  and hover information.
 
 ## Transformations
 
@@ -57,9 +60,9 @@ auto_align |  |  | enabled :white_check_mark: | see [below](#auto_align) for mor
 ### auto_align
 In an `align(*)` math environment when there is
 
-1. Only one "=" on every line and
-2. None of them is aligned by "&="
-3. More than one line
+1. 0 or 1 "=" on every line and
+2. None of them is aligned by "&=" and
+3. Two or more non-whitespace lines
 
 Then they all get auto-aligned by replacing the `=` with `&=`. Also if there is no line separation with `\\`, it's added automatically for similar conditions. Only works on "sane" aligns, where there's no math on the same line as the begin and closing statements.
 
@@ -76,9 +79,9 @@ A "natural" syntax for writing bras, kets, brakets and ketbras is supported. For
 There's also `<a|b>` or `<a|b|c>` for which the rules are a bit more relaxed (whitespace allowed inside). They all get translated into their respective `\ket{}`, `\bra{}` and `\braket{}` commands. Those are not included in vanilla LaTeX, but you could either use the LaTeX package [braket](http://mirror.selfnet.de/tex-archive/macros/latex/contrib/braket/braket.pdf) which defines these, or define your own versions. Examples:
 
 ```latex
-<a|b|c>     → \braket{a|b|c}
-|ket> <bra| → \ket{ket} \bra{bra}
-|ke t>      → |ke t>               % no whitespace inside!
+<a|b|c>      →  \braket{a|b|c}
+|ket> <bra|  →  \ket{ket} \bra{bra}
+|ke t>       →  |ke t>               % no whitespace inside!
 ```
 
 ### dot
@@ -127,4 +130,3 @@ Instead of writing `\frac{}{}`, use spaces as delimiters.
 - Auto insert `\left` / `\right` before brakets etc? But it's sometimes unwanted. Maybe some kind of heuristic
 - braket-size would be neat to be able to set. Right now they default to the small versions (`\ket` etc). There are big versions (`\Ket`) but I have no clue what's a clever way to indicate their use in the code. Right now that's a config var, but that's global or too much effort for a per-use-case
 - Verbose mode that reports changes
-- Working on experimental html visualizer. Primarily for debugging, but could be used for more. Not currently documented
