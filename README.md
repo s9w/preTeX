@@ -51,20 +51,19 @@ dots | `1, 2, ...` | `1, 2, \dots` | enabled :white_check_mark:
 dot | `x..` | `\ddot{x}` | disabled :x: | see [below](#dot) for more info
 braket | `<a|b|c>` | `\braket{a|b|c}` | enabled :white_check_mark: | see [below](#braket) for more info
 sub_superscript | `e^a+b` | `e^{a+b}` | enabled :white_check_mark: | see [below](#sub_superscript) for more info
-frac | `\frac a+b c*d` | `\frac{a+b}{c*d}` | enabled :white_check_mark: | see [below](#frac) for more info
-auto_align |  |  | disabled :x: | see below for more info
+frac | `\frac a+b 2` | `\frac{a+b}{2}` | enabled :white_check_mark: | see [below](#frac) for more info
+auto_align |  |  | enabled :white_check_mark: | see [below](#auto_align) for more info
 
 ### auto_align
 In an `align(*)` math environment when there is
 
 1. Only one "=" on every line and
 2. None of them is aligned by "&="
+3. More than one line
 
-Then they all get auto-aligned by replacing the `=` with `&=`. Also if there is no line separation with `\\`, it's added automatically.
+Then they all get auto-aligned by replacing the `=` with `&=`. Also if there is no line separation with `\\`, it's added automatically for similar conditions.
 
 ![](https://raw.githubusercontent.com/s9w/preTeX/master/docs/auto_align.gif)
-
-**Status:** disabled by default right now since I wanted to finish a big refactor
 
 ### cdot
 Works anywhere in math except for the case of `a^*` to prevent wrongful use in complex conjugation.
@@ -72,11 +71,7 @@ Works anywhere in math except for the case of `a^*` to prevent wrongful use in c
 ### braket
 (This is about the [Bra-ket notation](http://en.wikipedia.org/wiki/Bra%E2%80%93ket_notation) from physics. Not to be confused with regular brackets)
 
-A "natural" syntax for writing bras, kets, brakets and ketbras is supported. For `|ket>` and `<bra|` and `|ket><bra|`, there can't be any whitespace or curly braces in them and there have to be reasonable limits (space, braces, string start/end) before and after. That's because there is one tricky case where this could blow up:
-
-```latex
-{ x | x>0 }
-```
+A "natural" syntax for writing bras, kets, brakets and ketbras is supported. For `|ket>` and `<bra|` and `|ket><bra|`, there can't be any whitespace or curly braces in them and there have to be reasonable limits (space, braces, string start/end) before and after. That's because there is one tricky case where this could blow up: `{ x | x>0 }`
 
 There's also `<a|b>` or `<a|b|c>` for which the rules are a bit more relaxed (whitespace allowed inside). They all get translated into their respective `\ket{}`, `\bra{}` and `\braket{}` commands. Those are not included in vanilla LaTeX, but you could either use the LaTeX package [braket](http://mirror.selfnet.de/tex-archive/macros/latex/contrib/braket/braket.pdf) which defines these, or define your own versions. Examples:
 
@@ -87,20 +82,19 @@ There's also `<a|b>` or `<a|b|c>` for which the rules are a bit more relaxed (wh
 ```
 
 ### dot
-For time derivations. Instead of writing `\dot{a}`, just write `a.`. Same for `\ddot` and `a..`. Works for some more complex structures, too. Examples:
+Instead of writing `\dot{a}` for time derivations, just write `a.`. Same for `\ddot` and `a..`. Works for some more complex structures, too. Examples:
 
 ```latex
-(?P<frac>\\frac)
-\ +?
-(?P<num>[^\ \{\}\n\\]+?)
-\ +?
-(?P<denom>[^\ \{\}\n\\]+?)
-(?=$|\ |\n|,)
+foo x. bar          →  foo \dot{x} bar
+f(q_i..)            →  f(\ddot{q_i})
+foo \phi. bar       →  foo \dot{\phi} bar
+foo \vec x. bar     →  foo \dot{\vec x} bar
+foo \vec{abc}. bar  →  foo \dot{\vec{abc}} bar
 ```
 
 Rule of thumb: The dot expression works with surrounding spaces or at the beginning/end inside braces.
 
-**Status:** There is one use case that breaks this: Using punctuation in math mode. If you end a perfectly valid math expression with a dot and actually want to make a dot, this can make an unwanted change. Example: `$a_i.$`. That's why it's disabled by default at the moment. This was just one case out of ~5000 lines of tex code though. Working on it.
+**Status:** There is one use case that breaks this: Using punctuation in math mode. If you end a perfectly valid math expression with a dot and actually want to make a dot, this can make an unwanted change. Example: `$a_i.$`. That's why it's disabled by default at the moment. This was just one case out of ~5000 lines of tex code though, working on it. Enable with `--set dot=enabled`.
 
 ### sub_superscript
 For relaxing the LaTeX rules with sub- or superscripting things with `_` or `^`. In default mode, what's being raised/lowered has to be alphanumeric, + or -. In particular it's unsafe to use backslashes, equal signs or brackets. That's to make sure that super tight notation like `x^2+a_0` or ambiguous like `\tau_\alpha` stay untouched.

@@ -156,15 +156,25 @@ def transform_main(math_string, config):
         ("neq", r"!=", r"\neq ")
     ]
     if config["sub_superscript"] == "enabled":
-        re_transformations.append(("sub_superscript", re_sub_superscript, r"\g<operator>\g<before>{\g<content>}\g<after>"))
+        re_transformations.append(
+            ("sub_superscript", re_sub_superscript, r"\g<operator>\g<before>{\g<content>}\g<after>")
+        )
     elif config["sub_superscript"] == "aggressive":
-        re_transformations.append(("sub_superscript", re_sub_superscript_agg, r"\g<operator>\g<before>{\g<content>}\g<after>"))
-        re_transformations.append(("sub_superscript", re_sub_superscript, r"\g<operator>\g<before>{\g<content>}\g<after>"))
-
+        re_transformations.extend([
+            ("sub_superscript", re_sub_superscript_agg, r"\g<operator>\g<before>{\g<content>}\g<after>"),
+            ("sub_superscript", re_sub_superscript, r"\g<operator>\g<before>{\g<content>}\g<after>")
+        ])
 
     for name, pattern, repl in re_transformations:
         if config[name] != "disabled":
-            if isinstance(pattern, re._pattern_type):
+            if isinstance(pattern, str):
+                match_pos = math_string.find(pattern)
+                while match_pos != -1:
+                    trafos.append({"type": name, "start": match_pos, "end": match_pos+len(repl)})
+                    math_string = math_string.replace(pattern, repl, 1)
+                    match_pos = math_string.find(pattern)
+
+            else:
                 match = pattern.search(math_string)
                 while match:
                     match_expanded = match.expand(repl)
@@ -172,29 +182,26 @@ def transform_main(math_string, config):
                     math_string = math_string[:match.start()] + match_expanded + math_string[match.end():]
                     match = pattern.search(math_string, match.end())
 
-            else:
-                match_pos = math_string.find(pattern)
-                while match_pos != -1:
-                    trafos.append({"type": name, "start": match_pos, "end": match_pos+len(repl)})
-                    math_string = math_string.replace(pattern, repl, 1)
-                    match_pos = math_string.find(pattern)
-
     return math_string, trafos
 
 
 def transform_auto_align(math_string, config, env_type=None):
+    trafos = []
+    math_string_changed = math_string
     if env_type in ["align", "align*"] and config["auto_align"] != "disabled":
         # add \\'s if missing
         if r"\\" not in math_string:
-            content_parts = [line for line in math_string.split("\n") if line and not line.isspace()]
-            math_string = "\n" + " \\\\\n".join(content_parts) + "\n"
+            content_parts = [line for line in math_string.splitlines() if line and not line.isspace()]
+            math_string_changed = "\n" + " \\\\\n".join(content_parts) + "\n"
 
-        # if only one = per line and none are &='ed
-        lines_split = math_string.split(r"\\")
-        if all(line.count(r"=") == 1 and line.count(r"&=") == 0 for line in lines_split):
+        lines_split = math_string_changed.split(r"\\")
+        if all(line.count("=") == 1 and line.count("&=") == 0 for line in lines_split) and len(lines_split) > 1:
             line_split = [line.split(r"=") for line in lines_split]
             line_joined = [r"&=".join(l) for l in line_split]
             lines_joined = r"\\".join(line_joined)
-            math_string = lines_joined
+            math_string_changed = lines_joined
 
-    return math_string
+        if math_string_changed != math_string:
+            trafos = [{"type": "auto_align", "start": 0, "end": 1}]
+
+    return math_string_changed, trafos

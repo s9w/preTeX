@@ -20,8 +20,8 @@ class Transformer(object):
     def get_default_config():
         config = {key: "enabled" for key in
                   ["arrow", "approx", "leq", "sub_superscript", "geq", "ll",
-                   "gg", "neq", "cdot", "braket", "dots", "frac"]}
-        config.update({key: "disabled" for key in ["auto_align", "dot"]})
+                   "gg", "neq", "cdot", "braket", "dots", "frac", "auto_align"]}
+        config.update({key: "disabled" for key in ["dot"]})
         config["braket_style"] = "small"
         return config
 
@@ -29,8 +29,11 @@ class Transformer(object):
     def get_transformed_math(self, content, env_type):
         """ the actual transformations with the math contents """
 
-        # math_string = transform_auto_align(math_string, self.config, env_type)
-        content, trafos = transform_main(content, self.config)
+        trafos = []
+        content, trafos_auto_align = transform_auto_align(content, self.config, env_type)
+        content, trafos_main = transform_main(content, self.config)
+        trafos.extend(trafos_main)
+        trafos.extend(trafos_auto_align)
         return content, trafos
 
 
@@ -61,13 +64,6 @@ class Transformer(object):
             after_document = ""
 
         return before_document, file_str, after_document
-
-        # document_match = pattern_document.search(file_str)
-        # if document_match:
-        #     before_document, document_content, after_document = document_match.groups()
-        # else:
-        #     before_document, document_content, after_document = ("", file_str, "")
-        # return before_document, document_content, after_document
 
 
     @staticmethod

@@ -60,8 +60,8 @@ def main():
 
     with io.open(filename_in, 'r', encoding='utf-8') as file_in, \
             io.open(filename_out, 'w', encoding='utf-8') as file_out:
-        s_transformed = optimus_prime.get_transformed_str(file_in.read())
-        file_out.write(s_transformed)
+        file_content_transformed = optimus_prime.get_transformed_str(file_in.read())
+        file_out.write(file_content_transformed)
 
 
 if __name__ == "__main__":

@@ -27,24 +27,24 @@ def trans(request):
 
 class TestClass:
 
-    #     def test_new(self, trans):
-    #         test_string = r"""header\begin{document}
-    # \section{config}
-    # Testing the inline configurations. This should't work by default: $x.$jj
-    # But this should: $a*b$
-    #
-    #
-    # $x.$
-    # \begin{align}
-    # foo \frac a+b c+d
-    # bar
-    # \end{align}
-    # the end.
-    # \end{document}"""
-    #         tree = trans.get_transformed_tree(test_string)
-    #         # print(json.dumps(tree, sort_keys=True, indent=4, separators=(',', ': ')))
-    #         trans.viz_output(tree)
-    #         assert False
+    def test_new(self, trans):
+        test_string = r"""header\begin{document}
+\section{config}
+Testing the inline configurations. This should't work by default: $x.$jj
+But this should: $a*b$
+
+$x.$
+\begin{align}d
+a=1
+b =2
+z\end{align}
+the end.
+\end{document}"""
+        trans.config["auto_align"] = "enabled"
+        tree = trans.get_transformed_tree(test_string)
+        print(json.dumps(tree, sort_keys=True, indent=4, separators=(',', ': ')))
+        trans.viz_output(tree)
+        # assert False
 
 
     def test_get_file_parts_full(self, trans):
@@ -162,14 +162,6 @@ class TestClass:
         config_expected["cdot"] = "disabled"
         config_expected["geq"] = "disabled"
         assert pretex.parse_cmd_arguments(default_config, ["in.tex", "--set", "cdot=disabled", "--set", "geq=disabled"]) == ("in.tex", "in_t.tex", config_expected)
-
-    #
-    # def test_re_sub_superscript_conservative(self, trans):
-    #     trans.config["sub_superscript"] = "conservative"
-    #     valid_testcases = [(r"$a_abc$", r"$a_abc$"),
-    #                        (r"$a_ abc b$", r"$a_ {abc} b$")]
-    #     for test_input, test_output in valid_testcases:
-    #         assert trans.transform_math_env(test_input) == test_output
 
 
     def test_re_sub_superscript(self, trans):
@@ -313,57 +305,61 @@ class TestClass:
             assert result[0] == test_output
 
 
-    # def test_auto_align(self, trans):
-    #     test_string_1 = r"""
-    #         \begin {align}
-    #         a = b \\
-    #         x = y
-    #         \end{align}
-    #     """
-    #
-    #     test_string_1_expected = r"""
-    #         \begin {align}
-    #         a &= b \\
-    #         x &= y
-    #         \end{align}
-    #     """
-    #
-    #     test_string_2 = r"""
-    #         \begin {align}
-    #         a = x = b \\
-    #         x = y
-    #         \end{align}
-    #     """
-    #     test_string_3 = r"""
-    #         \begin {align}
-    #         a = b \\
-    #         x &= y
-    #         \end{align}
-    #     """
-    #
-    #     test_string_4 = r"""
-    #         \begin {align*}
-    #         a = b
-    #         x = y
-    #         \end{align*}
-    #     """
-    #
-    #     test_string_4_expected = r"""
-    #         \begin {align*}
-    #         a &= b \\
-    #         x &= y
-    #         \end{align*}
-    #     """
-    #
-    #     trans.config["auto_align"] = "enabled"
-    #
-    #     assert trans.transform_math_env(test_string_1) == test_string_1_expected
-    #     assert trans.transform_math_env(test_string_2) == test_string_2
-    #     assert trans.transform_math_env(test_string_3) == test_string_3
-    #     assert trans.transform_math_env(test_string_4) == test_string_4_expected
-    #
-    #     trans.config["auto_align"] = "disabled"
-    #     assert trans.transform_math_env(test_string_1) == test_string_1
+    def test_auto_align(self, trans):
+        test_string_1 = get_inside_str(r'''
+            \begin {align}
+            a = b \\
+            x = y
+            \end{align}
+            ''')
+
+        test_string_1_expected = get_inside_str(r'''
+            \begin {align}
+            a &= b \\
+            x &= y
+            \end{align}
+            ''')
+
+        test_string_2 = get_inside_str(r'''
+            \begin {align}
+            a = x = b \\
+            x = y
+            \end{align}
+            ''')
+        test_string_3 = get_inside_str(r'''
+            \begin {align}
+            a = b \\
+            x &= y
+            \end{align}
+            ''')
+
+        test_string_4 = get_inside_str(r'''
+            \begin {align*}
+            a = b
+            x = y
+            \end{align*}
+            ''')
+
+        test_string_4_expected = get_inside_str(r'''
+            \begin {align*}
+            a &= b \\
+            x &= y
+            \end{align*}
+            ''')
+
+        trans.config["auto_align"] = "enabled"
+
+        result = trans.get_transformed_math(test_string_1, "align")
+        print("result", result)
+        assert result[0] == test_string_1_expected
+
+        result = trans.get_transformed_math(test_string_2, "align")
+        assert result[0] == test_string_2
+        # assert trans.transform_math_env(test_string_3) == test_string_3
+        # assert trans.transform_math_env(test_string_4) == test_string_4_expected
+        #
+        # trans.config["auto_align"] = "disabled"
+        # assert trans.transform_math_env(test_string_1) == test_string_1
 
 
     def test_skip(self, trans):
@@ -403,7 +399,8 @@ class TestClass:
 
 
     def test_main_complex(self, trans, monkeypatch):
-        monkeypatch.setattr(sys, 'argv', ['xxx', 'tests/test_file.tex'])
+        monkeypatch.setattr(sys, 'argv', ['xxx', 'tests/test_file.tex', '--set', 'auto_align=enabled'])
+        trans.config["auto_align"] = "enabled"
         pretex.main()
         with io.open("tests/test_file_t.tex", 'r', encoding='utf-8') as file_read:
             test_file_content = file_read.read()
