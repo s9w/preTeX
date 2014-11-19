@@ -61,7 +61,7 @@ In an `align(*)` math environment when there is
 2. None of them is aligned by "&="
 3. More than one line
 
-Then they all get auto-aligned by replacing the `=` with `&=`. Also if there is no line separation with `\\`, it's added automatically for similar conditions.
+Then they all get auto-aligned by replacing the `=` with `&=`. Also if there is no line separation with `\\`, it's added automatically for similar conditions. Only works on "sane" aligns, where there's no math on the same line as the begin and closing statements.
 
 ![](https://raw.githubusercontent.com/s9w/preTeX/master/docs/auto_align.gif)
 
@@ -85,11 +85,11 @@ There's also `<a|b>` or `<a|b|c>` for which the rules are a bit more relaxed (wh
 Instead of writing `\dot{a}` for time derivations, just write `a.`. Same for `\ddot` and `a..`. Works for some more complex structures, too. Examples:
 
 ```latex
-foo x. bar          →  foo \dot{x} bar
-f(q_i..)            →  f(\ddot{q_i})
-foo \phi. bar       →  foo \dot{\phi} bar
-foo \vec x. bar     →  foo \dot{\vec x} bar
-foo \vec{abc}. bar  →  foo \dot{\vec{abc}} bar
+x.          →  \dot{x}
+f(q_i..)    →  f(\ddot{q_i})
+\phi.       →  \dot{\phi}
+\vec x.     →  \dot{\vec x}
+\vec{abc}.  →  \dot{\vec{abc}}
 ```
 
 Rule of thumb: The dot expression works with surrounding spaces or at the beginning/end inside braces.
