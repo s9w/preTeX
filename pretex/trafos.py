@@ -194,6 +194,12 @@ def transform_auto_align(math_string, config, env_type=None):
     def isempty(s):
         return s == "" or s.isspace()
 
+    def slashLine(line):
+        if "%c" in line:
+            return line.replace("%c ", r"\\ %c ")
+        else:
+            return line + r" \\" if not isempty(line) else ""
+
     trafos = []
     if env_type in ["align", "align*"] and config["auto_align"] != "disabled":
         lines = math_string.split("\n")
@@ -206,7 +212,7 @@ def transform_auto_align(math_string, config, env_type=None):
                     lines = [el.replace("=", "&=") for el in lines]
                     trafos = [{"type": "auto_align", "start": 0, "end": 1}]
                 if r"\\" not in math_string:
-                    lines[i1:i2] = [line + r" \\" if not isempty(line) else "" for line in lines[i1:i2]]
+                    lines[i1:i2] = [slashLine(line) for line in lines[i1:i2]]
                     trafos = [{"type": "auto_align", "start": 0, "end": 1}]
                 math_string = "\n".join(lines)
 

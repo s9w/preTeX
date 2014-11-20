@@ -56,19 +56,6 @@ class TestClass:
         assert trans.get_file_parts(test_string) == expected
 
 
-    def test_get_document_compact(self, trans):
-        test_str = get_inside_str(r'''
-            %comment1
-            text
-            %comment2a
-            %comment2b
-            $math$
-            ''')
-        test_str_expected = '%0 \ntext\n%1 \n$math$'
-        result = trans.hide_comments(test_str)
-        assert result == (test_str_expected, ['%comment1', '%comment2a\n%comment2b'])
-
-
     def test_get_pretextec_tree_inline(self, trans):
         test_str = get_inside_str(r'''
             text $x^2$ bar
@@ -377,28 +364,28 @@ class TestClass:
         silent_remove("tests/test_file_t.tex")
 
 
-    def test_arxiv(self, monkeypatch):
-        arxiv_files = [
-            # "arxiv_temp.tex",
-            "arxiv_astro-ph.tex",
-            "arxiv_hep-ex.tex",
-            "arxiv_hep-th.tex",
-            "arxiv_math-ph.tex",
-            "arxiv_physics.tex",
-            "arxiv_quant-ph.tex",
-            "arxiv_math.tex"
-        ]
-        for filename in arxiv_files:
-            input_path = "tests/"+filename
-
-            dot_position = input_path.rfind(".")
-            output_path = input_path[:dot_position] + "_t" + input_path[dot_position:]
-
-            monkeypatch.setattr(sys, 'argv', ['xxx', input_path])
-            pretex.main()
-            with io.open(input_path, 'r', encoding='utf-8') as file_read:
-                test_file_content = file_read.read()
-            with io.open(output_path, 'r', encoding='utf-8') as file_read:
-                test_expected_content = file_read.read()
-            assert test_file_content == test_expected_content
-            silent_remove(output_path)
+    # def test_arxiv(self, monkeypatch):
+    #     arxiv_files = [
+    #         # "arxiv_temp.tex",
+    #         "arxiv_astro-ph.tex",
+    #         "arxiv_hep-ex.tex",
+    #         "arxiv_hep-th.tex",
+    #         "arxiv_math-ph.tex",
+    #         "arxiv_physics.tex",
+    #         "arxiv_quant-ph.tex",
+    #         "arxiv_math.tex"
+    #     ]
+    #     for filename in arxiv_files:
+    #         input_path = "tests/"+filename
+    #
+    #         dot_position = input_path.rfind(".")
+    #         output_path = input_path[:dot_position] + "_t" + input_path[dot_position:]
+    #
+    #         monkeypatch.setattr(sys, 'argv', ['xxx', input_path])
+    #         pretex.main()
+    #         with io.open(input_path, 'r', encoding='utf-8') as file_read:
+    #             test_file_content = file_read.read()
+    #         with io.open(output_path, 'r', encoding='utf-8') as file_read:
+    #             test_expected_content = file_read.read()
+    #         assert test_file_content == test_expected_content
+    #         silent_remove(output_path)

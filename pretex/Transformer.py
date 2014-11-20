@@ -69,44 +69,27 @@ class Transformer(object):
 
 
     @staticmethod
-    def hide_comments(document_str):
-        pattern_comments = re.compile(r"""
-            (
+    def hide_math_stuff(document_str):
+        pattern_mtext = re.compile(r"""
+            (  # comments
               (?<!\\)(?:%.*)
               (?:\n%.*)*
+            | # labels etc
+              \\(?:text|label|mbox|textrm)
+              \ *?
+              \{(?:.|\n)*?\}
             )
             """, re.VERBOSE)
 
-        comments_saved = []
-
-        def repl_comments(match_obj):
-            return_str = "%" + str(repl_comments.comment_number) + " "
-            comments_saved.append(match_obj.group(0))
-            repl_comments.comment_number += 1
-            return return_str
-
-        repl_comments.comment_number = 0
-        return pattern_comments.sub(repl_comments, document_str), comments_saved
-
-
-    @staticmethod
-    def hide_math_texts(document_str):
-        pattern_mtext = re.compile(r"""
-            \\(?:text|label|mbox|textrm)
-            \ *?
-            \{(?:.|\n)*?\}
-            """, re.VERBOSE)
-
-        mtexts_saved = []
+        stuff_saved = []
 
         def repl_matexts(match_obj):
-            return_str = "%t" + str(repl_matexts.mtext_number) + " "
-            mtexts_saved.append(match_obj.group(0))
-            repl_matexts.mtext_number += 1
+            return_str = "%{} ".format("c" if match_obj.group(0)[0]=="%" else "e")
+            stuff_saved.append(match_obj.group(0))
             return return_str
 
         repl_matexts.mtext_number = 0
-        return pattern_mtext.sub(repl_matexts, document_str), mtexts_saved
+        return pattern_mtext.sub(repl_matexts, document_str), stuff_saved
 
 
     def get_pretextec_tree(self, document_str):
@@ -158,19 +141,16 @@ class Transformer(object):
 
     def get_transformed_tree(self, content, filename="unknown"):
         before_document, document_content, after_document = self.get_file_parts(content)
-        document_content, saved_comments = self.hide_comments(document_content)
-        document_content, saved_mtexts = self.hide_math_texts(document_content)
+        document_content, saved_stuff = self.hide_math_stuff(document_content)
         doc_tree = self.get_pretextec_tree(document_content)
 
         # Add the rest from document and insert header/footer at the edges
         doc_tree[0]["content"] = before_document + doc_tree[0]["content"]
         doc_tree[-1]["content"] = doc_tree[-1]["content"] + after_document
 
-        for el in doc_tree:
-            if saved_comments:
-                el["content"] = re.compile(r"%\d+ ").sub(lambda x: saved_comments.pop(0), el["content"])
-            if saved_mtexts:
-                el["content"] = re.compile(r"%t\d+ ").sub(lambda x: saved_mtexts.pop(0), el["content"])
+        if saved_stuff:
+            for el in doc_tree:
+                el["content"] = re.compile(r"%[ce] ").sub(lambda x: saved_stuff.pop(0), el["content"])
 
         if self.config["html"] == "enabled":
             self.viz_output(doc_tree, filename)

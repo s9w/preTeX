@@ -24,14 +24,13 @@ To use, either install with `(sudo) pip install pretex` or simply put the `prete
 
 ```
           pretex thesis.tex                       # for installed version
+          
 python pretex.py thesis.tex                       # for copied file
 python pretex.py thesis.tex -o thesis_output.tex
 python pretex.py thesis.tex --set braket=disabled --set sub_superscript=aggressive
 ```
 
-The default configuration can be seen in the table below.
-
-There are no dependencies on other packages and fully tested with Python 2.7, 3.2, 3.3, 3.4. Works in any math mode I know of. That is: `$x$`, `$$x$$`, `\(x\)`, `\[x\]` for inline and in every of these math environments (starred and unstarred): `equation`, `align`, `math`, `displaymath`, `eqnarray`, `gather`, `flalign`, `multiline`, `alignat`.
+There are no dependencies on other packages and is fully tested with Python 2.7 to 3.4. Works in any math mode I know of. That is: `$x$`, `$$x$$`, `\(x\)`, `\[x\]` for inline modes and in all of these math environments (starred and unstarred): `equation`, `align`, `math`, `displaymath`, `eqnarray`, `gather`, `flalign`, `multiline`, `alignat`.
 
 Hint: This works well together with [Pandoc](https://github.com/jgm/pandoc/), which makes it possible to mix LaTeX with Markdown code.
 
