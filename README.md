@@ -41,20 +41,29 @@ This is experimental and mostly used for debbuging right now. Enable with `prete
 
 name  | input | output | default | notes
 ------------- | -----|--------|---|---
-arrow  | `a -> b` | `a \to b` | enabled :white_check_mark:
+arrow  | `a -> b` | `a \to b` | enabled :white_check_mark: | [below](#arrow)
 approx  | `a~=b` | `a\approx b` | enabled :white_check_mark:
 leq  | `a<=b` | `a\leq b` | enabled :white_check_mark:
 geq  | `a>=b` | `a\geq b` | enabled :white_check_mark:
 ll  | `a<<b` | `a\ll b` | enabled :white_check_mark:
 gg  | `a>>b` | `a\gg b` | enabled :white_check_mark:
 neq  | `a != b` | `a \neq b` | enabled :white_check_mark:
-cdot  | `a*b` | `a\cdot b` | enabled :white_check_mark: | see [below](#cdot) for more info
+cdot  | `a*b` | `a\cdot b` | enabled :white_check_mark: | [below](#cdot)
 dots | `1, 2, ...` | `1, 2, \dots` | enabled :white_check_mark:
-dot | `x..` | `\ddot{x}` | disabled :x: | see [below](#dot) for more info
-braket | `<a|b|c>` | `\braket{a|b|c}` | enabled :white_check_mark: | see [below](#braket) for more info
-sub_superscript | `e^a+b` | `e^{a+b}` | enabled :white_check_mark: | see [below](#sub_superscript) for more info
-frac | `\frac a+b 2` | `\frac{a+b}{2}` | enabled :white_check_mark: | see [below](#frac) for more info
-auto_align |  |  | enabled :white_check_mark: | see [below](#auto_align) for more info
+braket | `<a|b|c>` | `\braket{a|b|c}` | enabled :white_check_mark: | [below](#braket)
+frac | `\frac a+b 2` | `\frac{a+b}{2}` | enabled :white_check_mark: | [below](#frac)
+auto_align |  |  | enabled :white_check_mark: | [below](#auto_align)
+substack | | | enabled :white_check_mark: | [below](#substack)
+dot | `x..` | `\ddot{x}` | disabled :x: | [below](#dot)
+sub_superscript | `e^a+b` | `e^{a+b}` | enabled :white_check_mark: | [below](#sub_superscript)
+brackets | `(\frac 1 2)` | `\left(\frac 1 2\right)` | disabled :x: | [below](#brackets)
+
+### arrow
+Simple arrow expressions like `a -> b` get replaced by their LaTeX counterpart `a \to b`. Note the necessary whitespace around it.
+
+There is an extension to this when it comes to writing text over arrows. The LaTeX way to do this is `5 \xrightarrow{+3} 8`. preTeX allows this to be written as `5 ->^{+3} 8`. Note that this command requires the `amsmath` package to be included.
+ 
+Both transformations are enabled by default. To only allow the first one, use  `pretex --set arrow=simple`.
 
 ### auto_align
 In an `align(*)` math environment when there is
@@ -125,7 +134,17 @@ Instead of writing `\frac{}{}`, use spaces as delimiters.
 \frac a+b 2    →  \frac{a+b}{2}
 ```
 
+### substack
+When typesetting a sum with two subscripted rows like:
+
+![](https://raw.githubusercontent.com/s9w/preTeX/master/docs/big_sum.png)
+
+LaTeX doesn't allow this with normal newlines and you need to invoke the `\substack` command from amsmath this way: `\sum_{\substack{i<m \\ j<n}}`. preTeX does this for you, so you can just write `\sum_{i<m \\ j<n}`. Enabled by default, needs `amsmath` package.
+
+### brackets
+Automatically changes ()'s to their `\left(` and `\right)` versions when they're not already like that. This can be typigraphically unwanted, so it's disabled by default. Activate with `pretex -set brackets=enabled ...`
+
 ## Roadmap / Ideas 
-- Auto insert `\left` / `\right` before brakets etc? But it's sometimes unwanted. Maybe some kind of heuristic
 - braket-size would be neat to be able to set. Right now they default to the small versions (`\ket` etc). There are big versions (`\Ket`) but I have no clue what's a clever way to indicate their use in the code. Right now that's a config var, but that's global or too much effort for a per-use-case
 - Verbose mode that reports changes
+- auto-insert `\linebreak[0]` in inline math after punctuation and forced whitespace?

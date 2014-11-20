@@ -22,8 +22,8 @@ class Transformer(object):
     def get_default_config():
         config = {key: "enabled" for key in
                   ["arrow", "approx", "leq", "sub_superscript", "geq", "ll",
-                   "gg", "neq", "cdot", "braket", "dots", "frac", "auto_align"]}
-        config.update({key: "disabled" for key in ["dot", "html"]})
+                   "gg", "neq", "cdot", "braket", "dots", "frac", "auto_align", "substack"]}
+        config.update({key: "disabled" for key in ["dot", "brackets", "html"]})
         config["braket_style"] = "small"
         return config
 
@@ -169,6 +169,8 @@ class Transformer(object):
         html_str = ""
         for elem in tree:
             content = elem["content"]
+            for rep in [(r"<", r"&lt;"), (r">", r"&gt;")]:
+                content = content.replace(*rep)
             extra_str = " "
             class_str = elem["type"]
             if elem["type"] == "math_env" and elem["pretexes"]:

@@ -25,7 +25,7 @@ def trans(request):
     return ttt
 
 
-class TestClass:
+class TestClass(object):
     def test_get_file_parts_full(self, trans):
         test_string = get_inside_str(r'''
             header
@@ -113,25 +113,29 @@ class TestClass:
         with pytest.raises(ValueError):
             pretex.parse_cmd_arguments(default_config, "same_filename.tex -o same_filename.tex".split())
         with pytest.raises(argparse.ArgumentTypeError):
-            pretex.parse_cmd_arguments(default_config, ["test.tex", "-s", "unknown_command=disabled"])
+            pretex.parse_cmd_arguments(default_config, "test.tex -s unknown_command=disabled".split())
         with pytest.raises(SystemExit):
-            pretex.parse_cmd_arguments(default_config, ["test.tex", "-s", "wrong_format"])
+            pretex.parse_cmd_arguments(default_config, "test.tex -s wrong_format".split())
 
-        assert pretex.parse_cmd_arguments(default_config, "in.tex -o out.tex".split()) == ("in.tex", "out.tex", default_config)
+        assert pretex.parse_cmd_arguments(default_config, "in.tex -o out.tex".split()) == (
+            "in.tex", "out.tex", default_config)
         assert pretex.parse_cmd_arguments(default_config, ["in.tex"]) == ("in.tex", "in_t.tex", default_config)
 
         config_expected = copy.deepcopy(default_config)
         config_expected["cdot"] = "disabled"
-        assert pretex.parse_cmd_arguments(default_config, ["test.tex", "-s", "cdot=disabled"]) == ("test.tex", "test_t.tex", config_expected)
+        assert pretex.parse_cmd_arguments(default_config, "test.tex -s cdot=disabled".split()) == (
+            "test.tex", "test_t.tex", config_expected)
 
         config_expected = copy.deepcopy(default_config)
         config_expected["cdot"] = "disabled"
         config_expected["geq"] = "disabled"
-        assert pretex.parse_cmd_arguments(default_config, "in.tex --set cdot=disabled --set geq=disabled".split()) == ("in.tex", "in_t.tex", config_expected)
+        assert pretex.parse_cmd_arguments(default_config, "in.tex --set cdot=disabled --set geq=disabled".split()) == (
+            "in.tex", "in_t.tex", config_expected)
 
         config_expected = copy.deepcopy(default_config)
         config_expected["html"] = "enabled"
-        assert pretex.parse_cmd_arguments(default_config, "in.tex --html".split()) == ("in.tex", "in_t.tex", config_expected)
+        assert pretex.parse_cmd_arguments(default_config, "in.tex --html".split()) == (
+            "in.tex", "in_t.tex", config_expected)
 
 
     def test_re_sub_superscript(self, trans):
@@ -194,7 +198,7 @@ class TestClass:
             (r"\frac aa bb \frac aa bb", r"\frac{aa}{bb} \frac{aa}{bb}")
         ]
         for test_input, expected_output in test_cases:
-                assert trans.get_transformed_math(test_input, trans.config)[0] == expected_output
+            assert trans.get_transformed_math(test_input, trans.config)[0] == expected_output
 
 
     def test_dot_normal(self, trans):
@@ -253,6 +257,35 @@ class TestClass:
         for test_input, test_output in testcases:
             result = trans.get_transformed_math(test_input, trans.config)
             assert result[0] == test_output
+
+
+    def test_arrow(self, trans):
+        testcases = [
+            (r"a -> b", r"a \to b"),
+            (r"a ->^{1+1} b", r"a \xrightarrow{1+1} b"),
+        ]
+        for test_input, test_output in testcases:
+            result = trans.get_transformed_math(test_input, trans.config)
+            assert result[0] == test_output
+
+        trans.config["arrow"] = "conservative"
+        testcases = [
+            (r"a -> b", r"a \to b"),
+            (r"a ->^{1+1} b", ""),
+        ]
+        for test_input, test_output in testcases:
+            result = trans.get_transformed_math(test_input, trans.config)
+            assert result[0] == test_output or test_input
+
+
+    def test_substack(self, trans):
+        testcases = [
+            (r"\sum_{i<m \\ j<n}", r"\sum_{\substack{i<m \\ j<n}}"),
+            (r"\sum_{\substack{i<m \\ j<n}}", r""),
+        ]
+        for test_input, test_output in testcases:
+            result = trans.get_transformed_math(test_input, trans.config)
+            assert result[0] == test_output or test_input
 
 
     def test_simple(self, trans):
@@ -336,12 +369,14 @@ class TestClass:
 
 
     @pytest.fixture(scope="module")
-    def mock_testfile(self,request):
+    def mock_testfile(self, request):
         with io.open("test_simple.tex", 'w', encoding='utf-8') as file_out:
             file_out.write(r"$\frac aa bb$")
+
         def cleanup():
             silent_remove("test_simple.tex")
             silent_remove("test_simple_t.tex")
+
         request.addfinalizer(cleanup)
 
 
@@ -354,7 +389,7 @@ class TestClass:
 
 
     def test_main_complex(self, monkeypatch):
-        monkeypatch.setattr(sys, 'argv', "xxx tests/test_file.tex --html --set auto_align=enabled".split())
+        monkeypatch.setattr(sys, 'argv', "xxx tests/test_file.tex --html --set auto_align=enabled --set brackets=enabled".split())
         pretex.main()
         with io.open("tests/test_file_t.tex", 'r', encoding='utf-8') as file_read:
             test_file_content = file_read.read()
@@ -364,28 +399,28 @@ class TestClass:
         silent_remove("tests/test_file_t.tex")
 
 
-    # def test_arxiv(self, monkeypatch):
-    #     arxiv_files = [
-    #         # "arxiv_temp.tex",
-    #         "arxiv_astro-ph.tex",
-    #         "arxiv_hep-ex.tex",
-    #         "arxiv_hep-th.tex",
-    #         "arxiv_math-ph.tex",
-    #         "arxiv_physics.tex",
-    #         "arxiv_quant-ph.tex",
-    #         "arxiv_math.tex"
-    #     ]
-    #     for filename in arxiv_files:
-    #         input_path = "tests/"+filename
-    #
-    #         dot_position = input_path.rfind(".")
-    #         output_path = input_path[:dot_position] + "_t" + input_path[dot_position:]
-    #
-    #         monkeypatch.setattr(sys, 'argv', ['xxx', input_path])
-    #         pretex.main()
-    #         with io.open(input_path, 'r', encoding='utf-8') as file_read:
-    #             test_file_content = file_read.read()
-    #         with io.open(output_path, 'r', encoding='utf-8') as file_read:
-    #             test_expected_content = file_read.read()
-    #         assert test_file_content == test_expected_content
-    #         silent_remove(output_path)
+    def test_arxiv(self, monkeypatch):
+        arxiv_files = [
+            # "arxiv_temp.tex",
+            "arxiv_astro-ph.tex",
+            "arxiv_hep-ex.tex",
+            "arxiv_hep-th.tex",
+            "arxiv_math-ph.tex",
+            "arxiv_physics.tex",
+            "arxiv_quant-ph.tex",
+            "arxiv_math.tex"
+        ]
+        for filename in arxiv_files:
+            input_path = "tests/" + filename
+
+            dot_position = input_path.rfind(".")
+            output_path = input_path[:dot_position] + "_t" + input_path[dot_position:]
+
+            monkeypatch.setattr(sys, 'argv', ['xxx', input_path])
+            pretex.main()
+            with io.open(input_path, 'r', encoding='utf-8') as file_read:
+                test_file_content = file_read.read()
+            with io.open(output_path, 'r', encoding='utf-8') as file_read:
+                test_expected_content = file_read.read()
+            assert test_file_content == test_expected_content
+            silent_remove(output_path)

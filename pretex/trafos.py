@@ -128,6 +128,20 @@ re_sub_superscript_agg = re.compile(r"""
 (?P<after>\ )
 """, re.VERBOSE)
 
+re_sub_brackets = re.compile(r"""
+(?<!(\\left|right))(?P<type>[()])
+""", re.VERBOSE)
+
+re_sub_substack = re.compile(r"""
+_\ *?\{
+(?P<a>[^{}]*?) \\\\
+(?P<b>[^{}]*?) \}
+""", re.VERBOSE)
+
+re_sub_arrow = re.compile(r"""
+\ ->\^\{(?P<top>[^{}].*?)\}
+""", re.VERBOSE)
+
 
 def transform_main(math_string, config):
     trafos = []
@@ -139,7 +153,10 @@ def transform_main(math_string, config):
 
         ("frac", re_frac, r"\\frac{\g<num>}{\g<denom>}"),
         ("cdot", re_cdot, r"\\cdot "),
-        ("dots", re_dots, r"\dots "),
+        ("dots", re_dots, r"\\dots "),
+        ("substack", re_sub_substack, r"_{\\substack{\g<a>\\\\\g<b>}} "),
+        ("brackets", re.compile(r"(?<!\\left)\("), r"\\left("),
+        ("brackets", re.compile(r"(?<!\\right)\)"), r"\\right)"),
 
         ("braket", re_braket_full, r"\\braket{\1}"),
         ("braket", re_braket_ketbra, r"\\ket{\g<ket_c>}\g<between>\\bra{\g<bra_c>}"),
@@ -155,10 +172,10 @@ def transform_main(math_string, config):
         ("gg", r">>", r"\gg "),
         ("neq", r"!=", r"\neq ")
     ]
+    if config["arrow"] == "enabled":
+        re_transformations.append(("arrow", re_sub_arrow, r" \\xrightarrow{\g<top>}"))
     if config["sub_superscript"] == "enabled":
-        re_transformations.append(
-            ("sub_superscript", re_sub_superscript, r"\g<operator>\g<before>{\g<content>}\g<after>")
-        )
+        re_transformations.append(("sub_superscript", re_sub_superscript, r"\g<operator>\g<before>{\g<content>}\g<after>"))
     elif config["sub_superscript"] == "aggressive":
         re_transformations.extend([
             ("sub_superscript", re_sub_superscript_agg, r"\g<operator>\g<before>{\g<content>}\g<after>"),
