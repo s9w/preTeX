@@ -108,8 +108,6 @@ class TestClass(object):
         default_config = trans.get_default_config()
         with pytest.raises(SystemExit):
             pretex.parse_cmd_arguments(default_config, [])
-        with pytest.raises(SystemExit):
-            pretex.parse_cmd_arguments(default_config, ["test_no_extension"])
         with pytest.raises(ValueError):
             pretex.parse_cmd_arguments(default_config, "same_filename.tex -o same_filename.tex".split())
         with pytest.raises(argparse.ArgumentTypeError):
@@ -118,24 +116,36 @@ class TestClass(object):
             pretex.parse_cmd_arguments(default_config, "test.tex -s wrong_format".split())
 
         assert pretex.parse_cmd_arguments(default_config, "in.tex -o out.tex".split()) == (
-            "in.tex", "out.tex", default_config)
-        assert pretex.parse_cmd_arguments(default_config, ["in.tex"]) == ("in.tex", "in_t.tex", default_config)
+            "in.tex", "out.tex", default_config, "")
+        assert pretex.parse_cmd_arguments(default_config, ["in.tex"]) == ("in.tex", "in_t.tex", default_config, "")
 
         config_expected = copy.deepcopy(default_config)
         config_expected["cdot"] = "disabled"
         assert pretex.parse_cmd_arguments(default_config, "test.tex -s cdot=disabled".split()) == (
-            "test.tex", "test_t.tex", config_expected)
+            "test.tex", "test_t.tex", config_expected, "")
 
         config_expected = copy.deepcopy(default_config)
         config_expected["cdot"] = "disabled"
         config_expected["geq"] = "disabled"
         assert pretex.parse_cmd_arguments(default_config, "in.tex --set cdot=disabled --set geq=disabled".split()) == (
-            "in.tex", "in_t.tex", config_expected)
+            "in.tex", "in_t.tex", config_expected, "")
 
         config_expected = copy.deepcopy(default_config)
         config_expected["html"] = "enabled"
         assert pretex.parse_cmd_arguments(default_config, "in.tex --html".split()) == (
-            "in.tex", "in_t.tex", config_expected)
+            "in.tex", "in_t.tex", config_expected, "")
+
+
+    def test_interactive(self, monkeypatch, trans, capsys):
+        monkeypatch.setattr(sys, 'argv', ["xx", "a ... b"])
+        pretex.main()
+        out, err = capsys.readouterr()
+        assert out == "a \\dots  b\n"
+
+        monkeypatch.setattr(sys, 'argv', ["xx", "a ... b", "--set", "dots=disabled"])
+        pretex.main()
+        out, err = capsys.readouterr()
+        assert out == "a ... b\n"
 
 
     def test_re_sub_superscript(self, trans):

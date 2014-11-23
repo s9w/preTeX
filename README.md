@@ -20,14 +20,13 @@ Most of the transformations do things that would be expected of a modern LaTeX a
 preTeX is currently automatically tested on 8 randomly selected [arXiv](http://arxiv.org/) papers (323KB raw LaTeX) and makes sure they're untouched with default settings. Transformations are considered safe when they pass that test (among normal unit tests of course).
 
 ## Usage
-To use, either install with `(sudo) pip install pretex` or simply put the `pretex.py` wherever you need it. The only mandatory argument is an input filename. You can also supply an output filename (default is `{original}_t.tex`) and change settings. Usage:
+Install with `(sudo) pip install pretex`. The only mandatory argument is an input filename or string. You can also supply an output filename (default is `{original}_t.tex`) and change settings. Usage:
 
-```
-          pretex thesis.tex                       # for installed version
-          
-python pretex.py thesis.tex                       # for copied file
+```          
+python pretex.py thesis.tex
 python pretex.py thesis.tex -o thesis_output.tex
 python pretex.py thesis.tex --set braket=disabled --set sub_superscript=aggressive
+python pretex.py "a ... b"      #prints a \dots  b
 ```
 
 There are no dependencies on other packages and is fully tested with Python 2.7 to 3.4. Works in any math mode I know of. That is: `$x$`, `$$x$$`, `\(x\)`, `\[x\]` for inline modes and in all of these math environments (starred and unstarred): `equation`, `align`, `math`, `displaymath`, `eqnarray`, `gather`, `flalign`, `multiline`, `alignat`.
@@ -41,22 +40,22 @@ This is experimental and mostly used for debbuging right now. Enable with `prete
 
 name  | input | output | default | notes
 ------------- | -----|--------|---|---
-arrow  | `a -> b` | `a \to b` | enabled :white_check_mark: | [below](#arrow)
-approx  | `a~=b` | `a\approx b` | enabled :white_check_mark:
-leq  | `a<=b` | `a\leq b` | enabled :white_check_mark:
-geq  | `a>=b` | `a\geq b` | enabled :white_check_mark:
-ll  | `a<<b` | `a\ll b` | enabled :white_check_mark:
-gg  | `a>>b` | `a\gg b` | enabled :white_check_mark:
-neq  | `a != b` | `a \neq b` | enabled :white_check_mark:
-cdot  | `a*b` | `a\cdot b` | enabled :white_check_mark: | [below](#cdot)
-dots | `1, 2, ...` | `1, 2, \dots` | enabled :white_check_mark:
-braket | `<a|b|c>` | `\braket{a|b|c}` | enabled :white_check_mark: | [below](#braket)
-frac | `\frac a+b 2` | `\frac{a+b}{2}` | enabled :white_check_mark: | [below](#frac)
-auto_align |  |  | enabled :white_check_mark: | [below](#auto_align)
-substack | | | enabled :white_check_mark: | [below](#substack)
-dot | `x..` | `\ddot{x}` | disabled :x: | [below](#dot)
-sub_superscript | `e^a+b` | `e^{a+b}` | enabled :white_check_mark: | [below](#sub_superscript)
-brackets | `(\frac 1 2)` | `\left(\frac 1 2\right)` | disabled :x: | [below](#brackets)
+arrow  | `a -> b` | `a \to b` | on :white_check_mark: | [below](#arrow)
+approx  | `a~=b` | `a\approx b` | on :white_check_mark:
+leq  | `a<=b` | `a\leq b` | on :white_check_mark:
+geq  | `a>=b` | `a\geq b` | on :white_check_mark:
+ll  | `a<<b` | `a\ll b` | on :white_check_mark:
+gg  | `a>>b` | `a\gg b` | on :white_check_mark:
+neq  | `a != b` | `a \neq b` | on :white_check_mark:
+cdot  | `a*b` | `a\cdot b` | on :white_check_mark: | [below](#cdot)
+dots | `1, 2, ...` | `1, 2, \dots` | on :white_check_mark:
+braket | `<a|b|c>` | `\braket{a|b|c}` | on :white_check_mark: | [below](#braket)
+frac | `\frac a+b 2` | `\frac{a+b}{2}` | on :white_check_mark: | [below](#frac)
+auto_align |  |  | on :white_check_mark: | [below](#auto_align)
+substack | ` \sum_{i<m \\ j<n}` | `\sum_{\substack{i<m \\ j<n}}` | on :white_check_mark: | [below](#substack)
+dot | `x..` | `\ddot{x}` | off :x: | [below](#dot)
+sub_superscript | `e^a+b` | `e^{a+b}` | on :white_check_mark: | [below](#sub_superscript)
+brackets | `(\frac 1 2)` | `\left(\frac 1 2\right)` | off :x: | [below](#brackets)
 
 ### arrow
 Simple arrow expressions like `a -> b` get replaced by their LaTeX counterpart `a \to b`. Note the necessary whitespace around it.
@@ -142,7 +141,7 @@ When typesetting a sum with two subscripted rows like:
 LaTeX doesn't allow this with normal newlines and you need to invoke the `\substack` command from amsmath this way: `\sum_{\substack{i<m \\ j<n}}`. preTeX does this for you, so you can just write `\sum_{i<m \\ j<n}`. Enabled by default, needs `amsmath` package.
 
 ### brackets
-Automatically changes ()'s to their `\left(` and `\right)` versions when they're not already like that. This can be typigraphically unwanted, so it's disabled by default. Activate with `pretex -set brackets=enabled ...`
+Automatically changes ()'s to their `\left(` and `\right)` versions when they're not already like that. This can be typographically unwanted, so it's disabled by default. Activate with `pretex -set brackets=enabled ...`
 
 ## Roadmap / Ideas 
 - braket-size would be neat to be able to set. Right now they default to the small versions (`\ket` etc). There are big versions (`\Ket`) but I have no clue what's a clever way to indicate their use in the code. Right now that's a config var, but that's global or too much effort for a per-use-case
