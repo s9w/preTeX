@@ -2,7 +2,7 @@
 from setuptools import setup
 
 setup(name='preTeX',
-      version="0.5.3",
+      version="1.0.0",
       packages=['pretex'],
       package_data={
           'pretex': ['viz\script.js', 'viz/style.css']

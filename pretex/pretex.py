@@ -4,6 +4,7 @@ import copy
 import sys
 import argparse
 import io
+from docopt import docopt
 from .Transformer import Transformer
 
 
@@ -60,19 +61,30 @@ def parse_cmd_arguments(config, parameters):
 
     return input_filename, output_filename, config_new, input_string
 
-
 def main():
-    optimus_prime = Transformer()
-    filename_in, filename_out, optimus_prime.config, input_string = parse_cmd_arguments(optimus_prime.config, parameters=sys.argv[1:])
+    parse_string = """
+Usage:
+  pretex <file>
+  pretex <file> [-o <output_file>]
 
-    if input_string:
-        print(optimus_prime.get_transformed_math(input_string, "inline")[0])
-
-    else:
-        with io.open(filename_in, 'r', encoding='utf-8') as file_in, \
-                io.open(filename_out, 'w', encoding='utf-8') as file_out:
-            file_content_transformed = optimus_prime.get_transformed_str(file_in.read(), filename=filename_in)
-            file_out.write(file_content_transformed)
+Options:
+  -h --help     Show this screen.
+  --version     Show version.
+"""
+    arguments = docopt(parse_string, version='preTeX 1.0.0')
+    print("args:", arguments)
+    pass
+    # optimus_prime = Transformer()
+    # filename_in, filename_out, optimus_prime.config, input_string = parse_cmd_arguments(optimus_prime.config, parameters=sys.argv[1:])
+    #
+    # if input_string:
+    #     print(optimus_prime.get_transformed_math(input_string, "inline")[0])
+    #
+    # else:
+    #     with io.open(filename_in, 'r', encoding='utf-8') as file_in, \
+    #             io.open(filename_out, 'w', encoding='utf-8') as file_out:
+    #         file_content_transformed = optimus_prime.get_transformed_str(file_in.read(), filename=filename_in)
+    #         file_out.write(file_content_transformed)
 
 
 if __name__ == "__main__":

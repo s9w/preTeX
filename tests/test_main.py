@@ -104,36 +104,36 @@ class TestClass(object):
         assert result == test_str_expected
 
 
-    def test_parse_filenames(self, trans):
-        default_config = trans.get_default_config()
-        with pytest.raises(SystemExit):
-            pretex.parse_cmd_arguments(default_config, [])
-        with pytest.raises(ValueError):
-            pretex.parse_cmd_arguments(default_config, "same_filename.tex -o same_filename.tex".split())
-        with pytest.raises(argparse.ArgumentTypeError):
-            pretex.parse_cmd_arguments(default_config, "test.tex -s unknown_command=disabled".split())
-        with pytest.raises(SystemExit):
-            pretex.parse_cmd_arguments(default_config, "test.tex -s wrong_format".split())
-
-        assert pretex.parse_cmd_arguments(default_config, "in.tex -o out.tex".split()) == (
-            "in.tex", "out.tex", default_config, "")
-        assert pretex.parse_cmd_arguments(default_config, ["in.tex"]) == ("in.tex", "in_t.tex", default_config, "")
-
-        config_expected = copy.deepcopy(default_config)
-        config_expected["cdot"] = "disabled"
-        assert pretex.parse_cmd_arguments(default_config, "test.tex -s cdot=disabled".split()) == (
-            "test.tex", "test_t.tex", config_expected, "")
-
-        config_expected = copy.deepcopy(default_config)
-        config_expected["cdot"] = "disabled"
-        config_expected["geq"] = "disabled"
-        assert pretex.parse_cmd_arguments(default_config, "in.tex --set cdot=disabled --set geq=disabled".split()) == (
-            "in.tex", "in_t.tex", config_expected, "")
-
-        config_expected = copy.deepcopy(default_config)
-        config_expected["html"] = "enabled"
-        assert pretex.parse_cmd_arguments(default_config, "in.tex --html".split()) == (
-            "in.tex", "in_t.tex", config_expected, "")
+    # def test_parse_filenames(self, trans):
+    #     default_config = trans.get_default_config()
+    #     with pytest.raises(SystemExit):
+    #         pretex.parse_cmd_arguments(default_config, [])
+    #     with pytest.raises(ValueError):
+    #         pretex.parse_cmd_arguments(default_config, "same_filename.tex -o same_filename.tex".split())
+    #     with pytest.raises(argparse.ArgumentTypeError):
+    #         pretex.parse_cmd_arguments(default_config, "test.tex -s unknown_command=disabled".split())
+    #     with pytest.raises(SystemExit):
+    #         pretex.parse_cmd_arguments(default_config, "test.tex -s wrong_format".split())
+    #
+    #     assert pretex.parse_cmd_arguments(default_config, "in.tex -o out.tex".split()) == (
+    #         "in.tex", "out.tex", default_config, "")
+    #     assert pretex.parse_cmd_arguments(default_config, ["in.tex"]) == ("in.tex", "in_t.tex", default_config, "")
+    #
+    #     config_expected = copy.deepcopy(default_config)
+    #     config_expected["cdot"] = "disabled"
+    #     assert pretex.parse_cmd_arguments(default_config, "test.tex -s cdot=disabled".split()) == (
+    #         "test.tex", "test_t.tex", config_expected, "")
+    #
+    #     config_expected = copy.deepcopy(default_config)
+    #     config_expected["cdot"] = "disabled"
+    #     config_expected["geq"] = "disabled"
+    #     assert pretex.parse_cmd_arguments(default_config, "in.tex --set cdot=disabled --set geq=disabled".split()) == (
+    #         "in.tex", "in_t.tex", config_expected, "")
+    #
+    #     config_expected = copy.deepcopy(default_config)
+    #     config_expected["html"] = "enabled"
+    #     assert pretex.parse_cmd_arguments(default_config, "in.tex --html".split()) == (
+    #         "in.tex", "in_t.tex", config_expected, "")
 
 
     def test_interactive(self, monkeypatch, trans, capsys):
