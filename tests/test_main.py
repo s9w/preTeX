@@ -104,48 +104,34 @@ class TestClass(object):
         assert result == test_str_expected
 
 
-    # def test_parse_filenames(self, trans):
-    #     default_config = trans.get_default_config()
-    #     with pytest.raises(SystemExit):
-    #         pretex.parse_cmd_arguments(default_config, [])
-    #     with pytest.raises(ValueError):
-    #         pretex.parse_cmd_arguments(default_config, "same_filename.tex -o same_filename.tex".split())
-    #     with pytest.raises(argparse.ArgumentTypeError):
-    #         pretex.parse_cmd_arguments(default_config, "test.tex -s unknown_command=disabled".split())
-    #     with pytest.raises(SystemExit):
-    #         pretex.parse_cmd_arguments(default_config, "test.tex -s wrong_format".split())
-    #
-    #     assert pretex.parse_cmd_arguments(default_config, "in.tex -o out.tex".split()) == (
-    #         "in.tex", "out.tex", default_config, "")
-    #     assert pretex.parse_cmd_arguments(default_config, ["in.tex"]) == ("in.tex", "in_t.tex", default_config, "")
-    #
-    #     config_expected = copy.deepcopy(default_config)
-    #     config_expected["cdot"] = "disabled"
-    #     assert pretex.parse_cmd_arguments(default_config, "test.tex -s cdot=disabled".split()) == (
-    #         "test.tex", "test_t.tex", config_expected, "")
-    #
-    #     config_expected = copy.deepcopy(default_config)
-    #     config_expected["cdot"] = "disabled"
-    #     config_expected["geq"] = "disabled"
-    #     assert pretex.parse_cmd_arguments(default_config, "in.tex --set cdot=disabled --set geq=disabled".split()) == (
-    #         "in.tex", "in_t.tex", config_expected, "")
-    #
-    #     config_expected = copy.deepcopy(default_config)
-    #     config_expected["html"] = "enabled"
-    #     assert pretex.parse_cmd_arguments(default_config, "in.tex --html".split()) == (
-    #         "in.tex", "in_t.tex", config_expected, "")
+    def test_parse_filenames(self, trans):
+        default_config = trans.get_default_config()
+        with pytest.raises(SystemExit):
+            pretex.parse_cmd_arguments(default_config, [])
+        with pytest.raises(ValueError):
+            pretex.parse_cmd_arguments(default_config, "same_filename.tex -o same_filename.tex".split())
+        with pytest.raises(ValueError):
+            pretex.parse_cmd_arguments(default_config, "test.tex --set unknown_command=disabled".split())
 
+        assert pretex.parse_cmd_arguments(default_config, "in.tex -o out.tex".split()) == (
+            "in.tex", "out.tex", default_config)
+        assert pretex.parse_cmd_arguments(default_config, ["in.tex"]) == ("in.tex", "in_t.tex", default_config)
 
-    def test_interactive(self, monkeypatch, trans, capsys):
-        monkeypatch.setattr(sys, 'argv', ["xx", "a ... b"])
-        pretex.main()
-        out, err = capsys.readouterr()
-        assert out == "a \\dots  b\n"
+        config_expected = copy.deepcopy(default_config)
+        config_expected["cdot"] = "disabled"
+        assert pretex.parse_cmd_arguments(default_config, "test.tex --set cdot=disabled".split()) == (
+            "test.tex", "test_t.tex", config_expected)
 
-        monkeypatch.setattr(sys, 'argv', ["xx", "a ... b", "--set", "dots=disabled"])
-        pretex.main()
-        out, err = capsys.readouterr()
-        assert out == "a ... b\n"
+        config_expected = copy.deepcopy(default_config)
+        config_expected["cdot"] = "disabled"
+        config_expected["geq"] = "disabled"
+        assert pretex.parse_cmd_arguments(default_config, "in.tex --set cdot=disabled --set geq=disabled".split()) == (
+            "in.tex", "in_t.tex", config_expected)
+
+        config_expected = copy.deepcopy(default_config)
+        config_expected["html"] = "enabled"
+        assert pretex.parse_cmd_arguments(default_config, "in.tex --html".split()) == (
+            "in.tex", "in_t.tex", config_expected)
 
 
     def test_re_sub_superscript(self, trans):
@@ -398,39 +384,39 @@ class TestClass(object):
         assert test_file_content == r"$\frac{aa}{bb}$"
 
 
-    def test_main_complex(self, monkeypatch):
-        monkeypatch.setattr(sys, 'argv', "xxx tests/test_file.tex --html --set auto_align=enabled --set brackets=enabled".split())
-        pretex.main()
-        with io.open("tests/test_file_t.tex", 'r', encoding='utf-8') as file_read:
-            test_file_content = file_read.read()
-        with io.open("tests/test_file_expected.tex", 'r', encoding='utf-8') as file_read:
-            test_expected_content = file_read.read()
-        assert test_file_content == test_expected_content
-        silent_remove("tests/test_file_t.tex")
-
-
-    def test_arxiv(self, monkeypatch):
-        arxiv_files = [
-            # "arxiv_temp.tex",
-            "arxiv_astro-ph.tex",
-            "arxiv_hep-ex.tex",
-            "arxiv_hep-th.tex",
-            "arxiv_math-ph.tex",
-            "arxiv_physics.tex",
-            "arxiv_quant-ph.tex",
-            "arxiv_math.tex"
-        ]
-        for filename in arxiv_files:
-            input_path = "tests/" + filename
-
-            dot_position = input_path.rfind(".")
-            output_path = input_path[:dot_position] + "_t" + input_path[dot_position:]
-
-            monkeypatch.setattr(sys, 'argv', ['xxx', input_path])
-            pretex.main()
-            with io.open(input_path, 'r', encoding='utf-8') as file_read:
-                test_file_content = file_read.read()
-            with io.open(output_path, 'r', encoding='utf-8') as file_read:
-                test_expected_content = file_read.read()
-            assert test_file_content == test_expected_content
-            silent_remove(output_path)
+    # def test_main_complex(self, monkeypatch):
+    #     monkeypatch.setattr(sys, 'argv', "xxx tests/test_file.tex --html --set auto_align=enabled --set brackets=enabled".split())
+    #     pretex.main()
+    #     with io.open("tests/test_file_t.tex", 'r', encoding='utf-8') as file_read:
+    #         test_file_content = file_read.read()
+    #     with io.open("tests/test_file_expected.tex", 'r', encoding='utf-8') as file_read:
+    #         test_expected_content = file_read.read()
+    #     assert test_file_content == test_expected_content
+    #     silent_remove("tests/test_file_t.tex")
+    #
+    #
+    # def test_arxiv(self, monkeypatch):
+    #     arxiv_files = [
+    #         # "arxiv_temp.tex",
+    #         "arxiv_astro-ph.tex",
+    #         "arxiv_hep-ex.tex",
+    #         "arxiv_hep-th.tex",
+    #         "arxiv_math-ph.tex",
+    #         "arxiv_physics.tex",
+    #         "arxiv_quant-ph.tex",
+    #         "arxiv_math.tex"
+    #     ]
+    #     for filename in arxiv_files:
+    #         input_path = "tests/" + filename
+    #
+    #         dot_position = input_path.rfind(".")
+    #         output_path = input_path[:dot_position] + "_t" + input_path[dot_position:]
+    #
+    #         monkeypatch.setattr(sys, 'argv', ['xxx', input_path])
+    #         pretex.main()
+    #         with io.open(input_path, 'r', encoding='utf-8') as file_read:
+    #             test_file_content = file_read.read()
+    #         with io.open(output_path, 'r', encoding='utf-8') as file_read:
+    #             test_expected_content = file_read.read()
+    #         assert test_file_content == test_expected_content
+    #         silent_remove(output_path)

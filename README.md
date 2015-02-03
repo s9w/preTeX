@@ -14,10 +14,8 @@ out: The limit $\sum_{i=0}^{N+1} \ddot{q_i} \dot{p} \frac{a+b}{x^2-1}$
 ## Why / Motivation
 The math syntax of LaTeX is powerful and a defacto standard even outside of LaTeX. But it's ~30 years old and has some curiosities that make it awkward to transfer certain expressions from your brain into TeX code. For example it's almost completely whitespace agnostic. So `\frac a+b 2` really is the same as `\frac{a}{+}b2` and not the probably expected `\frac{a+b}{2}`. There's a macro system which can alleviate some of it, but it's still limited to the slash-and-{}-heavy tex syntax.
 
-## Safety
-Most of the transformations do things that would be expected of a modern LaTeX and are mistakenly assumed by non-gurus, like translating `>>` to `\gg`. Others are more aggressive but simplify the syntax greatly. Only the safe ones are enabled by default and the entire process can be controlled by command line arguments.
-
-preTeX is currently automatically tested on 8 randomly selected [arXiv](http://arxiv.org/) papers (323KB raw LaTeX) and makes sure they're untouched with default settings. Transformations are considered safe when they pass that test (among normal unit tests of course).
+## 1.0, about, safety
+Starting with 1.0, preTeX is no longer *safe* as in: If you run it on random tex code, it sometimes changes things that can in theory be unwanted. This step makes it no longer a strict safe subset of LaTex. The reason for this was that this will realistically affect no one. Only extremely dense and dubious TeX code like `a_bc d` which is supposed to mean `a_b c d` and not `a_{bc} d` would be falsely interpreted. The upside of this change is that it greatly simplifies the internals and allows for even more expressive syntax.
 
 ## Usage
 Install with `(sudo) pip install pretex`. The only mandatory argument is an input filename or string. You can also supply an output filename (default is `{original}_t.tex`) and change settings. Usage:
@@ -29,7 +27,7 @@ python pretex.py thesis.tex --set braket=disabled --set sub_superscript=aggressi
 python pretex.py "a ... b"      #prints a \dots  b
 ```
 
-There are no dependencies on other packages and is fully tested with Python 2.7 to 3.4. Works in any math mode I know of. That is: `$x$`, `$$x$$`, `\(x\)`, `\[x\]` for inline modes and in all of these math environments (starred and unstarred): `equation`, `align`, `math`, `displaymath`, `eqnarray`, `gather`, `flalign`, `multiline`, `alignat`.
+It's fully tested with Python 2.7 to 3.4. Works in any math mode I know of. That is: `$x$`, `$$x$$`, `\(x\)`, `\[x\]` for inline modes and in all of these math environments (starred and unstarred): `equation`, `align`, `math`, `displaymath`, `eqnarray`, `gather`, `flalign`, `multiline`, `alignat`.
 
 Hint: This works well together with [Pandoc](https://github.com/jgm/pandoc/), which makes it possible to mix LaTeX with Markdown code.
 
