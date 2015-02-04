@@ -12,6 +12,19 @@ from .trafos import transform_auto_align, transform_main
 def get_inside_str(s):
     return textwrap.dedent(s)[1:-1]
 
+def get_document_contents(file_str):
+    match_begin = re.search(r"\\begin\ *\{document\}", file_str)
+    match_end = re.search(r"\\end\ *\{document\}", file_str)
+    if match_begin and match_end:
+        before_document = file_str[:match_begin.end()]
+        after_document = file_str[match_end.start():]
+        document_content = file_str[match_begin.end():match_end.start()]
+    else:
+        before_document = ""
+        after_document = ""
+        document_content = file_str
+
+    return before_document, document_content, after_document
 
 class Transformer(object):
     def __init__(self):
@@ -37,35 +50,6 @@ class Transformer(object):
         trafos.extend(trafos_main)
         trafos.extend(trafos_auto_align)
         return content, trafos
-
-
-    @staticmethod
-    def get_file_parts(file_str):
-        pattern_begin_document = re.compile(r"""
-            (\n|^)[^%\n]*?
-            \\begin\ *\{document\}
-            """, re.VERBOSE)
-
-        pattern_end_document = re.compile(r"""
-            (\n|^)[^%\n]*?
-            \\end\ *\{document\}
-            """, re.VERBOSE)
-
-        match = pattern_begin_document.search(file_str)
-        if match:
-            before_document = file_str[:match.end()]
-            file_str = file_str[match.end():]
-        else:
-            before_document = ""
-
-        match = pattern_end_document.search(file_str)
-        if match:
-            after_document = file_str[match.start()+1:]
-            file_str = file_str[:match.start()+1]
-        else:
-            after_document = ""
-
-        return before_document, file_str, after_document
 
 
     @staticmethod
@@ -140,7 +124,7 @@ class Transformer(object):
 
 
     def get_transformed_tree(self, content, filename="unknown"):
-        before_document, document_content, after_document = self.get_file_parts(content)
+        before_document, document_content, after_document = get_document_contents(content)
         document_content, saved_stuff = self.hide_math_stuff(document_content)
         doc_tree = self.get_pretextec_tree(document_content)
 

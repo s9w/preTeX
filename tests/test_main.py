@@ -8,7 +8,7 @@ import sys
 import os
 import io
 from pretex import pretex
-from pretex.Transformer import Transformer
+from pretex.Transformer import Transformer, get_document_contents
 from pretex.Transformer import get_inside_str
 
 
@@ -41,7 +41,7 @@ class TestClass(object):
         expected = ('header\n\\begin{document}',
                     '\n%comment1\ntext\n%comment2a\n%comment2b\n$math$\n',
                     '\\end{document}\nafter document')
-        assert trans.get_file_parts(test_string) == expected
+        assert get_document_contents(test_string) == expected
 
 
     def test_get_file_parts_bare(self, trans):
@@ -53,7 +53,7 @@ class TestClass(object):
             $math$
             ''')
         expected = ("", '%comment1\ntext\n%comment2a\n%comment2b\n$math$', "")
-        assert trans.get_file_parts(test_string) == expected
+        assert get_document_contents(test_string) == expected
 
 
     def test_get_pretextec_tree_inline(self, trans):
