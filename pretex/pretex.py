@@ -5,12 +5,9 @@ import sys
 import io
 from docopt import docopt
 from .Transformer import Transformer
-
+from functools import partial
 
 def parse_cmd_arguments(config, parameters):
-    """ returns a tuple of input-, output-filename and list of excluded
-    commands. optional parameters default to None """
-
     parse_string = """
 Usage:
   pretex <file> [--set <key>=<val>...] [--html] [-o <output_file>]
@@ -27,12 +24,10 @@ Examples:
 
     # parse config
     config_new = copy.deepcopy(config)
-    if args["--set"]:
-        for param in args["--set"]:
-            setting, value = param.split("=")
-            if setting not in config_new:
-                raise ValueError("Unknown setting '{}'".format(setting))
-            config_new[setting] = value
+    for setting, value in map(partial(str.split, sep="="), args["--set"]):
+        if setting not in config_new:
+            raise ValueError("Unknown setting '{}'".format(setting))
+        config_new[setting] = value
     config_new["html"] = {True: "enabled", False: "disabled"}[args["--html"]]
 
     # output filename
