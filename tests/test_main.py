@@ -8,7 +8,7 @@ import sys
 import os
 import io
 from pretex import pretex
-from pretex.Transformer import Transformer, get_document_contents
+from pretex.Transformer import Transformer, get_document_contents, strip_comments
 from pretex.Transformer import get_inside_str
 
 
@@ -26,7 +26,7 @@ def trans(request):
 
 
 class TestClass(object):
-    def test_get_file_parts_full(self, trans):
+    def test_get_document_contents_full(self, trans):
         test_string = get_inside_str(r'''
             header
             \begin{document}
@@ -44,7 +44,7 @@ class TestClass(object):
         assert get_document_contents(test_string) == expected
 
 
-    def test_get_file_parts_bare(self, trans):
+    def test_get_document_contents_bare(self, trans):
         test_string = get_inside_str(r'''
             %comment1
             text
@@ -54,6 +54,34 @@ class TestClass(object):
             ''')
         expected = ("", '%comment1\ntext\n%comment2a\n%comment2b\n$math$', "")
         assert get_document_contents(test_string) == expected
+
+
+    def test_strip_comments(self, trans):
+        test_string = get_inside_str(r'''
+            header
+            \begin{document}
+            %comment1
+            text
+            %comment2a
+            %comment2b
+            $math$
+            abc %comm
+            \end{document}
+            after document
+            ''')
+        expected = get_inside_str(r'''
+            header
+            \begin{document}
+            
+            text
+            
+            
+            $math$
+            abc 
+            \end{document}
+            after document
+            ''')
+        assert strip_comments(test_string) == expected
 
 
     def test_get_pretextec_tree_inline(self, trans):
@@ -85,21 +113,21 @@ class TestClass(object):
 
     def test_get_transformed_str_basic(self, trans):
         test_str = get_inside_str(r'''
-            a\begin{document}
-            text %comm 1
-            \begin{align}
-            a*b %comm 2
-            \end{align}
-            \end{document}b
-            ''')
+a\begin{document}
+text %comm 1
+\begin{align}
+a*b %comm 2
+\end{align}
+\end{document}b
+''')
         test_str_expected = get_inside_str(r'''
-            a\begin{document}
-            text %comm 1
-            \begin{align}
-            a\cdot b %comm 2
-            \end{align}
-            \end{document}b
-            ''')
+a\begin{document}
+text 
+\begin{align}
+a\cdot b 
+\end{align}
+\end{document}b
+''')
         result = trans.get_transformed_str(test_str)
         assert result == test_str_expected
 
@@ -384,15 +412,15 @@ class TestClass(object):
         assert test_file_content == r"$\frac{aa}{bb}$"
 
 
-    # def test_main_complex(self, monkeypatch):
-    #     monkeypatch.setattr(sys, 'argv', "xxx tests/test_file.tex --html --set auto_align=enabled --set brackets=enabled".split())
-    #     pretex.main()
-    #     with io.open("tests/test_file_t.tex", 'r', encoding='utf-8') as file_read:
-    #         test_file_content = file_read.read()
-    #     with io.open("tests/test_file_expected.tex", 'r', encoding='utf-8') as file_read:
-    #         test_expected_content = file_read.read()
-    #     assert test_file_content == test_expected_content
-    #     silent_remove("tests/test_file_t.tex")
+    def test_main_complex(self, monkeypatch):
+        monkeypatch.setattr(sys, 'argv', "xxx tests/test_file.tex --html --set auto_align=enabled --set brackets=enabled".split())
+        pretex.main()
+        with io.open("tests/test_file_t.tex", 'r', encoding='utf-8') as file_read:
+            test_file_content = file_read.read()
+        with io.open("tests/test_file_expected.tex", 'r', encoding='utf-8') as file_read:
+            test_expected_content = file_read.read()
+        assert test_file_content == test_expected_content
+        silent_remove("tests/test_file_t.tex")
     #
     #
     # def test_arxiv(self, monkeypatch):

@@ -12,7 +12,7 @@ from .trafos import transform_auto_align, transform_main
 def get_inside_str(s):
     return textwrap.dedent(s)[1:-1]
 
-def get_document_contents(file_str):
+def get_document_contents(file_str):    
     match_begin = re.search(r"\\begin\ *\{document\}", file_str)
     match_end = re.search(r"\\end\ *\{document\}", file_str)
     if match_begin and match_end:
@@ -25,6 +25,29 @@ def get_document_contents(file_str):
         document_content = file_str
 
     return before_document, document_content, after_document
+
+
+def strip_comments(ss):
+    lines = []
+    for line in ss.split("\n"):
+        lines.append( re.split(r"(?<!\\)%", line)[0] )
+    return "\n".join(lines)
+
+
+def hide_math_stuff(document_str):
+    pattern = re.compile(r"""
+          \\(?:text|label|mbox|textrm)
+          \ *?
+          \{(?:.|\n)*?\}
+        """, re.VERBOSE)
+
+    stuff_saved = []
+    def repl(match_obj):
+        stuff_saved.append(match_obj.group(0))
+        return "%e "
+    return_str = pattern.sub(repl, document_str)
+    return return_str, stuff_saved
+
 
 class Transformer(object):
     def __init__(self):
@@ -50,30 +73,6 @@ class Transformer(object):
         trafos.extend(trafos_main)
         trafos.extend(trafos_auto_align)
         return content, trafos
-
-
-    @staticmethod
-    def hide_math_stuff(document_str):
-        pattern_mtext = re.compile(r"""
-            (  # comments
-              (?<!\\)(?:%.*)
-              (?:\n%.*)*
-            | # labels etc
-              \\(?:text|label|mbox|textrm)
-              \ *?
-              \{(?:.|\n)*?\}
-            )
-            """, re.VERBOSE)
-
-        stuff_saved = []
-
-        def repl_matexts(match_obj):
-            return_str = "%{} ".format("c" if match_obj.group(0)[0]=="%" else "e")
-            stuff_saved.append(match_obj.group(0))
-            return return_str
-
-        repl_matexts.mtext_number = 0
-        return pattern_mtext.sub(repl_matexts, document_str), stuff_saved
 
 
     def get_pretextec_tree(self, document_str):
@@ -125,7 +124,8 @@ class Transformer(object):
 
     def get_transformed_tree(self, content, filename="unknown"):
         before_document, document_content, after_document = get_document_contents(content)
-        document_content, saved_stuff = self.hide_math_stuff(document_content)
+        document_content = strip_comments(document_content)
+        document_content, saved_stuff = hide_math_stuff(document_content)
         doc_tree = self.get_pretextec_tree(document_content)
 
         # Add the rest from document and insert header/footer at the edges
