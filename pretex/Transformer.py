@@ -6,6 +6,7 @@ import json
 import re
 import textwrap
 import pkg_resources
+from functools import partial
 from .trafos import transform_auto_align, transform_main
 
 
@@ -28,10 +29,9 @@ def get_document_contents(file_str):
 
 
 def strip_comments(ss):
-    lines = []
-    for line in ss.split("\n"):
-        lines.append( re.split(r"(?<!\\)%", line)[0] )
-    return "\n".join(lines)
+    def strip_line_comment(line):
+        return re.split(r"(?<!\\)%", line)[0]
+    return "\n".join(map(strip_line_comment, ss.split("\n")))
 
 
 def hide_math_stuff(document_str):
@@ -49,19 +49,18 @@ def hide_math_stuff(document_str):
     return return_str, stuff_saved
 
 
+def get_default_config():
+    config = {key: "enabled" for key in
+              ["arrow", "approx", "leq", "sub_superscript", "geq", "ll",
+               "gg", "neq", "cdot", "braket", "dots", "frac", "auto_align", "substack"]}
+    config.update({key: "disabled" for key in ["dot", "brackets", "html"]})
+    config["braket_style"] = "small"
+    return config
+
+
 class Transformer(object):
     def __init__(self):
-        self.config = self.get_default_config()
-
-
-    @staticmethod
-    def get_default_config():
-        config = {key: "enabled" for key in
-                  ["arrow", "approx", "leq", "sub_superscript", "geq", "ll",
-                   "gg", "neq", "cdot", "braket", "dots", "frac", "auto_align", "substack"]}
-        config.update({key: "disabled" for key in ["dot", "brackets", "html"]})
-        config["braket_style"] = "small"
-        return config
+        self.config = get_default_config()
 
 
     def get_transformed_math(self, content, env_type):

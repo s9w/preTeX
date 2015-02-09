@@ -8,7 +8,7 @@ import sys
 import os
 import io
 from pretex import pretex
-from pretex.Transformer import Transformer, get_document_contents, strip_comments
+from pretex.Transformer import Transformer, get_document_contents, strip_comments, get_default_config
 from pretex.Transformer import get_inside_str
 
 
@@ -133,7 +133,7 @@ a\cdot b
 
 
     def test_parse_filenames(self, trans):
-        default_config = trans.get_default_config()
+        default_config = get_default_config()
         with pytest.raises(SystemExit):
             pretex.parse_cmd_arguments(default_config, [])
         with pytest.raises(ValueError):
