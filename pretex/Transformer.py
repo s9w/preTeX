@@ -58,21 +58,21 @@ def get_default_config():
     return config
 
 
-class Transformer(object):
-    def __init__(self):
-        self.config = get_default_config()
-
-
-    def get_transformed_math(self, content, env_type):
+def get_transformed_math(content, config, env_type=None ):
         """ the actual transformations with the math contents """
 
         trafos = []
-        content, trafos_auto_align = transform_auto_align(content, self.config, env_type)
-        content, trafos_main = transform_main(content, self.config)
+        content, trafos_auto_align = transform_auto_align(content, config, env_type)
+        content, trafos_main = transform_main(content, config)
         trafos.extend(trafos_main)
         trafos.extend(trafos_auto_align)
         return content, trafos
 
+
+class Transformer(object):
+    def __init__(self):
+        self.config = get_default_config()
+        
 
     def get_pretextec_tree(self, document_str):
         re_extract_math = re.compile(r"""
@@ -109,7 +109,7 @@ class Transformer(object):
 
             # math part
             env_type = math_match.group("env_name") or "inline"
-            math_content, trafos = self.get_transformed_math(math_match.group("content"), env_type)
+            math_content, trafos = get_transformed_math(math_match.group("content"), self.config, env_type)
             doc_tree.append({"type": "math_env",
                              "content": math_content, "pretexes": trafos})
 

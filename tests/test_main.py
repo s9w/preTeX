@@ -8,7 +8,8 @@ import sys
 import os
 import io
 from pretex import pretex
-from pretex.Transformer import Transformer, get_document_contents, strip_comments, get_default_config
+from pretex.Transformer import Transformer, get_document_contents, strip_comments, get_default_config, \
+    get_transformed_math
 from pretex.Transformer import get_inside_str
 
 
@@ -172,7 +173,7 @@ a\cdot b
             (r"\tau_\alpha", "")
         ]
         for test_input, expected_output in test_cases:
-            output = trans.get_transformed_math(test_input, trans.config)
+            output = get_transformed_math(test_input, trans.config)
             assert output[0] == (expected_output or test_input)
 
 
@@ -188,7 +189,7 @@ a\cdot b
             (r"\int_n=1 ^42+x ", r"\int_{n=1} ^{42+x} ")
         ]
         for test_input, expected_output in test_cases:
-            output = trans.get_transformed_math(test_input, trans.config)
+            output = get_transformed_math(test_input, trans.config)
             assert output[0] == (expected_output or test_input)
 
 
@@ -200,7 +201,7 @@ a\cdot b
             (r"a^*b", "")
         ]
         for test_input, expected_output in test_cases:
-            assert trans.get_transformed_math(test_input, trans.config)[0] == (expected_output or test_input)
+            assert get_transformed_math(test_input, trans.config)[0] == (expected_output or test_input)
 
 
     def test_dots(self, trans):
@@ -209,7 +210,7 @@ a\cdot b
             (r"1,...,...b", r"1,\dots ,\dots b"),
             (r"a....b", r"a....b")]
         for test_input, expected_output in test_cases:
-            output = trans.get_transformed_math(test_input, trans.config)
+            output = get_transformed_math(test_input, trans.config)
             assert output[0] == expected_output
 
 
@@ -222,14 +223,14 @@ a\cdot b
             (r"\frac aa bb \frac aa bb", r"\frac{aa}{bb} \frac{aa}{bb}")
         ]
         for test_input, expected_output in test_cases:
-            assert trans.get_transformed_math(test_input, trans.config)[0] == expected_output
+            assert get_transformed_math(test_input, trans.config)[0] == expected_output
 
 
     def test_dot_normal(self, trans):
         trans.config["dot"] = "enabled"
         test_cases = [(r"a b. c", r"a \dot{b} c")]
         for test_input, expected_output in test_cases:
-            assert trans.get_transformed_math(test_input, trans.config)[0] == expected_output
+            assert get_transformed_math(test_input, trans.config)[0] == expected_output
 
 
     def test_re_ddot_easy(self, trans):
@@ -243,7 +244,7 @@ a\cdot b
             (r"f=f(x., x.., t)", r"f=f(\dot{x}, \ddot{x}, t)")
         ]
         for test_input, test_output in testcases:
-            result = trans.get_transformed_math(test_input, trans.config)
+            result = get_transformed_math(test_input, trans.config)
             assert result[0] == test_output
 
 
@@ -251,7 +252,7 @@ a\cdot b
         trans.config["dot"] = "enabled"
         invalid_testcases = [r"$\phi..b$", r"$a\vec x..b$", r"$a\vec{abc}..b$"]
         for test_input in invalid_testcases:
-            assert trans.get_transformed_math(test_input, trans.config)[0] == test_input
+            assert get_transformed_math(test_input, trans.config)[0] == test_input
 
         testcases = [
             (r"a \phi.. b", r"a \ddot{\phi} b"),
@@ -262,7 +263,7 @@ a\cdot b
             (r"a q_i.. b", r"a \ddot{q_i} b")
         ]
         for test_input, expected_output in testcases:
-            assert trans.get_transformed_math(test_input, trans.config)[0] == expected_output
+            assert get_transformed_math(test_input, trans.config)[0] == expected_output
 
 
     def test_braket(self, trans):
@@ -279,7 +280,7 @@ a\cdot b
         ]
 
         for test_input, test_output in testcases:
-            result = trans.get_transformed_math(test_input, trans.config)
+            result = get_transformed_math(test_input, trans.config)
             assert result[0] == test_output
 
 
@@ -289,7 +290,7 @@ a\cdot b
             (r"a ->^{1+1} b", r"a \xrightarrow{1+1} b"),
         ]
         for test_input, test_output in testcases:
-            result = trans.get_transformed_math(test_input, trans.config)
+            result = get_transformed_math(test_input, trans.config)
             assert result[0] == test_output
 
         trans.config["arrow"] = "conservative"
@@ -298,7 +299,7 @@ a\cdot b
             (r"a ->^{1+1} b", ""),
         ]
         for test_input, test_output in testcases:
-            result = trans.get_transformed_math(test_input, trans.config)
+            result = get_transformed_math(test_input, trans.config)
             assert result[0] == test_output or test_input
 
 
@@ -308,7 +309,7 @@ a\cdot b
             (r"\sum_{\substack{i<m \\ j<n}}", r""),
         ]
         for test_input, test_output in testcases:
-            result = trans.get_transformed_math(test_input, trans.config)
+            result = get_transformed_math(test_input, trans.config)
             assert result[0] == test_output or test_input
 
 
@@ -328,7 +329,7 @@ a\cdot b
 
         for name, test_input, test_output in test_cases:
             trans.config[name] = "enabled"
-            result = trans.get_transformed_math(test_input, trans.config)
+            result = get_transformed_math(test_input, trans.config)
             assert result[0] == test_output
 
 
@@ -364,14 +365,16 @@ a\cdot b
             x &= y
             '''
 
-        trans.config["auto_align"] = "enabled"
-        assert trans.get_transformed_math(test_string_1, "align")[0] == test_string_1_expected
-        assert trans.get_transformed_math(test_string_2, "align")[0] == test_string_2
-        assert trans.get_transformed_math(test_string_3, "align")[0] == test_string_3
-        assert trans.get_transformed_math(test_string_4, "align")[0] == test_string_4_expected
+        test_config = get_default_config()
+        test_config["auto_align"] = "enabled"
+        assert get_transformed_math(test_string_1, test_config, "align")[0] == test_string_1_expected
+        assert get_transformed_math(test_string_2, test_config, "align")[0] == test_string_2
+        assert get_transformed_math(test_string_3, test_config, "align")[0] == test_string_3
+        assert get_transformed_math(test_string_4, test_config, "align")[0] == test_string_4_expected
 
-        trans.config["auto_align"] = "disabled"
-        assert trans.get_transformed_math(test_string_1, "align")[0] == test_string_1
+        test_config = get_default_config()
+        test_config["auto_align"] = "disabled"
+        assert get_transformed_math(test_string_1, test_config, "align")[0] == test_string_1
 
 
     def test_skip(self, trans):
@@ -389,7 +392,7 @@ a\cdot b
         for test_input, exclude_cmds in invariant_inputs:
             for cmd in exclude_cmds:
                 trans.config[cmd] = "disabled"
-            assert trans.get_transformed_math(test_input, trans.config)[0] == test_input
+            assert get_transformed_math(test_input, trans.config)[0] == test_input
 
 
     @pytest.fixture(scope="module")
