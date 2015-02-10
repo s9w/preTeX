@@ -212,10 +212,7 @@ def transform_auto_align(math_string, config, env_type=None):
         return s == "" or s.isspace()
 
     def slashLine(line):
-        if "%c" in line:
-            return line.replace("%c ", r"\\ %c ")
-        else:
-            return line + r" \\" if not isempty(line) else ""
+        return line + r" \\" if not isempty(line) else ""
 
     trafos = []
     if env_type in ["align", "align*"] and config["auto_align"] != "disabled":
